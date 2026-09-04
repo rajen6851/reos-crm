@@ -359,9 +359,9 @@
             @endif
         </div>
 
-        <!-- TAB 5: Channel Partner Brokers Network -->
+        <!-- TAB 5: Brokers Network -->
         <div x-show="activeTab === 'brokers'" class="p-6 space-y-4">
-            <h3 class="section-heading text-base">Channel Partner Brokers Network</h3>
+            <h3 class="section-heading text-base">Brokers Network</h3>
 
             @if($companyBrokers->isEmpty())
                 <div class="p-6 text-center text-xs text-slate-400 font-medium bg-slate-50 rounded-2xl">

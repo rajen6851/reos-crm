@@ -1,6 +1,6 @@
 @extends('layouts.reos')
 
-@section('title', 'Channel Partner & Broker Portal – REOS')
+@section('title', 'Broker Portal – REOS')
 
 @section('content')
 <div class="space-y-6 pb-12 max-w-7xl mx-auto px-2 sm:px-4">
@@ -9,7 +9,7 @@
         <div>
             <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 uppercase tracking-wider border border-amber-200 mb-2">
                 <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                <span>Channel Partner Portal</span>
+                <span>Broker Portal</span>
             </div>
             <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
                 <span>{{ $broker->agency_name ?? $user->name }}</span>

@@ -44,7 +44,7 @@ class UserController extends Controller
 
         $rolesQuery = Role::where(function ($q) use ($user) {
             $q->whereNull('company_id')->orWhere('company_id', $user->company_id);
-        })->where('slug', '!=', 'broker');
+        })->whereNotIn('slug', ['broker', 'support_team', 'field_team']);
 
         if ($user->isManager()) {
             $rolesQuery->where('slug', 'sales_executive');
@@ -74,6 +74,10 @@ class UserController extends Controller
 
         $currentUser = Auth::user();
         $role = Role::findOrFail($validated['role_id']);
+
+        if (in_array($role->slug, ['broker', 'support_team', 'field_team'])) {
+            return back()->with('error', 'The selected role cannot be assigned to new staff members.');
+        }
 
         if ($currentUser->isManager() && $role->slug !== 'sales_executive') {
             return back()->with('error', 'Sales Managers can only create Sales Executive accounts.');

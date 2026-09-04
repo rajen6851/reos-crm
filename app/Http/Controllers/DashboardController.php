@@ -207,12 +207,15 @@ class DashboardController extends Controller
             return back()->with('error', 'Unauthorized.');
         }
 
+        $oldEmail = $company->email;
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'nullable|string|max:20',
             'subscription_plan_id' => 'nullable|exists:subscription_plans,id',
             'status' => 'nullable|in:active,suspended,pending_subscription,expired',
+            'password' => 'nullable|string|min:6',
         ]);
 
         $company->update([
@@ -222,6 +225,30 @@ class DashboardController extends Controller
             'subscription_plan_id' => $validated['subscription_plan_id'] ?? $company->subscription_plan_id,
             'status' => $validated['status'] ?? $company->status,
         ]);
+
+        $builderUser = User::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->where(function ($q) use ($company, $oldEmail) {
+                $q->where('email', $company->email)
+                  ->orWhere('email', $oldEmail)
+                  ->orWhereHas('role', function ($rq) {
+                      $rq->whereIn('slug', ['founder', 'director', 'admin']);
+                  });
+            })
+            ->first();
+
+        if ($builderUser) {
+            $userUpdate = [];
+            if ($builderUser->email !== $company->email) {
+                $userUpdate['email'] = $company->email;
+            }
+            if (!empty($validated['password'])) {
+                $userUpdate['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            }
+            if (!empty($userUpdate)) {
+                $builderUser->update($userUpdate);
+            }
+        }
 
         return back()->with('success', "Company '{$company->name}' details updated successfully!");
     }
@@ -369,14 +396,15 @@ class DashboardController extends Controller
         $roleSlugs = [
             'founder' => 'Founder / Director',
             'director' => 'Director',
-            'admin' => 'Company Admin',
-            'manager' => 'Sales Manager',
+            'admin' => 'Admin',
+            'manager' => 'Manager',
             'sales_executive' => 'Sales Executive',
             'field_team' => 'Field Executive',
             'support_team' => 'Support Desk',
             'broker' => 'Channel Partner / Broker',
         ];
 
+        $founderRole = null;
         $adminRole = null;
         foreach ($roleSlugs as $slug => $roleName) {
             $role = \App\Models\Role::create([
@@ -386,6 +414,9 @@ class DashboardController extends Controller
                 'description' => "{$roleName} role for {$company->name}",
             ]);
 
+            if ($slug === 'founder') {
+                $founderRole = $role;
+            }
             if ($slug === 'admin') {
                 $adminRole = $role;
             }
@@ -397,18 +428,18 @@ class DashboardController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
-            'role_id' => $adminRole?->id,
+            'role_id' => $founderRole?->id ?? $adminRole?->id,
         ]);
 
         \App\Services\AuditLogService::log(
             'company_created',
-            "SaaS Founder created new builder tenant company {$company->name} (Code: {$company->code}) with Admin account {$adminUser->email}.",
+            "SaaS Founder created new builder tenant company {$company->name} (Code: {$company->code}) with Founder/Owner account {$adminUser->email}.",
             $company,
             null,
             ['company_code' => $company->code, 'plan_id' => $company->subscription_plan_id]
         );
 
-        return redirect()->route('admin.companies.index')->with('success', "Tenant Builder Company '{$company->name}' onboarded successfully! Admin account '{$adminUser->email}' initialized.");
+        return redirect()->route('admin.companies.index')->with('success', "Tenant Builder Company '{$company->name}' onboarded successfully! Founder account '{$adminUser->email}' initialized.");
     }
 
     public function saasSubscriptions(Request $request)

@@ -6,6 +6,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CoApplicantController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -133,7 +134,15 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/support-tickets/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])->name('support-tickets.update-status');
     Route::delete('/support-tickets/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
 
-    // HRMS & Staff Attendance Module
+    // Internal & Broker Single and Group Chat System
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/conversations', [ChatController::class, 'fetchConversations'])->name('chat.conversations');
+    Route::get('/chat/{chat}/messages', [ChatController::class, 'fetchMessages'])->name('chat.messages');
+    Route::post('/chat/{chat}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/direct', [ChatController::class, 'startDirectChat'])->name('chat.direct');
+    Route::post('/chat/group', [ChatController::class, 'createGroupChat'])->name('chat.group');
+
+    // System Activity Audit Logs & HRMS Attendance Module
     Route::get('/hrms', [\App\Http\Controllers\HrmsController::class, 'index'])->name('hrms.index');
     Route::post('/hrms/clock-in', [\App\Http\Controllers\HrmsController::class, 'clockIn'])->name('hrms.clock-in');
     Route::post('/hrms/clock-out', [\App\Http\Controllers\HrmsController::class, 'clockOut'])->name('hrms.clock-out');

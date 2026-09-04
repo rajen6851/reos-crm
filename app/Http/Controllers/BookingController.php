@@ -78,7 +78,7 @@ class BookingController extends Controller
             // Email Notification to Company Admins & Managers
             $admins = User::where('company_id', Auth::user()->company_id)
                 ->whereHas('role', function ($q) {
-                    $q->whereIn('slug', ['company_admin', 'founder', 'director', 'sales_manager']);
+                    $q->whereIn('slug', ['admin', 'company_admin', 'founder', 'director', 'manager', 'sales_manager']);
                 })->get();
 
             foreach ($admins as $admin) {

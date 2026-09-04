@@ -70,24 +70,24 @@
             </div>
         </div>
 
-        <!-- Section 2: Company Admin Profile -->
+        <!-- Section 2: Company Founder & Owner Account -->
         <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
             <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
                 <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center font-bold text-lg">
                     <i class="fa-solid fa-user-tie"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-900">2. Initial Company Admin User Account</h3>
-                    <p class="text-xs text-slate-500">Account login credentials for the company owner or administrator</p>
+                    <h3 class="text-lg font-black text-slate-900">2. Initial Company Founder / Owner Account</h3>
+                    <p class="text-xs text-slate-500">Primary login credentials for the Builder Founder, Owner or Administrator</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Admin Full Name *</label>
-                    <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name') }}" required minlength="2" placeholder="Ramesh Gupta"
+                    <label class="block font-bold text-slate-700 mb-1">Founder / Owner Full Name *</label>
+                    <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name') }}" required minlength="2" placeholder="e.g. Ramesh Gupta"
                         class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:outline-none focus:border-indigo-600 font-bold">
-                    <span id="owner_error" class="text-[11px] text-rose-600 font-bold mt-1 hidden">Admin full name is required.</span>
+                    <span id="owner_error" class="text-[11px] text-rose-600 font-bold mt-1 hidden">Founder full name is required.</span>
                 </div>
 
                 <div>

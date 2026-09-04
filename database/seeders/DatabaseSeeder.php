@@ -79,11 +79,11 @@ class DatabaseSeeder extends Seeder
         $roleSlugs = [
             'founder' => 'Founder / Director',
             'director' => 'Director',
-            'admin' => 'Company Admin',
-            'manager' => 'Sales Manager',
+            'admin' => 'Admin',
+            'manager' => 'Manager',
             'sales_executive' => 'Sales Executive',
             'support_team' => 'Support Desk',
-            'broker' => 'Channel Partner / Broker',
+            'broker' => 'Broker',
         ];
 
         $roles1 = [];

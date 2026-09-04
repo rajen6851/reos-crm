@@ -236,7 +236,7 @@
                     <label class="form-label">Select Entity Category *</label>
                     <select id="entityCategorySelect" name="documentable_type" onchange="toggleEntityOptions()" required class="form-input">
                         <option value="App\Models\Lead">Customer / Purchaser (Lead)</option>
-                        <option value="App\Models\Broker">Channel Partner / Broker</option>
+                        <option value="App\Models\Broker">Broker</option>
                         <option value="App\Models\User">Company Staff / Employee</option>
                     </select>
                 </div>
@@ -252,7 +252,7 @@
                 </div>
 
                 <div id="brokerSelectWrapper" class="hidden">
-                    <label class="form-label">Select Channel Partner Broker *</label>
+                    <label class="form-label">Select Broker *</label>
                     <select id="brokerSelect" disabled name="documentable_id" class="form-input">
                         @foreach($brokers as $b)
                             <option value="{{ $b->id }}">{{ $b->agency_name }} ({{ $b->broker_code }} - {{ $b->phone }})</option>

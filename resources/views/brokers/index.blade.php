@@ -1,6 +1,6 @@
 @extends('layouts.reos')
 
-@section('title', 'Channel Partner Brokers Directory - REOS')
+@section('title', 'Brokers Directory - REOS')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
@@ -10,9 +10,9 @@
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
                 <span>›</span>
-                <span class="text-[#0F172A] font-bold">Channel Partners</span>
+                <span class="text-[#0F172A] font-bold">Brokers</span>
             </div>
-            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Channel Partner Brokers Directory</h1>
+            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Brokers Directory</h1>
             <p class="body-text text-xs text-[#64748B] mt-0.5">Manage external broker agencies, commission agreements, and track submitted lead conversions</p>
         </div>
 

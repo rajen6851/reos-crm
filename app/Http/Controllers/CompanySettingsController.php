@@ -38,7 +38,22 @@ class CompanySettingsController extends Controller
             'gstin' => 'nullable|string|max:50',
         ]);
 
-        $company->update($validated);
+        $settings = $company->settings ?? [];
+        if (isset($validated['rera_number'])) {
+            $settings['rera_number'] = $validated['rera_number'];
+        }
+        if (isset($validated['gstin'])) {
+            $settings['gstin'] = $validated['gstin'];
+        }
+
+        $company->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
+            'address' => $validated['address'],
+            'tax_number' => $validated['gstin'] ?? $company->tax_number,
+            'settings' => $settings,
+        ]);
 
         return back()->with('success', 'Company details and settings updated successfully!');
     }

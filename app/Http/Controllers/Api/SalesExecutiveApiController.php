@@ -219,7 +219,7 @@ class SalesExecutiveApiController extends Controller
             // Email Notification to Sales Managers / Admins
             $managers = \App\Models\User::where('company_id', $user->company_id)
                 ->whereHas('role', function ($q) {
-                    $q->whereIn('slug', ['sales_manager', 'company_admin', 'founder', 'director']);
+                    $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
                 })
                 ->where('id', '!=', $user->id)
                 ->get();

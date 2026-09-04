@@ -139,14 +139,14 @@
 
         <!-- RIGHT COLUMN (4 COLS: Assigned Agent & Preferences Cards) -->
         <div class="lg:col-span-4 space-y-6">
-            <!-- Assigned Agent Card (Exact Match to Reference Screenshot) -->
+            <!-- Assigned Sales Executive Card (Exact Match to Reference Screenshot) -->
             <div class="reos-card p-6 bg-white space-y-4">
-                <h3 class="section-heading text-base">Assigned Agent</h3>
+                <h3 class="section-heading text-base">Assigned Sales Executive</h3>
 
                 @php
                     $agent = $lead->assignedTo;
-                    $agentName = $agent->name ?? 'Jennifer Martinez';
-                    $agentRole = $agent->role->name ?? 'Senior Sales Agent';
+                    $agentName = $agent->name ?? 'Unassigned';
+                    $agentRole = $agent->role->name ?? 'Sales Executive';
                     $agentInitials = strtoupper(substr($agentName, 0, 2));
                 @endphp
                 <div class="p-4 rounded-2xl bg-slate-50 border border-[#E2E8F0] flex items-center space-x-3">
@@ -161,7 +161,7 @@
 
                 @can('assign-leads')
                 <button onclick="document.getElementById('changeAgentModal').classList.remove('hidden')" class="w-full py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] btn-text text-xs rounded-xl border border-[#E2E8F0] shadow-2xs transition flex items-center justify-center space-x-1 cursor-pointer">
-                    <span>Change Agent</span>
+                    <span>Re-assign Sales Executive</span>
                 </button>
                 @endcan
             </div>
@@ -246,7 +246,7 @@
 <div id="changeAgentModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
     <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
-            <h3 class="section-heading text-base">Re-assign Sales Agent</h3>
+            <h3 class="section-heading text-base">Re-assign Sales Executive</h3>
             <button onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
         </div>
 
@@ -256,7 +256,7 @@
                 <label class="form-label">Select Sales Executive *</label>
                 <select name="assigned_to_user_id" required class="form-input">
                     @foreach(\App\Models\User::where('company_id', $lead->company_id)->get() as $exec)
-                        <option value="{{ $exec->id }}" {{ $lead->assigned_to_user_id == $exec->id ? 'selected' : '' }}>{{ $exec->name }} ({{ $exec->role->name ?? 'Agent' }})</option>
+                        <option value="{{ $exec->id }}" {{ $lead->assigned_to_user_id == $exec->id ? 'selected' : '' }}>{{ $exec->name }} ({{ $exec->role->name ?? 'Sales Executive' }})</option>
                     @endforeach
                 </select>
             </div>

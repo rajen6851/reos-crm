@@ -1,6 +1,6 @@
 @extends('layouts.reos')
 
-@section('title', 'Company Director Dashboard – REOS')
+@section('title', 'Admin Dashboard – REOS')
 
 @section('content')
 <div class="space-y-6 pb-12">
@@ -9,7 +9,7 @@
         <div class="space-y-1.5">
             <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#059669] border border-emerald-200 uppercase tracking-wider">
                 <span class="w-2 h-2 rounded-full bg-[#059669] animate-pulse"></span>
-                <span>Enterprise Real Estate Operations</span>
+                <span>Builder Admin Dashboard</span>
             </div>
             <h1 class="page-heading flex items-center space-x-2">
                 <span>Good {{ date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening') }}, {{ strtok($user->name, ' ') }}</span>

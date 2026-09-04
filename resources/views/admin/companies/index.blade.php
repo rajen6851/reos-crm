@@ -369,6 +369,19 @@
                         </select>
                     </div>
                 </div>
+
+                <!-- Section 3: Reset Builder Founder Password (Optional) -->
+                <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2">
+                    <div class="text-[11px] font-extrabold uppercase text-amber-900 tracking-wider flex items-center space-x-1.5">
+                        <i class="fa-solid fa-key text-xs text-amber-600"></i>
+                        <span>3. Reset Builder Password (Optional)</span>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-[10px] text-amber-900 uppercase mb-1">New Account Password</label>
+                        <input type="password" id="edit_comp_password" name="password" minlength="6" placeholder="Leave blank to keep current password" class="w-full bg-white border border-amber-300 rounded-xl px-3 py-2 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#059669]">
+                        <span class="text-[10px] text-slate-500 mt-1 block">Min 6 characters. Enter a new password if requested by the builder.</span>
+                    </div>
+                </div>
             </form>
 
             <!-- Footer Actions -->
@@ -467,6 +480,7 @@
         document.getElementById('edit_comp_name').value = company.name || '';
         document.getElementById('edit_comp_email').value = company.email || '';
         document.getElementById('edit_comp_phone').value = company.phone || '';
+        document.getElementById('edit_comp_password').value = '';
         if (company.subscription_plan_id) {
             document.getElementById('edit_comp_plan').value = company.subscription_plan_id;
         }

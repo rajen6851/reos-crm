@@ -76,32 +76,32 @@
                 <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center"><i class="fa-solid fa-bolt text-emerald-600 mr-1"></i>1-Click Role-Specific Dashboards</div>
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     <button type="button" onclick="quickLogin('founder@reos.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-indigo-700 font-bold rounded-xl text-left transition col-span-2">
-                        <i class="fa-solid fa-crown text-amber-500 mr-1"></i>SaaS SuperAdmin Founder
+                        <i class="fa-solid fa-crown text-amber-500 mr-1"></i>SaaS Super Admin
                         <span class="block text-[10px] text-slate-500 font-normal">Platform Revenue, SaaS Plans & Tenant Companies</span>
                     </button>
 
                     <button type="button" onclick="quickLogin('director@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-blue-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-building-columns text-blue-600 mr-1"></i>Company Director
+                        <i class="fa-solid fa-building-columns text-blue-600 mr-1"></i>Founder / Director
                         <span class="block text-[10px] text-slate-500 font-normal">Full Company & Strategic Control</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('rajendrarajput72339@gmail.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-purple-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-building text-purple-600 mr-1"></i>Company Admin
+                    <button type="button" onclick="quickLogin('admin@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-purple-700 font-bold rounded-xl text-left transition">
+                        <i class="fa-solid fa-building text-purple-600 mr-1"></i>Admin
                         <span class="block text-[10px] text-slate-500 font-normal">Team & Projects Control</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('gruopkaizen@gmail.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-emerald-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-user-tie text-emerald-600 mr-1"></i>Sales Manager
+                    <button type="button" onclick="quickLogin('manager@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-emerald-700 font-bold rounded-xl text-left transition">
+                        <i class="fa-solid fa-user-tie text-emerald-600 mr-1"></i>Manager
                         <span class="block text-[10px] text-slate-500 font-normal">CRM & Live Inventory</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('cakesdekho@gmail.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-amber-800 font-bold rounded-xl text-left transition">
+                    <button type="button" onclick="quickLogin('sales@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-amber-800 font-bold rounded-xl text-left transition">
                         <i class="fa-solid fa-briefcase text-amber-700 mr-1"></i>Sales Executive
                         <span class="block text-[10px] text-slate-500 font-normal">Assigned Leads & Calls</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('rajendrarajput39756@gmail.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-sky-700 font-bold rounded-xl text-left transition col-span-2 sm:col-span-1">
-                        <i class="fa-solid fa-handshake text-sky-600 mr-1"></i>Broker Partner
+                    <button type="button" onclick="quickLogin('broker@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-sky-700 font-bold rounded-xl text-left transition col-span-2 sm:col-span-1">
+                        <i class="fa-solid fa-handshake text-sky-600 mr-1"></i>Broker
                         <span class="block text-[10px] text-slate-500 font-normal">Submit Leads & Track Status</span>
                     </button>
                 </div>
@@ -112,7 +112,7 @@
     <script>
         function quickLogin(email) {
             document.getElementById('email').value = email;
-            document.getElementById('password').value = 'password';
+            document.getElementById('password').value = 'password123';
             document.getElementById('loginForm').submit();
         }
     </script>

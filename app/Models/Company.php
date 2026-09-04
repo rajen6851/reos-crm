@@ -28,6 +28,16 @@ class Company extends Model
         'subscription_expires_at' => 'datetime',
     ];
 
+    public function getReraNumberAttribute()
+    {
+        return $this->settings['rera_number'] ?? null;
+    }
+
+    public function getGstinAttribute()
+    {
+        return $this->tax_number ?? ($this->settings['gstin'] ?? null);
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

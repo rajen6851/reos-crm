@@ -126,9 +126,19 @@
                                 </div>
                             </td>
                             <td class="p-4">
+                                @php
+                                    $displayRoleName = match($u->role?->slug) {
+                                        'founder' => 'Founder / Director',
+                                        'director' => 'Director',
+                                        'admin' => 'Admin',
+                                        'manager', 'sales_manager' => 'Manager',
+                                        'sales_executive', 'executive' => 'Sales Executive',
+                                        default => ($u->role->name ?? 'Internal Staff'),
+                                    };
+                                @endphp
                                 <span class="px-3 py-1 text-xs font-bold rounded-full bg-indigo-50 text-[#4F46E5] border border-indigo-200 inline-flex items-center space-x-1">
                                     <i class="fa-solid fa-user-tie text-[#4F46E5] mr-1"></i>
-                                    <span>{{ $u->role->name ?? 'Internal Staff' }}</span>
+                                    <span>{{ $displayRoleName }}</span>
                                 </span>
                             </td>
                             <td class="p-4 text-xs font-medium text-slate-700">

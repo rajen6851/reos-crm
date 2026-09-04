@@ -260,7 +260,7 @@ class LeadController extends Controller
             // Email Notification to Sales Managers / Admins for status update
             $managers = User::where('company_id', Auth::user()->company_id)
                 ->whereHas('role', function ($q) {
-                    $q->whereIn('slug', ['sales_manager', 'company_admin', 'founder', 'director']);
+                    $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
                 })
                 ->where('id', '!=', Auth::id())
                 ->get();
@@ -364,7 +364,7 @@ class LeadController extends Controller
         // Email Notification to Sales Managers & Admins when Sales Executive logs work
         $managers = User::where('company_id', Auth::user()->company_id)
             ->whereHas('role', function ($q) {
-                $q->whereIn('slug', ['sales_manager', 'company_admin', 'founder', 'director']);
+                $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
             })
             ->where('id', '!=', Auth::id())
             ->get();

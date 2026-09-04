@@ -164,7 +164,7 @@
                 @if(auth()->user()->isBroker())
                     <span class="text-xs font-bold text-emerald-900 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 flex items-center space-x-1.5">
                         <i class="fa-solid fa-globe text-emerald-600"></i>
-                        <span>Channel Partner Network</span>
+                        <span>Broker Network</span>
                     </span>
                 @elseif(auth()->user()->is_super_admin)
                     <span class="text-xs font-bold text-purple-900 bg-purple-50 px-3 py-1 rounded-lg border border-purple-200 flex items-center space-x-1.5">
@@ -211,8 +211,20 @@
                     </div>
                     <div class="hidden lg:block text-left">
                         <div class="text-xs font-bold text-[#0F172A] leading-tight group-hover:text-[#059669] transition">{{ auth()->user()->name }}</div>
+                        @php
+                            $headerRoleTitle = match(auth()->user()->role?->slug) {
+                                'founder', 'director', 'admin' => 'Admin',
+                                'manager', 'sales_manager' => 'Manager',
+                                'sales_executive', 'executive' => 'Sales Executive',
+                                'broker' => 'Broker',
+                                default => (auth()->user()->role->name ?? 'User'),
+                            };
+                            if (auth()->user()->is_super_admin) {
+                                $headerRoleTitle = 'SaaS Founder';
+                            }
+                        @endphp
                         <div class="text-[10px] font-medium text-slate-400 leading-tight">
-                            {{ auth()->user()->is_super_admin ? 'SaaS Founder' : (auth()->user()->role->name ?? 'User') }}
+                            {{ $headerRoleTitle }}
                         </div>
                     </div>
                 </a>
@@ -252,6 +264,12 @@
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('dashboard') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
                     <i class="fa-solid fa-house text-xs w-4 text-center {{ request()->routeIs('dashboard') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Dashboard</span>
+                </a>
+
+                <!-- 1.1 Team & Broker Chat -->
+                <a href="{{ route('chat.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
+                    <i class="fa-solid fa-comments text-xs w-4 text-center {{ request()->routeIs('chat.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
+                    <span>Team Chat</span>
                 </a>
 
                 @if($isFounder)
@@ -335,10 +353,10 @@
                 </a>
 
                 @if($isAdmin || $isManager)
-                <!-- Channel Partners / Brokers -->
+                <!-- Brokers -->
                 <a href="{{ route('brokers.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('brokers.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-handshake text-xs w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Channel Partners</span>
+                    <span>Brokers</span>
                 </a>
 
                 <!-- HRMS & Staff Attendance -->
@@ -463,5 +481,77 @@
             @yield('content')
         </main>
     </div>
+
+    <!-- Firebase Web SDK & FCM Real-Time Push Notification Engine -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "{{ config('firebase.api_key') }}",
+            authDomain: "{{ config('firebase.auth_domain') }}",
+            projectId: "{{ config('firebase.project_id') }}",
+            storageBucket: "{{ config('firebase.storage_bucket') }}",
+            messagingSenderId: "{{ config('firebase.messaging_sender_id') }}",
+            appId: "{{ config('firebase.app_id') }}"
+        };
+
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+
+            if ('serviceWorker' in navigator && firebase.messaging.isSupported()) {
+                const messaging = firebase.messaging();
+
+                // Register Background Service Worker
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then((registration) => {
+                        messaging.useServiceWorker(registration);
+
+                        // Request Notification Permission
+                        Notification.requestPermission().then((permission) => {
+                            if (permission === 'granted') {
+                                messaging.getToken().then((currentToken) => {
+                                    if (currentToken) {
+                                        // Auto-register FCM device token to user account via API
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                                        fetch('/api/v1/fcm-token', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Accept': 'application/json',
+                                                'X-CSRF-TOKEN': csrfToken
+                                            },
+                                            body: JSON.stringify({ fcm_token: currentToken })
+                                        }).catch(err => console.log('FCM token registration background sync silent pass'));
+                                    }
+                                });
+                            }
+                        });
+                    }).catch(err => console.log('SW registration error:', err));
+
+                // Foreground Notification Toast
+                messaging.onMessage((payload) => {
+                    console.log('Foreground FCM Push Received: ', payload);
+                    const title = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'REOS Alert');
+                    const body = payload.notification ? payload.notification.body : (payload.data ? payload.data.body : '');
+
+                    // Display sleek toast notification
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-5 right-5 z-50 p-4 rounded-2xl bg-slate-900 text-white shadow-2xl border border-slate-700 flex items-center space-x-3 max-w-sm transition transform translate-y-0 opacity-100';
+                    toast.innerHTML = `
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold truncate">${title}</h4>
+                            <p class="text-[11px] text-slate-300 truncate">${body}</p>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold ml-2">✕</button>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => { if (toast) toast.remove(); }, 6000);
+                });
+            }
+        }
+    </script>
 </body>
 </html>
