@@ -4,13 +4,14 @@ importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-comp
 
 // Initialize Firebase App in Service Worker
 firebase.initializeApp({
-  apiKey: "AIzaSyDevaG-S-L6_FbHUoJbwz3ZHIbRBmG1zNA",
-  authDomain: "reos-77a5c.firebaseapp.com",
-  databaseURL: "https://reos-77a5c-default-rtdb.firebaseio.com",
-  projectId: "reos-77a5c",
-  storageBucket: "reos-77a5c.firebasestorage.app",
-  messagingSenderId: "623967369316",
-  appId: "1:623967369316:web:57e8ba8c82ef4a08a74771"
+  apiKey: "AIzaSyAPj-_g0FhEG9twwv0WjmOFB-5FK5nT3HI",
+  authDomain: "reos-crm-69d5a.firebaseapp.com",
+  databaseURL: "https://reos-crm-69d5a-default-rtdb.firebaseio.com",
+  projectId: "reos-crm-69d5a",
+  storageBucket: "reos-crm-69d5a.firebasestorage.app",
+  messagingSenderId: "831733538173",
+  appId: "1:831733538173:web:cf677b2b94d10a50368014",
+  measurementId: "G-486TQK0JPR"
 });
 
 const messaging = firebase.messaging();

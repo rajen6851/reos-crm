@@ -489,10 +489,12 @@
         const firebaseConfig = {
             apiKey: "{{ config('firebase.api_key') }}",
             authDomain: "{{ config('firebase.auth_domain') }}",
+            databaseURL: "{{ config('firebase.database_url') }}",
             projectId: "{{ config('firebase.project_id') }}",
             storageBucket: "{{ config('firebase.storage_bucket') }}",
             messagingSenderId: "{{ config('firebase.messaging_sender_id') }}",
-            appId: "{{ config('firebase.app_id') }}"
+            appId: "{{ config('firebase.app_id') }}",
+            measurementId: "{{ config('firebase.measurement_id') }}"
         };
 
         if (typeof firebase !== 'undefined') {
