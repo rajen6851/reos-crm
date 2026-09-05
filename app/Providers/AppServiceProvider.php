@@ -29,21 +29,27 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Register Granular Security Permission Gates
-        Gate::define('manage-users', fn (User $user) => $user->hasPermission('manage-users') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('manage-projects', fn (User $user) => $user->hasPermission('manage-projects') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('manage-inventory', fn (User $user) => $user->hasPermission('manage-projects') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('manage-leads', fn (User $user) => $user->hasPermission('manage-leads') || !$user->isBroker());
-        Gate::define('assign-leads', fn (User $user) => $user->hasPermission('assign-leads') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('approve-bookings', fn (User $user) => $user->hasPermission('approve-bookings') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('approve-agreement-skips', fn (User $user) => $user->hasPermission('approve-agreement-skips') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('manage-commissions', fn (User $user) => $user->hasPermission('manage-commissions') || $user->isCompanyAdmin() || $user->isManager());
-        Gate::define('process-payouts', fn (User $user) => $user->hasPermission('process-payouts') || $user->isCompanyAdmin() || $user->isManager());
+        Gate::define('manage-users', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('manage-projects', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
+        Gate::define('manage-inventory', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('manage-leads', fn (User $user) => !$user->isBroker());
+        Gate::define('assign-leads', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('approve-bookings', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('approve-agreements', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('manage-commissions', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
         Gate::define('broker-access', fn (User $user) => $user->isBroker());
 
-        // HRMS, Reports & Settings Security Gates
-        Gate::define('manage-hrms', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
-        Gate::define('manage-company-settings', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
+        // Director & Founder Approval Dual-Auth High-Risk Gates
+        Gate::define('approve-agreement-skips', fn (User $user) => $user->isDirectorOrFounder());
+        Gate::define('process-payouts', fn (User $user) => $user->isDirectorOrFounder());
+        Gate::define('manage-company-settings', fn (User $user) => $user->isDirectorOrFounder());
+        Gate::define('director-approval', fn (User $user) => $user->isDirectorOrFounder());
+
+        // HRMS, Financials, Reports & Settings Security Gates
+        Gate::define('manage-hrms', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
         Gate::define('view-executive-reports', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('view-financials', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
+        Gate::define('view-activity-logs', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
 
         // Register Morph Map for KYC Documentable Types
         \Illuminate\Database\Eloquent\Relations\Relation::morphMap([

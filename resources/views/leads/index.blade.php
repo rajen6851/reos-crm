@@ -33,6 +33,7 @@
                 </button>
             </div>
 
+            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
             <a href="{{ route('leads.export', request()->all()) }}" class="px-3.5 py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] border border-[#E2E8F0] btn-text text-xs rounded-xl transition shadow-2xs">
                 <i class="fa-solid fa-download mr-1 text-slate-400"></i>Export CSV
             </a>
@@ -40,9 +41,10 @@
             <button onclick="document.getElementById('importCsvModal').classList.remove('hidden')" class="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-[#059669] border border-emerald-200 btn-text text-xs rounded-xl transition shadow-2xs cursor-pointer">
                 <i class="fa-solid fa-upload mr-1"></i>Import CSV
             </button>
+            @endif
 
             <button onclick="document.getElementById('createLeadModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl transition shadow-xs flex items-center space-x-1.5 cursor-pointer">
-                <i class="fa-solid fa-[#DC2626] fa-plus text-xs"></i>
+                <i class="fa-solid fa-plus text-xs"></i>
                 <span>+ Add Lead</span>
             </button>
         </div>
@@ -202,7 +204,7 @@
                             <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 transition flex items-center space-x-1">
                                 <i class="fa-solid fa-phone text-indigo-600 mr-1"></i>Call
                             </button>
-                            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->role?->slug === 'founder')
+                            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
                             <form method="POST" action="{{ route('leads.destroy', $lead->id) }}" onsubmit="return confirm('Delete lead {{ $lead->lead_code }}?');">
                                 @csrf
                                 @method('DELETE')
@@ -344,7 +346,7 @@
                                     <span>History</span>
                                 </button>
 
-                                @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->role?->slug === 'founder')
+                                @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
                                 <form method="POST" action="{{ route('leads.destroy', $lead->id) }}" onsubmit="return confirm('Delete lead {{ $lead->lead_code }}?');" class="inline-block">
                                     @csrf
                                     @method('DELETE')

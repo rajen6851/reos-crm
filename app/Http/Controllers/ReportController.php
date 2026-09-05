@@ -14,6 +14,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('view-executive-reports');
         $user = Auth::user();
         $companyId = $user->company_id;
 

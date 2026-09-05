@@ -162,7 +162,7 @@ class ProjectController extends Controller
 
     public function updateUnitStatus(Request $request, Unit $unit)
     {
-        Gate::authorize('manage-projects');
+        Gate::authorize('manage-inventory');
 
         $request->validate(['status' => 'required|string']);
 
@@ -278,11 +278,37 @@ class ProjectController extends Controller
             }, 'units' => function ($uq) {
                 $uq->withoutGlobalScopes();
             }])->findOrFail($id);
+
+            $recentBookings = \App\Models\Booking::withoutGlobalScopes()
+                ->where('project_id', $project->id)
+                ->with(['lead', 'unit' => fn($q) => $q->withoutGlobalScopes(), 'salesUser', 'broker'])
+                ->latest()
+                ->take(15)
+                ->get();
+
+            $projectLeads = \App\Models\Lead::withoutGlobalScopes()
+                ->where('interested_project_id', $project->id)
+                ->with('assignedTo')
+                ->latest()
+                ->take(15)
+                ->get();
         } else {
             $project = $query->findOrFail($id);
+
+            $recentBookings = \App\Models\Booking::where('project_id', $project->id)
+                ->with(['lead', 'unit', 'salesUser', 'broker'])
+                ->latest()
+                ->take(15)
+                ->get();
+
+            $projectLeads = \App\Models\Lead::where('interested_project_id', $project->id)
+                ->with('assignedTo')
+                ->latest()
+                ->take(15)
+                ->get();
         }
 
-        return view('projects.show', compact('project'));
+        return view('projects.show', compact('project', 'recentBookings', 'projectLeads'));
     }
 
     public function updateUnit(Request $request, Unit $unit)

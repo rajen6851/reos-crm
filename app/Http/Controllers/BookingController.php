@@ -37,9 +37,7 @@ class BookingController extends Controller
 
     public function store(Request $request, BookingService $bookingService, LeadService $leadService)
     {
-        if (Auth::user()->isBroker()) {
-            return redirect()->route('dashboard');
-        }
+        Gate::authorize('approve-bookings');
 
         $validated = $request->validate([
             'unit_id' => 'required|exists:units,id',

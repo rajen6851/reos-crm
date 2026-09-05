@@ -139,7 +139,7 @@
 
         <!-- Content -->
         <div class="content">
-            <div class="greeting">Welcome aboard, {{ $user->name }}! 👋</div>
+            <div class="greeting">Welcome aboard, {{ $user->name }}!</div>
             <p class="intro">
                 Your staff account has been created successfully for <strong>{{ $user->company->name ?? 'REOS CRM' }}</strong>. 
                 You can now log in to access your CRM dashboard and manage your real estate operations.
@@ -172,7 +172,7 @@
 
             <!-- Security Notice -->
             <div class="security-notice">
-                🔒 <strong>Security Tip:</strong> For your security, please log in with your temporary password and immediately update your password under your Profile settings.
+                <strong>Security Tip:</strong> For your security, please log in with your temporary password and immediately update your password under your Profile settings.
             </div>
         </div>
 

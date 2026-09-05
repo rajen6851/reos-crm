@@ -15,9 +15,27 @@ class KycDocumentController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->isBroker()) {
+            return redirect()->route('dashboard');
+        }
+
         $query = KycDocument::with('documentable')->latest();
         if (!$user->isSaaSFounder()) {
             $query->where('company_id', $user->company_id);
+        }
+
+        // Sales Executive Privacy Scope: view docs of assigned leads or self
+        if ($user->isSales()) {
+            $assignedLeadIds = Lead::where('assigned_to_user_id', $user->id)->pluck('id')->toArray();
+            $query->where(function ($q) use ($user, $assignedLeadIds) {
+                $q->where(function ($lq) use ($assignedLeadIds) {
+                    $lq->whereIn('documentable_type', ['App\Models\Lead', 'Customer', 'Lead'])
+                       ->whereIn('documentable_id', $assignedLeadIds);
+                })->orWhere(function ($uq) use ($user) {
+                    $uq->whereIn('documentable_type', ['App\Models\User', 'User'])
+                       ->where('documentable_id', $user->id);
+                });
+            });
         }
 
         $documents = $query->get();
@@ -25,7 +43,7 @@ class KycDocumentController extends Controller
         $expiredCount = KycDocument::where('expiry_date', '<', now())->count();
         $expiringSoonCount = KycDocument::whereBetween('expiry_date', [now(), now()->addDays(30)])->count();
 
-        $leads = Lead::where('company_id', $user->company_id)->get();
+        $leads = $user->isSales() ? Lead::where('assigned_to_user_id', $user->id)->get() : Lead::where('company_id', $user->company_id)->get();
         $brokers = Broker::where('company_id', $user->company_id)->get();
         $teamUsers = User::where('company_id', $user->company_id)->get();
 
@@ -43,6 +61,10 @@ class KycDocumentController extends Controller
         ]);
 
         $user = Auth::user();
+        if ($user->isBroker()) {
+            return back()->with('error', 'Brokers cannot upload internal KYC documents.');
+        }
+
         $file = $request->file('document_file');
         $filePath = $file->store('kyc_documents', 'public');
 
@@ -63,6 +85,12 @@ class KycDocumentController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+
+        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
+            return back()->with('error', 'Unauthorized. Only Admins and Managers can delete KYC documents.');
+        }
+
         $doc = KycDocument::findOrFail($id);
         $doc->delete();
 

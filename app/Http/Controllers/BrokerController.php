@@ -199,6 +199,10 @@ class BrokerController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->isSales() || $user->isBroker()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Brokers Directory is reserved for Admins and Managers.');
+        }
+
         // Bypassing tenant scope for SuperAdmin Founder to view all global brokers
         $query = $user->isSaaSFounder()
             ? Broker::withoutGlobalScopes()->with(['user', 'company'])

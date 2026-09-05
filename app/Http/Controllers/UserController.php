@@ -28,7 +28,7 @@ class UserController extends Controller
         // Sales Managers can only manage Sales Executives
         if ($user->isManager()) {
             $query->whereHas('role', function ($q) {
-                $q->where('slug', 'sales_executive');
+                $q->whereIn('slug', ['sales_executive', 'executive']);
             });
         }
 
@@ -47,7 +47,10 @@ class UserController extends Controller
         })->whereNotIn('slug', ['broker', 'support_team', 'field_team']);
 
         if ($user->isManager()) {
-            $rolesQuery->where('slug', 'sales_executive');
+            $rolesQuery->whereIn('slug', ['sales_executive', 'executive']);
+        } elseif (!$user->isDirectorOrFounder()) {
+            // Standard Company Admins cannot assign or view Director/Founder roles
+            $rolesQuery->whereNotIn('slug', ['director', 'founder']);
         }
 
         $roles = $rolesQuery->get();
@@ -79,8 +82,12 @@ class UserController extends Controller
             return back()->with('error', 'The selected role cannot be assigned to new staff members.');
         }
 
-        if ($currentUser->isManager() && $role->slug !== 'sales_executive') {
-            return back()->with('error', 'Sales Managers can only create Sales Executive accounts.');
+        if ($currentUser->isManager() && !in_array($role->slug, ['sales_executive', 'executive'])) {
+            return back()->with('error', 'Managers can only create Sales Executive accounts.');
+        }
+
+        if (!$currentUser->isDirectorOrFounder() && in_array($role->slug, ['director', 'founder'])) {
+            return back()->with('error', 'Unauthorized. Only Directors and Founders can create Director or Founder user accounts.');
         }
 
         $newUser = User::create([
@@ -126,8 +133,8 @@ class UserController extends Controller
         Gate::authorize('manage-users');
 
         $currentUser = Auth::user();
-        if ($currentUser->isManager() && $user->role?->slug !== 'sales_executive') {
-            return back()->with('error', 'Sales Managers can only edit Sales Executive accounts.');
+        if ($currentUser->isManager() && !in_array($user->role?->slug, ['sales_executive', 'executive'])) {
+            return back()->with('error', 'Managers can only edit Sales Executive accounts.');
         }
 
         $validated = $request->validate([
@@ -142,8 +149,12 @@ class UserController extends Controller
         ]);
 
         $targetRole = Role::findOrFail($validated['role_id']);
-        if ($currentUser->isManager() && $targetRole->slug !== 'sales_executive') {
-            return back()->with('error', 'Sales Managers can only assign the Sales Executive role.');
+        if ($currentUser->isManager() && !in_array($targetRole->slug, ['sales_executive', 'executive'])) {
+            return back()->with('error', 'Managers can only assign the Sales Executive role.');
+        }
+
+        if (!$currentUser->isDirectorOrFounder() && in_array($targetRole->slug, ['director', 'founder'])) {
+            return back()->with('error', 'Unauthorized. Only Directors and Founders can assign Director or Founder roles.');
         }
 
         $updateData = [
@@ -170,8 +181,12 @@ class UserController extends Controller
         Gate::authorize('manage-users');
 
         $currentUser = Auth::user();
-        if ($currentUser->isManager() && $user->role?->slug !== 'sales_executive') {
-            return back()->with('error', 'Sales Managers can only delete Sales Executive accounts.');
+        if ($currentUser->isManager() && !in_array($user->role?->slug, ['sales_executive', 'executive'])) {
+            return back()->with('error', 'Managers can only delete Sales Executive accounts.');
+        }
+
+        if (!$currentUser->isDirectorOrFounder() && in_array($user->role?->slug, ['director', 'founder'])) {
+            return back()->with('error', 'Unauthorized. Only Directors and Founders can delete Director or Founder user accounts.');
         }
 
         if (Auth::id() === $user->id) {

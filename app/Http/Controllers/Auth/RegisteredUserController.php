@@ -63,7 +63,7 @@ class RegisteredUserController extends Controller
                 'founder' => 'Founder / Director',
                 'director' => 'Director',
                 'admin' => 'Company Admin',
-                'manager' => 'Sales Manager',
+                'manager' => 'Manager',
                 'sales_executive' => 'Sales Executive',
                 'field_team' => 'Field Executive',
                 'support_team' => 'Support Desk',

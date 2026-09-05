@@ -55,7 +55,7 @@
     <div class="reos-card p-6 bg-white space-y-4">
         <div class="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
             <div class="flex items-center space-x-2">
-                <span class="w-6 h-6 rounded-lg bg-indigo-50 text-[#4F46E5] flex items-center justify-center font-bold text-xs">✨</span>
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 text-[#4F46E5] flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-wand-magic-sparkles text-[#4F46E5]"></i></span>
                 <div>
                     <h2 class="section-heading text-base flex items-center space-x-2">
                         <span>AI Account Intelligence</span>

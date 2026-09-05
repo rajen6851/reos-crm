@@ -111,7 +111,13 @@ class SupportTicketController extends Controller
 
     public function show($id)
     {
+        $user = auth()->user();
         $ticket = SupportTicket::withoutGlobalScopes()->with(['company', 'user', 'assignedTo', 'replies.user'])->findOrFail($id);
+
+        if (($user->isSales() || $user->isBroker()) && $ticket->user_id !== $user->id) {
+            return redirect()->route('support-tickets.index')->with('error', 'Unauthorized access. You can only view your own support tickets.');
+        }
+
         $agents = User::where('company_id', $ticket->company_id)
             ->whereDoesntHave('role', function ($q) {
                 $q->where('slug', 'broker');
@@ -123,7 +129,12 @@ class SupportTicketController extends Controller
 
     public function reply(Request $request, $id)
     {
+        $user = auth()->user();
         $ticket = SupportTicket::withoutGlobalScopes()->with('user')->findOrFail($id);
+
+        if (($user->isSales() || $user->isBroker()) && $ticket->user_id !== $user->id) {
+            return redirect()->route('support-tickets.index')->with('error', 'Unauthorized access. You can only reply to your own support tickets.');
+        }
 
         $request->validate([
             'message' => 'required|string',
@@ -131,23 +142,23 @@ class SupportTicketController extends Controller
 
         SupportTicketReply::create([
             'support_ticket_id' => $ticket->id,
-            'user_id' => auth()->user()->id,
+            'user_id' => $user->id,
             'message' => $request->message,
             'is_internal_note' => $request->has('is_internal_note') ? true : false,
         ]);
 
         // Auto update status if resolved/in_progress based on user role
-        if ($ticket->status === 'open' && (auth()->user()->isManager() || auth()->user()->isCompanyAdmin())) {
+        if ($ticket->status === 'open' && ($user->isManager() || $user->isCompanyAdmin())) {
             $ticket->update(['status' => 'in_progress']);
         }
 
         // Email Notification to Ticket Creator if reply is not by creator and not internal
-        if (auth()->id() !== $ticket->user_id && !$request->has('is_internal_note')) {
+        if ($user->id !== $ticket->user_id && !$request->has('is_internal_note')) {
             app(\App\Services\NotificationService::class)->notify(
                 $ticket->user,
                 'support_ticket_reply',
                 "💬 New Reply on Ticket #{$ticket->ticket_number}",
-                "Hello {$ticket->user->name}, a new reply was posted on your support ticket #{$ticket->ticket_number} by " . auth()->user()->name . ".",
+                "Hello {$ticket->user->name}, a new reply was posted on your support ticket #{$ticket->ticket_number} by " . $user->name . ".",
                 url("/support-tickets/{$ticket->id}")
             );
         }
@@ -159,6 +170,12 @@ class SupportTicketController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        $user = auth()->user();
+
+        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
+            return back()->with('error', 'Unauthorized. Only Admins and Managers can update ticket status.');
+        }
+
         $ticket = SupportTicket::findOrFail($id);
 
         $request->validate([

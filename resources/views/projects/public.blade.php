@@ -279,7 +279,8 @@
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold rounded-xl transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
-                    <span>📩 Submit Inquiry & Request Call Back</span>
+                    <i class="fa-solid fa-paper-plane mr-1"></i>
+                    <span>Submit Inquiry & Request Call Back</span>
                 </button>
             </form>
         </div> -->

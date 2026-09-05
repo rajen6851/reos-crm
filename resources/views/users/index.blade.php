@@ -17,7 +17,7 @@
                 <p class="body-text text-xs text-[#64748B] mt-0.5">Add and manage internal Sales Executives for {{ auth()->user()->company->name ?? 'Company' }}</p>
             @else
                 <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Company Team & Staff Management</h1>
-                <p class="body-text text-xs text-[#64748B] mt-0.5">Add and manage internal Sales Managers, Sales Executives, and Support Staff for {{ auth()->user()->company->name ?? 'Company' }}</p>
+                <p class="body-text text-xs text-[#64748B] mt-0.5">Add and manage internal Managers, Sales Executives, and Support Staff for {{ auth()->user()->company->name ?? 'Company' }}</p>
             @endif
         </div>
         <div>
@@ -69,7 +69,7 @@
 
         <button @click="activeRoleTab = 'manager'" :class="activeRoleTab === 'manager' ? 'bg-sky-50 text-sky-800 border-sky-200' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">
             <i class="fa-solid fa-briefcase text-sky-600"></i>
-            <span>Sales Managers ({{ $users->filter(fn($u) => str_contains(strtolower($u->role->name ?? ''), 'manager'))->count() }})</span>
+            <span>Managers ({{ $users->filter(fn($u) => str_contains(strtolower($u->role->name ?? ''), 'manager'))->count() }})</span>
         </button>
 
         <button @click="activeRoleTab = 'executive'" :class="activeRoleTab === 'executive' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">

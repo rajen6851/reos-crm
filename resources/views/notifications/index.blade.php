@@ -77,23 +77,27 @@
 
             <!-- Quick Festival & Event Presets -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-2">⚡ 1-Click Quick Presets</label>
+                <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> 1-Click Quick Presets</label>
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-                    <button type="button" @click="title = '🌸 Happy Holi from REOS!'; message = 'Wishing you, your family, and team a colorful, safe & prosperous Holi! ✨'"
+                    <button type="button" @click="title = 'Happy Holi from REOS!'; message = 'Wishing you, your family, and team a colorful, safe & prosperous Holi!'"
                         class="p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl transition text-left flex items-center space-x-2">
-                        <span>🌸 Happy Holi</span>
+                        <i class="fa-solid fa-sun text-pink-500"></i>
+                        <span>Happy Holi</span>
                     </button>
-                    <button type="button" @click="title = '🪔 Happy Diwali from REOS!'; message = 'May this festival of lights bring prosperity, joy, and success to your real estate business! 🌟'"
+                    <button type="button" @click="title = 'Happy Diwali from REOS!'; message = 'May this festival of lights bring prosperity, joy, and success to your real estate business!'"
                         class="p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl transition text-left flex items-center space-x-2">
-                        <span>🪔 Happy Diwali</span>
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span>Happy Diwali</span>
                     </button>
-                    <button type="button" @click="title = '📢 System Announcement'; message = 'Important update: Please review your daily lead follow-ups and site visit schedules.'"
+                    <button type="button" @click="title = 'System Announcement'; message = 'Important update: Please review your daily lead follow-ups and site visit schedules.'"
                         class="p-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-xl transition text-left flex items-center space-x-2">
-                        <span>📢 Maintenance Alert</span>
+                        <i class="fa-solid fa-bullhorn text-sky-500"></i>
+                        <span>Maintenance Alert</span>
                     </button>
-                    <button type="button" @click="title = '🎯 Target Milestone Achieved!'; message = 'Congratulations team on achieving our monthly sales booking target! Keep up the great momentum! 🏆'"
+                    <button type="button" @click="title = 'Target Milestone Achieved!'; message = 'Congratulations team on achieving our monthly sales booking target! Keep up the great momentum!'"
                         class="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl transition text-left flex items-center space-x-2">
-                        <span>🎯 Sales Milestone</span>
+                        <i class="fa-solid fa-trophy text-emerald-600"></i>
+                        <span>Sales Milestone</span>
                     </button>
                 </div>
             </div>
@@ -104,17 +108,17 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Target Audience</label>
                     <select name="target_audience" x-model="target" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
-                        <option value="all">🌐 All Platform Users (Staff, Admins & Brokers)</option>
-                        <option value="admin">🏢 Admins & Directors Only</option>
-                        <option value="manager">💼 Sales Managers Only</option>
-                        <option value="executive">🎧 Sales Executives Only</option>
-                        <option value="broker">🤝 Channel Partner Brokers Only</option>
+                        <option value="all">All Platform Users (Staff, Admins & Brokers)</option>
+                        <option value="admin">Admins & Directors Only</option>
+                        <option value="manager">Managers Only</option>
+                        <option value="executive">Sales Executives Only</option>
+                        <option value="broker">Channel Partner Brokers Only</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Notification Title</label>
-                    <input type="text" name="title" x-model="title" required placeholder="e.g. 🌸 Happy Holi from REOS!" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
+                    <input type="text" name="title" x-model="title" required placeholder="e.g. Happy Holi Greetings from REOS!" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                 </div>
 
                 <div>

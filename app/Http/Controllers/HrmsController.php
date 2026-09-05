@@ -14,6 +14,11 @@ class HrmsController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        if ($user->isBroker()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. HRMS is reserved for internal company staff members only.');
+        }
+
         $today = date('Y-m-d');
         $currentMonth = date('Y-m');
 
@@ -55,22 +60,24 @@ class HrmsController extends Controller
             ->where('date', $today)
             ->first();
 
-        $todayRoster = Attendance::where('company_id', $user->company_id)
-            ->where('date', $today)
-            ->with('user')
-            ->get();
+        // Data Privacy Scope: Company Admins see full company HRMS. Non-admins see ONLY their own HRMS data!
+        $isAdmin = $user->isCompanyAdmin() || $user->isSaaSFounder();
 
-        $leaveRequests = LeaveRequest::where('company_id', $user->company_id)
-            ->with(['user', 'approver'])
-            ->orderByDesc('created_at')
-            ->get();
+        $todayRoster = $isAdmin
+            ? Attendance::where('company_id', $user->company_id)->where('date', $today)->with('user')->get()
+            : Attendance::where('user_id', $user->id)->where('date', $today)->with('user')->get();
 
-        $salarySlips = SalarySlip::where('company_id', $user->company_id)
-            ->with('user')
-            ->orderByDesc('created_at')
-            ->get();
+        $leaveRequests = $isAdmin
+            ? LeaveRequest::where('company_id', $user->company_id)->with(['user', 'approver'])->orderByDesc('created_at')->get()
+            : LeaveRequest::where('user_id', $user->id)->with(['user', 'approver'])->orderByDesc('created_at')->get();
 
-        $staffUsers = User::where('company_id', $user->company_id)->get();
+        $salarySlips = $isAdmin
+            ? SalarySlip::where('company_id', $user->company_id)->with('user')->orderByDesc('created_at')->get()
+            : SalarySlip::where('user_id', $user->id)->with('user')->orderByDesc('created_at')->get();
+
+        $staffUsers = $isAdmin
+            ? User::where('company_id', $user->company_id)->get()
+            : User::where('id', $user->id)->get();
 
         // Fetch monthly attendance history for visual Calendar Grid
         $monthlyAttendance = Attendance::where('user_id', $user->id)
@@ -87,7 +94,8 @@ class HrmsController extends Controller
             'staffUsers',
             'today',
             'currentMonth',
-            'monthlyAttendance'
+            'monthlyAttendance',
+            'isAdmin'
         ));
     }
 
@@ -164,7 +172,7 @@ class HrmsController extends Controller
         $user = auth()->user();
 
         if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
-            return redirect()->back()->with('error', 'Unauthorized action.');
+            return redirect()->back()->with('error', 'Unauthorized action. Only Admins and Managers can update leave status.');
         }
 
         $leaveRequest->update([
@@ -179,8 +187,8 @@ class HrmsController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
-            return redirect()->back()->with('error', 'Unauthorized action.');
+        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
+            return redirect()->back()->with('error', 'Unauthorized action. Only Company Admins can generate salary slips.');
         }
 
         $request->validate([
@@ -213,5 +221,17 @@ class HrmsController extends Controller
         ]);
 
         return redirect()->route('hrms.index')->with('success', 'Monthly salary slip generated successfully!');
+    }
+
+    public function showSalarySlip($id)
+    {
+        $user = auth()->user();
+        $salarySlip = SalarySlip::with(['user', 'company'])->findOrFail($id);
+
+        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder() && $salarySlip->user_id !== $user->id) {
+            return redirect()->route('hrms.index')->with('error', 'Unauthorized access to salary slip.');
+        }
+
+        return view('hrms.payslip', compact('salarySlip'));
     }
 }

@@ -392,11 +392,13 @@
                     <span>Agreements</span>
                 </a>
 
+                @can('view-financials')
                 <!-- 9. Payments & Invoices -->
                 <a href="{{ route('payments.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('payments.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-receipt text-xs w-4 text-center {{ request()->routeIs('payments.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Payments & Invoices</span>
                 </a>
+                @endcan
 
                 <!-- 10. Customers -->
                 <a href="{{ route('customers.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('customers.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
@@ -424,25 +426,31 @@
                     <i class="fa-solid fa-handshake text-xs w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Brokers</span>
                 </a>
+                @endif
 
+                @if(!$isBroker)
                 <!-- HRMS & Staff Attendance -->
                 <a href="{{ route('hrms.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('hrms.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-clipboard-user text-xs w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>HRMS & Attendance</span>
                 </a>
+                @endif
 
+                @if($isAdmin || $isManager)
                 <!-- Team & Users -->
                 <a href="{{ route('users.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('users.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-user-tie text-xs w-4 text-center {{ request()->routeIs('users.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Team Users</span>
                 </a>
+                @endif
 
+                @can('view-executive-reports')
                 <!-- Reports & Analytics -->
                 <a href="{{ route('reports.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('reports.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-chart-pie text-xs w-4 text-center {{ request()->routeIs('reports.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Reports & Analytics</span>
                 </a>
-                @endif
+                @endcan
             </div>
             @endif
 
@@ -470,21 +478,23 @@
                     <span>Support Tickets</span>
                 </a>
 
-                @if($isAdmin || $isManager)
+                @can('view-activity-logs')
                 <!-- System Activity Logs -->
                 <a href="{{ route('activity-logs.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('activity-logs.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-clock-rotate-left text-xs w-4 text-center {{ request()->routeIs('activity-logs.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Activity Audit Logs</span>
                 </a>
-                @endif
+                @endcan
 
-                @if($isAdmin && !$isFounder)
+                @can('manage-company-settings')
+                @if(!$isFounder)
                 <!-- Single Builder Company Settings (RERA License, GSTIN) -->
                 <a href="{{ route('company-settings.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('company-settings.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-gear text-xs w-4 text-center {{ request()->routeIs('company-settings.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Company Settings</span>
                 </a>
                 @endif
+                @endcan
 
                 <!-- Account Profile -->
                 <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('profile.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">

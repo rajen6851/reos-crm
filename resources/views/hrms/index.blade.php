@@ -36,9 +36,9 @@
             </button>
             @endif
 
-            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
+            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
             <button onclick="document.getElementById('generateSalarySlipModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-[#DC2626] fa-file-invoice-dollar text-xs"></i>
+                <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
                 <span>+ Generate Salary Slip</span>
             </button>
             @endif
@@ -406,7 +406,7 @@
                             <th class="py-2.5 px-3">Staff Member</th>
                             <th class="py-2.5 px-3">Month</th>
                             <th class="py-2.5 px-3">Net Salary</th>
-                            <th class="py-2.5 px-3 text-right">Status</th>
+                            <th class="py-2.5 px-3 text-right">Action / Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#E2E8F0]">
@@ -421,7 +421,10 @@
                             <td class="py-2.5 px-3 font-mono font-bold text-[#4F46E5]">{{ $slip->month }}</td>
                             <td class="py-2.5 px-3 font-mono font-bold text-[#059669]">₹{{ number_format($slip->net_salary) }}</td>
                             <td class="py-2.5 px-3 text-right">
-                                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-[#059669] border border-emerald-200">Generated</span>
+                                <a href="{{ route('hrms.salary-slips.show', $slip->id) }}" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#047857] font-bold text-[10px] rounded border border-emerald-200 transition inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                    <span>View Payslip</span>
+                                </a>
                             </td>
                         </tr>
                         @empty

@@ -150,6 +150,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/hrms/leave-requests', [\App\Http\Controllers\HrmsController::class, 'storeLeaveRequest'])->name('hrms.leave-requests.store');
     Route::post('/hrms/leave-requests/{leaveRequest}/status', [\App\Http\Controllers\HrmsController::class, 'updateLeaveStatus'])->name('hrms.leave-requests.status');
     Route::post('/hrms/salary-slips', [\App\Http\Controllers\HrmsController::class, 'generateSalarySlip'])->name('hrms.salary-slips.store');
+    Route::get('/hrms/salary-slips/{salarySlip}', [\App\Http\Controllers\HrmsController::class, 'showSalarySlip'])->name('hrms.salary-slips.show');
 
     // Operations, Analytics & System
     Route::get('/follow-ups', [FollowUpController::class, 'index'])->name('follow-ups.index');

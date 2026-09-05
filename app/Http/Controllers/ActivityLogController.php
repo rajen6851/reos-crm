@@ -13,9 +13,9 @@ class ActivityLogController extends Controller
     {
         $user = Auth::user();
 
-        // Security Guard: Only SaaS Founder, Company Admin, and Sales Managers can view Activity Audit Logs
-        if ($user->isSales() || $user->isBroker()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Activity Audit Logs are reserved for Admins and Managers.');
+        // Security Guard: Only SaaS Founder and Company Admin can view Activity Audit Logs
+        if (!Auth::user()->can('view-activity-logs')) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Activity Audit Logs are reserved for Admins.');
         }
 
         if ($user->is_super_admin) {

@@ -83,8 +83,8 @@ class LeadController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isBroker()) {
-            return redirect()->route('dashboard');
+        if ($user->isSales() || $user->isBroker()) {
+            return redirect()->route('leads.index')->with('error', 'Unauthorized access. Lead export is reserved for Admins and Managers.');
         }
 
         $query = Lead::with(['assignedTo', 'broker', 'project', 'source']);
@@ -387,7 +387,16 @@ class LeadController extends Controller
 
     public function show($id, \App\Services\AiIntelligenceService $aiService)
     {
+        $user = Auth::user();
         $lead = Lead::with(['assignedTo', 'broker', 'brokerLead', 'project', 'source', 'activities.user', 'calls.user', 'followUps', 'siteVisits.assignedTo'])->findOrFail($id);
+
+        if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {
+            return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only access leads assigned to you.');
+        }
+
+        if ($user->isBroker()) {
+            return redirect()->route('dashboard');
+        }
 
         $aiScore = $aiService->calculateLeadScore($lead);
         $recommendations = $aiService->getSmartPropertyRecommendations($lead);
@@ -401,8 +410,8 @@ class LeadController extends Controller
 
     public function destroy(Lead $lead)
     {
-        if (!Auth::user()->isCompanyAdmin() && !Auth::user()->isManager() && Auth::user()->role?->slug !== 'founder') {
-            return back()->with('error', 'Only Admins and Managers can delete leads.');
+        if (!Auth::user()->isCompanyAdmin() && !Auth::user()->isSaaSFounder()) {
+            return back()->with('error', 'Only Company Admins and SaaS Founders can delete leads.');
         }
 
         $leadCode = $lead->lead_code;
@@ -416,6 +425,12 @@ class LeadController extends Controller
 
     public function update(Request $request, Lead $lead)
     {
+        $user = Auth::user();
+
+        if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {
+            return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only update leads assigned to you.');
+        }
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'nullable|string|max:100',

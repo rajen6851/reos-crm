@@ -1,15 +1,15 @@
 @extends('layouts.reos')
 
-@section('title', 'Sales Manager Command Center – REOS')
+@section('title', 'Manager Command Center – REOS')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
-    <!-- Top Hero Banner: Sales Manager Command Center -->
+    <!-- Top Hero Banner: Manager Command Center -->
     <div class="bg-white p-6 md:p-8 rounded-3xl border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="space-y-2">
             <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-[#059669] border border-emerald-200 uppercase tracking-wider">
                 <span class="w-2 h-2 rounded-full bg-[#059669] animate-ping"></span>
-                <span>Sales Manager Command Center</span>
+                <span>Manager Command Center</span>
             </div>
             <h1 class="page-heading text-2xl md:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center space-x-2">
                 <span>Welcome back, {{ strtok($user->name, ' ') }}!</span>

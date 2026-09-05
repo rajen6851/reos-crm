@@ -12,6 +12,7 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('view-financials');
         $payments = Payment::with(['booking.lead', 'booking.unit.project', 'booking.project'])
             ->latest('payment_date')
             ->get();

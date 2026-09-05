@@ -13,9 +13,19 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = LeadActivity::with(['lead', 'user'])
-            ->latest()
-            ->paginate(20);
+        $user = $request->user();
+        $query = LeadActivity::with(['lead', 'user'])->latest();
+
+        if ($user->isSales()) {
+            $assignedLeadIds = \App\Models\Lead::where('assigned_to_user_id', $user->id)->pluck('id')->toArray();
+            $query->whereIn('lead_id', $assignedLeadIds)->orWhere('user_id', $user->id);
+        } elseif ($user->isBroker()) {
+            $broker = \App\Models\Broker::where('user_id', $user->id)->first();
+            $brokerLeadIds = $broker ? \App\Models\Lead::where('broker_id', $broker->id)->pluck('id')->toArray() : [];
+            $query->whereIn('lead_id', $brokerLeadIds);
+        }
+
+        $notifications = $query->paginate(20);
 
         return view('notifications.index', compact('notifications'));
     }
@@ -25,6 +35,12 @@ class NotificationController extends Controller
      */
     public function sendBroadcast(Request $request)
     {
+        $currentUser = $request->user();
+
+        if (!$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
+            return back()->with('error', 'Unauthorized access. Only Company Admins and SaaS Founders can send broadcast notifications.');
+        }
+
         $request->validate([
             'title' => 'required|string|max:150',
             'message' => 'required|string|max:500',

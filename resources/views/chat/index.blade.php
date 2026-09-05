@@ -18,10 +18,12 @@
                 <i class="fa-solid fa-user-plus"></i>
                 <span>New Direct Chat</span>
             </button>
+            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
             <button @click="showGroupModal = true" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-users-gear"></i>
                 <span>Create Group Chat</span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -100,7 +102,12 @@
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm border"
                                 :class="activeChat.type === 'group' ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200'">
-                                <span x-text="activeChat.type === 'group' ? '👥' : activeChat.name.charAt(0).toUpperCase()"></span>
+                                <template x-if="activeChat.type === 'group'">
+                                    <i class="fa-solid fa-users text-indigo-700"></i>
+                                </template>
+                                <template x-if="activeChat.type !== 'group'">
+                                    <span x-text="activeChat.name.charAt(0).toUpperCase()"></span>
+                                </template>
                             </div>
                             <div>
                                 <h3 class="text-sm font-extrabold text-slate-900" x-text="activeChat.name"></h3>

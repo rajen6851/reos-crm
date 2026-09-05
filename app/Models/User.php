@@ -124,14 +124,19 @@ class User extends Authenticatable
         return $this->role?->slug === 'director';
     }
 
+    public function isDirectorOrFounder(): bool
+    {
+        return $this->is_super_admin || in_array($this->role?->slug, ['director', 'founder']);
+    }
+
     public function isManager(): bool
     {
-        return $this->role?->slug === 'manager';
+        return in_array($this->role?->slug, ['manager', 'sales_manager']);
     }
 
     public function isSales(): bool
     {
-        return $this->role?->slug === 'sales_executive';
+        return in_array($this->role?->slug, ['sales_executive', 'executive']);
     }
 
     public function isBroker(): bool

@@ -190,7 +190,7 @@ class DatabaseSeeder extends Seeder
         $manager2 = User::create([
             'company_id' => $company2->id,
             'role_id' => $roles2['manager']->id,
-            'name' => 'Krishna (Sales Manager)',
+            'name' => 'Krishna (Manager)',
             'email' => 'krishna@gmail.com',
             'phone' => '8888855565',
             'password' => $defaultPassword,

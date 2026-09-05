@@ -47,7 +47,7 @@
                         </p>
                         <div class="pt-1 flex items-center space-x-2">
                             <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-[#DC2626] border border-rose-200 uppercase">
-                                {{ $aiScore['label'] }} 🔥
+                                {{ $aiScore['label'] }} <i class="fa-solid fa-fire text-[#DC2626] ml-0.5"></i>
                             </span>
                             <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-[#4F46E5] border border-indigo-200">
                                 AI Score: {{ $aiScore['score'] }}/100

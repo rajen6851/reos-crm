@@ -9,6 +9,7 @@ class CompanySettingsController extends Controller
 {
     public function index(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('manage-company-settings');
         $user = Auth::user();
 
         if ($user->isSaaSFounder()) {
@@ -22,6 +23,7 @@ class CompanySettingsController extends Controller
 
     public function update(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('manage-company-settings');
         $user = Auth::user();
         $company = $user->company;
 
