@@ -16,8 +16,10 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+console.log('%c[REOS FCM SW] Service Worker Active & Ready for Push Notifications', 'color: #10B981; font-weight: bold; background: #0F172A; padding: 2px 6px; border-radius: 4px;');
+
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background push message ', payload);
+  console.log('%c[REOS FCM SW] 📩 Background Push Received:', 'color: #3B82F6; font-weight: bold;', payload);
 
   const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'REOS Notification');
   const notificationOptions = {
@@ -31,6 +33,7 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 self.addEventListener('notificationclick', function(event) {
+  console.log('%c[REOS FCM SW] 🔔 Push Notification Clicked:', 'color: #F59E0B; font-weight: bold;', event.notification);
   event.notification.close();
   const clickAction = event.notification.data ? event.notification.data.click_action : '/chat';
   event.waitUntil(

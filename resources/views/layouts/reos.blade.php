@@ -43,6 +43,70 @@
         }
     </script>
 
+    <!-- REOS CRM Global Frontend Console Logger & Interceptors -->
+    <script>
+        window.ReosLogger = {
+            prefix: '[REOS CRM]',
+            info: function(msg, data = '') {
+                console.log(`%c${this.prefix} [INFO] ℹ️ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
+            },
+            success: function(msg, data = '') {
+                console.log(`%c${this.prefix} [SUCCESS] ✅ ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
+            },
+            warn: function(msg, data = '') {
+                console.warn(`%c${this.prefix} [WARN] ⚠️ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
+            },
+            error: function(msg, err = '') {
+                console.error(`%c${this.prefix} [ERROR] ❌ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
+            },
+            ajax: function(method, url, status, duration, data = '') {
+                const color = status >= 200 && status < 300 ? '#059669' : '#DC2626';
+                console.log(`%c${this.prefix} [AJAX] 🌐 ${method} ${url} → ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
+            }
+        };
+
+        // System Startup Log
+        window.ReosLogger.info('Browser Console Logging Engine Online', { app: 'REOS SaaS CRM', timestamp: new Date().toISOString() });
+
+        // Global Fetch Interceptor for AJAX Logging
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                const startTime = performance.now();
+                const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || 'URL');
+                const method = args[1]?.method || 'GET';
+
+                try {
+                    const response = await originalFetch.apply(this, args);
+                    const duration = Math.round(performance.now() - startTime);
+                    window.ReosLogger.ajax(method, url, response.status, duration);
+                    return response;
+                } catch (error) {
+                    const duration = Math.round(performance.now() - startTime);
+                    window.ReosLogger.error(`FETCH FAILED: ${method} ${url} (${duration}ms)`, error);
+                    throw error;
+                }
+            };
+        })();
+
+        // Global Window Error Listener
+        window.addEventListener('error', function(event) {
+            window.ReosLogger.error(`Uncaught Error: ${event.message} at ${event.filename}:${event.lineno}`, event.error);
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            window.ReosLogger.error(`Unhandled Promise Rejection: ${event.reason}`, event.reason);
+        });
+
+        // Form Submit Listener
+        document.addEventListener('submit', function(event) {
+            const form = event.target;
+            const formId = form.id ? `#${form.id}` : (form.name ? `[name="${form.name}"]` : 'form');
+            const action = form.action || window.location.href;
+            window.ReosLogger.info(`Form Submitted: ${formId} → ${action}`);
+        }, true);
+    </script>
+
     <style>
         body {
             font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -499,6 +563,7 @@
 
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
+            window.ReosLogger.success('Firebase SDK Initialized', { projectId: firebaseConfig.projectId });
 
             if ('serviceWorker' in navigator && firebase.messaging.isSupported()) {
                 const messaging = firebase.messaging();
@@ -507,13 +572,16 @@
                 navigator.serviceWorker.register('/firebase-messaging-sw.js')
                     .then((registration) => {
                         messaging.useServiceWorker(registration);
+                        window.ReosLogger.info('Service Worker Registered for FCM', { scope: registration.scope });
 
                         // Request Notification Permission
                         Notification.requestPermission().then((permission) => {
+                            window.ReosLogger.info(`Notification Permission: ${permission}`);
+
                             if (permission === 'granted') {
                                 messaging.getToken().then((currentToken) => {
                                     if (currentToken) {
-                                        // Auto-register FCM device token to user account via API
+                                        window.ReosLogger.success('FCM Device Token Acquired', currentToken);
                                         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                                         fetch('/api/v1/fcm-token', {
                                             method: 'POST',
@@ -523,16 +591,21 @@
                                                 'X-CSRF-TOKEN': csrfToken
                                             },
                                             body: JSON.stringify({ fcm_token: currentToken })
-                                        }).catch(err => console.log('FCM token registration background sync silent pass'));
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => window.ReosLogger.success('FCM Token Synced to Server', data))
+                                        .catch(err => window.ReosLogger.warn('FCM token background sync offline mode', err));
+                                    } else {
+                                        window.ReosLogger.warn('No FCM registration token available');
                                     }
                                 });
                             }
                         });
-                    }).catch(err => console.log('SW registration error:', err));
+                    }).catch(err => window.ReosLogger.error('Service Worker Registration Failed', err));
 
                 // Foreground Notification Toast
                 messaging.onMessage((payload) => {
-                    console.log('Foreground FCM Push Received: ', payload);
+                    window.ReosLogger.info('Foreground Push Message Received', payload);
                     const title = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'REOS Alert');
                     const body = payload.notification ? payload.notification.body : (payload.data ? payload.data.body : '');
 
