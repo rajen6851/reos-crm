@@ -62,10 +62,11 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    // Profile
+    // Profile & FCM
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/fcm-token', [\App\Http\Controllers\Api\AuthController::class, 'updateFcmToken'])->name('fcm.token.update');
 
     // Leads & Customers
     Route::get('/leads/export', [LeadController::class, 'exportExcel'])->name('leads.export');
@@ -154,6 +155,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/follow-ups', [FollowUpController::class, 'index'])->name('follow-ups.index');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/broadcast', [NotificationController::class, 'sendBroadcast'])->name('notifications.broadcast');
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/company-settings', [CompanySettingsController::class, 'index'])->name('company-settings.index');
     Route::put('/company-settings', [CompanySettingsController::class, 'update'])->name('company-settings.update');

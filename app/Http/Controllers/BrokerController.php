@@ -284,7 +284,18 @@ class BrokerController extends Controller
             'status' => 'active',
         ]);
 
-        return redirect()->route('brokers.index')->with('success', "Channel Partner Broker '{$broker->agency_name}' registered successfully!");
+        $defaultBrokerPassword = 'password123';
+
+        // Dispatch Welcome Email with Login Credentials
+        try {
+            \Illuminate\Support\Facades\Mail::to($newUser->email)
+                ->send(new \App\Mail\UserWelcomeCredentialsMail($newUser, $defaultBrokerPassword));
+            \Illuminate\Support\Facades\Log::info("[WELCOME MAIL SENT] Credentials sent to new broker user #{$newUser->id} ({$newUser->email})");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("[WELCOME MAIL ERROR] Failed to send credentials email to broker #{$newUser->id} ({$newUser->email}): " . $e->getMessage());
+        }
+
+        return redirect()->route('brokers.index')->with('success', "Channel Partner Broker '{$broker->agency_name}' registered successfully! Welcome email sent to {$newUser->email}");
     }
 
     public function updateBroker(Request $request, Broker $broker)

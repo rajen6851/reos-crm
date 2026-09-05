@@ -142,8 +142,22 @@
                                 </span>
                             </td>
                             <td class="p-4 text-xs font-medium text-slate-700">
+                                @php
+                                    $defaultDept = match($u->role?->slug) {
+                                        'founder', 'director', 'admin' => 'Management',
+                                        'manager', 'sales_manager' => 'Sales',
+                                        default => 'Sales',
+                                    };
+                                    $defaultDesig = match($u->role?->slug) {
+                                        'founder' => 'Founder',
+                                        'director' => 'Director',
+                                        'admin' => 'Admin',
+                                        'manager', 'sales_manager' => 'Manager',
+                                        default => 'Executive',
+                                    };
+                                @endphp
                                 <div class="font-bold text-[#0F172A]">{{ $u->branch ?? 'Head Office' }}</div>
-                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? 'Sales' }} • {{ $u->designation ?? 'Executive' }}</div>
+                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? $defaultDept }} • {{ $u->designation ?? $defaultDesig }}</div>
                             </td>
                             <td class="p-4 text-xs font-mono">
                                 <div class="text-[#0F172A] font-bold">{{ $u->email }}</div>

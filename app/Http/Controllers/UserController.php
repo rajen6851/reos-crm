@@ -109,7 +109,16 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('users.index')->with('success', "Team user {$newUser->name} created successfully!");
+        // Dispatch Welcome Email with Login Credentials
+        try {
+            \Illuminate\Support\Facades\Mail::to($newUser->email)
+                ->send(new \App\Mail\UserWelcomeCredentialsMail($newUser, $validated['password']));
+            \Illuminate\Support\Facades\Log::info("[WELCOME MAIL SENT] Credentials sent to new staff user #{$newUser->id} ({$newUser->email})");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("[WELCOME MAIL ERROR] Failed to send credentials email to #{$newUser->id} ({$newUser->email}): " . $e->getMessage());
+        }
+
+        return redirect()->route('users.index')->with('success', "Team user {$newUser->name} created successfully! Welcome email sent to {$newUser->email}");
     }
 
     public function update(Request $request, User $user)

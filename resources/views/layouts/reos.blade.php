@@ -277,7 +277,9 @@
                         <div class="text-xs font-bold text-[#0F172A] leading-tight group-hover:text-[#059669] transition">{{ auth()->user()->name }}</div>
                         @php
                             $headerRoleTitle = match(auth()->user()->role?->slug) {
-                                'founder', 'director', 'admin' => 'Admin',
+                                'founder' => 'Founder / Director',
+                                'director' => 'Director',
+                                'admin' => 'Admin',
                                 'manager', 'sales_manager' => 'Manager',
                                 'sales_executive', 'executive' => 'Sales Executive',
                                 'broker' => 'Broker',
@@ -583,7 +585,7 @@
                                     if (currentToken) {
                                         window.ReosLogger.success('FCM Device Token Acquired', currentToken);
                                         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                                        fetch('/api/v1/fcm-token', {
+                                        fetch('/fcm-token', {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',

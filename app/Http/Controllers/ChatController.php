@@ -147,8 +147,10 @@ class ChatController extends Controller
         $chat->touch(); // update updated_at timestamp
         $participant->update(['last_read_at' => now()]);
 
-        // Dispatch Firebase Cloud Messaging Push Notification to recipients
-        app(\App\Services\FirebaseNotificationService::class)->sendChatNotification(
+        // Dispatch Firebase Cloud Messaging Push Notification & Realtime Database Sync
+        $firebaseService = app(\App\Services\FirebaseNotificationService::class);
+        $firebaseService->syncChatToRealtimeDb($chat, $msg, $currentUser);
+        $firebaseService->sendChatNotification(
             $currentUser,
             $chat,
             $msg->message ?? 'Attachment sent'
