@@ -132,6 +132,30 @@ class ChatController extends Controller
             return response()->json(['error' => 'Message or attachment required'], 422);
         }
 
+        // Prevent accidental rapid duplicate message submission within 2 seconds
+        if ($request->filled('message') && !$request->hasFile('attachment')) {
+            $recentDuplicate = ChatMessage::where('chat_id', $chat->id)
+                ->where('sender_id', $currentUser->id)
+                ->where('message', $request->input('message'))
+                ->where('created_at', '>=', now()->subSeconds(2))
+                ->first();
+
+            if ($recentDuplicate) {
+                return response()->json([
+                    'success' => true,
+                    'message' => [
+                        'id' => $recentDuplicate->id,
+                        'sender_id' => $recentDuplicate->sender_id,
+                        'sender_name' => $currentUser->name,
+                        'message' => $recentDuplicate->message,
+                        'attachment_url' => null,
+                        'is_mine' => true,
+                        'created_at' => $recentDuplicate->created_at->format('h:i A'),
+                    ],
+                ]);
+            }
+        }
+
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('chat_attachments', 'public');

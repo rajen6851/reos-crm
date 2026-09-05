@@ -33,11 +33,11 @@ class NotificationService
         if (!empty($databaseUrl)) {
             try {
                 $timestamp = now()->timestamp * 1000;
-                $serverKey = config('firebase.server_key', '');
+                $databaseSecret = (string) config('firebase.database_secret', '');
+                $serverKey = (string) config('firebase.server_key', '');
+                $authParam = !empty($databaseSecret) ? $databaseSecret : (!empty($serverKey) && !str_contains($serverKey, 'dummy') ? $serverKey : '');
                 $endpoint = "{$databaseUrl}/user_notifications/{$user->id}/{$timestamp}.json";
-                $requestUrl = !empty($serverKey) && !str_contains($serverKey, 'dummy')
-                    ? "{$endpoint}?auth={$serverKey}"
-                    : $endpoint;
+                $requestUrl = !empty($authParam) ? "{$endpoint}?auth={$authParam}" : $endpoint;
 
                 \Illuminate\Support\Facades\Http::timeout(3)->put($requestUrl, [
                     'id' => (string) $timestamp,

@@ -9,5 +9,6 @@ return [
     'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID', '831733538173'),
     'app_id' => env('FIREBASE_APP_ID', '1:831733538173:web:cf677b2b94d10a50368014'),
     'measurement_id' => env('FIREBASE_MEASUREMENT_ID', 'G-486TQK0JPR'),
+    'database_secret' => env('FIREBASE_DATABASE_SECRET', ''),
     'server_key' => env('FIREBASE_SERVER_KEY', 'AAAA_dummy_server_key_for_fcm_v1_legacy_support'),
 ];

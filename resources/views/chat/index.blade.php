@@ -149,8 +149,8 @@
                             </label>
                             <input type="text" x-model="newMessage" placeholder="Type your message..."
                                 class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
-                            <button type="submit" :disabled="!newMessage && !attachmentFile"
-                                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center space-x-1">
+                            <button type="submit" :disabled="isSending || (!newMessage && !attachmentFile)"
+                                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer">
                                 <span>Send</span>
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                             </button>
@@ -244,9 +244,9 @@ function chatApp() {
         filterType: 'all',
         activeChatId: null,
         activeChat: null,
-        messages: [],
         newMessage: '',
         attachmentFile: null,
+        isSending: false,
         showDirectModal: false,
         showGroupModal: false,
         groupName: '',
@@ -308,7 +308,8 @@ function chatApp() {
         },
 
         sendMessage() {
-            if (!this.newMessage && !this.attachmentFile) return;
+            if (this.isSending || (!this.newMessage && !this.attachmentFile)) return;
+            this.isSending = true;
 
             const formData = new FormData();
             if (this.newMessage) formData.append('message', this.newMessage);
@@ -323,8 +324,10 @@ function chatApp() {
             })
             .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    this.messages.push(data.message);
+                if (data.success && data.message) {
+                    if (!this.messages.some(m => m.id === data.message.id)) {
+                        this.messages.push(data.message);
+                    }
                     this.newMessage = '';
                     this.attachmentFile = null;
                     this.fetchConversations();
@@ -333,6 +336,9 @@ function chatApp() {
                         if (container) container.scrollTop = container.scrollHeight;
                     });
                 }
+            })
+            .finally(() => {
+                this.isSending = false;
             });
         },
 

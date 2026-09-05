@@ -98,9 +98,9 @@ class FirebaseNotificationService
                 'created_at' => $msg->created_at ? $msg->created_at->format('h:i A') : now()->format('h:i A'),
             ];
 
-            $url = !empty($this->serverKey) && !str_contains($this->serverKey, 'dummy')
-                ? "{$endpoint}?auth={$this->serverKey}"
-                : $endpoint;
+            $databaseSecret = (string) config('firebase.database_secret', '');
+            $authParam = !empty($databaseSecret) ? $databaseSecret : (!empty($this->serverKey) && !str_contains($this->serverKey, 'dummy') ? $this->serverKey : '');
+            $url = !empty($authParam) ? "{$endpoint}?auth={$authParam}" : $endpoint;
 
             $response = Http::timeout(3)->put($url, $payload);
 
