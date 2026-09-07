@@ -21,10 +21,18 @@
         </div>
 
         <div class="flex items-center space-x-3 shrink-0">
-            <a href="{{ route('admin.companies.create') }}" class="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white btn-text rounded-xl shadow-sm transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Onboard New Company</span>
-            </a>
+            @if(auth()->user()->isSaaSFounder())
+                <a href="{{ route('admin.sub-admins.index') }}" class="px-4 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-shield text-xs"></i>
+                    <span>SaaS Sub-Admins</span>
+                </a>
+            @endif
+            @if(auth()->user()->hasSaaSPermission('onboard_companies'))
+                <a href="{{ route('admin.companies.create') }}" class="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white btn-text rounded-xl shadow-sm transition flex items-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Onboard New Company</span>
+                </a>
+            @endif
         </div>
     </div>
 
@@ -75,19 +83,19 @@
             </div>
         </div>
 
-        <!-- Metric 4: SaaS Tier Plans -->
+        <!-- Metric 4: SaaS Sub-Admins & Pending Approvals -->
         <div class="reos-card p-5 space-y-2">
             <div class="flex justify-between items-center">
-                <span class="label-text">Tier Catalog</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-50 text-[#D97706] flex items-center justify-center font-bold text-base border border-amber-100">
-                    <i class="fa-solid fa-layer-group"></i>
+                <span class="label-text">SaaS Sub-Admins</span>
+                <div class="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold text-base border border-cyan-100">
+                    <i class="fa-solid fa-user-shield"></i>
                 </div>
             </div>
-            <div class="kpi-number text-2xl">{{ $subscriptionPlans->count() }} Plans</div>
-            <div class="inline-flex items-center space-x-1 text-xs font-semibold text-[#D97706] bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                <i class="fa-solid fa-gem text-[10px]"></i>
-                <span>Configured Tiers</span>
-            </div>
+            <div class="kpi-number text-2xl">{{ $saasSubAdminsCount ?? 0 }} Sub-Admins</div>
+            <a href="{{ route('admin.saas-approvals') }}" class="inline-flex items-center space-x-1 text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200 transition">
+                <i class="fa-solid fa-bell text-[10px]"></i>
+                <span>{{ $pendingApprovalsCount ?? 0 }} Pending Approvals</span>
+            </a>
         </div>
     </div>
 
@@ -98,9 +106,11 @@
                 <h2 class="section-heading">Onboarded Builder Companies</h2>
                 <p class="body-text text-xs">Multi-Tenant Isolation Directory & Subscription Status</p>
             </div>
+            @if(auth()->user()->hasSaaSPermission('onboard_companies'))
             <a href="{{ route('admin.companies.create') }}" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#047857] btn-text rounded-xl border border-emerald-200 transition">
                 + Onboard Company
             </a>
+            @endif
         </div>
 
         <div class="overflow-x-auto rounded-xl border border-[#E2E8F0]">

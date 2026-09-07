@@ -24,7 +24,7 @@
             <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search customer, lead code or remarks..." class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3.5 py-2.5 text-slate-900 font-bold w-full md:w-64 focus:outline-none focus:border-indigo-600">
                 
-                <select name="activity_type" onchange="this.form.submit()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3.5 py-2.5 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                <select name="activity_type" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3.5 py-2.5 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
                     <option value="">All Activity Types</option>
                     <option value="call_logged" {{ request('activity_type') == 'call_logged' ? 'selected' : '' }}>Call / Site Visit Logged</option>
                     <option value="status_updated" {{ request('activity_type') == 'status_updated' ? 'selected' : '' }}>Lead Status Changed</option>
@@ -33,7 +33,7 @@
                 </select>
 
                 @if(!auth()->user()->isSales())
-                <select name="user_id" onchange="this.form.submit()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3.5 py-2.5 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                <select name="user_id" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3.5 py-2.5 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
                     <option value="">All Executive Staff</option>
                     @foreach($teamUsers as $u)
                         <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>{{ $u->name }} ({{ $u->role->name ?? 'User' }})</option>

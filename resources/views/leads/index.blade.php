@@ -84,63 +84,104 @@
         </div>
     </div>
 
-    <!-- Minimalist Summary Cards Strip -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-medium text-slate-500">All Leads</span>
-                <div class="text-xl font-bold text-slate-900 font-mono mt-0.5">{{ $leads->total() }}</div>
+    <!-- DYNAMIC AJAX LEADS CONTAINER -->
+    <div id="leadsDynamicContainer" class="space-y-6 transition-opacity duration-200">
+        <!-- Minimalist Summary Cards Strip -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-medium text-slate-500">All Leads</span>
+                    <div class="text-xl font-bold text-slate-900 font-mono mt-0.5">{{ $leads->total() }}</div>
+                </div>
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-simple text-indigo-600"></i></span>
             </div>
-            <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-simple text-indigo-600"></i></span>
+
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-medium text-slate-500">Negotiations</span>
+                    <div class="text-xl font-bold text-amber-600 font-mono mt-0.5">{{ $leads->where('status', 'negotiation')->count() }}</div>
+                </div>
+                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-comments text-amber-600"></i></span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-medium text-slate-500">Site Visits</span>
+                    <div class="text-xl font-bold text-purple-600 font-mono mt-0.5">{{ $leads->where('status', 'site_visit')->count() }}</div>
+                </div>
+                <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fa-solid fa-building text-purple-600"></i></span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-medium text-slate-500">Converted</span>
+                    <div class="text-xl font-bold text-emerald-600 font-mono mt-0.5">{{ $leads->whereIn('status', ['converted', 'booked'])->count() }}</div>
+                </div>
+                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-trophy text-emerald-600"></i></span>
+            </div>
         </div>
 
-        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-medium text-slate-500">Negotiations</span>
-                <div class="text-xl font-bold text-amber-600 font-mono mt-0.5">{{ $leads->where('status', 'negotiation')->count() }}</div>
+        <!-- Search & Filter Controls with Clickable Status Buttons -->
+        <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-3 text-xs">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                <!-- Search Keyword Form -->
+                <form method="GET" action="{{ route('leads.index') }}" onsubmit="filterLeadsAjaxForm(this, event)" class="flex items-center gap-2 w-full md:w-auto flex-1">
+                    @if(request('status'))
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                    @endif
+                    <div class="relative w-full md:w-80">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or code..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-500 transition">
+                        <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        <span>Search</span>
+                    </button>
+                    @if(request('status') || request('search'))
+                        <a href="{{ route('leads.index') }}" onclick="filterLeadsAjax('{{ route('leads.index') }}', event)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
+                            Clear Filter
+                        </a>
+                    @endif
+                </form>
             </div>
-            <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-comments text-amber-600"></i></span>
+
+            <!-- Clickable Status Filter Buttons Bar -->
+            @php
+                $statusOptions = [
+                    '' => 'All Statuses',
+                    'new' => 'New Leads',
+                    'contacted' => 'Contacted',
+                    'follow_up' => 'Follow Up',
+                    'site_visit' => 'Site Visit',
+                    'interested' => 'Interested',
+                    'negotiation' => 'Negotiation',
+                    'converted' => 'Converted (Booked)',
+                    'lost' => 'Lost',
+                ];
+                $currentStatus = request('status', '');
+            @endphp
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-2 border-t border-slate-100">
+                <span class="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider shrink-0 mr-1 flex items-center space-x-1">
+                    <i class="fa-solid fa-filter text-emerald-600 text-xs"></i>
+                    <span>Filter Status:</span>
+                </span>
+                @foreach($statusOptions as $key => $label)
+                    @php
+                        $isActive = ($currentStatus === (string)$key) || ($key === '' && empty($currentStatus));
+                        $queryParams = array_filter(array_merge(request()->except('page'), ['status' => $key !== '' ? $key : null]));
+                        $ajaxUrl = route('leads.index', $queryParams);
+                    @endphp
+                    <a href="{{ $ajaxUrl }}" 
+                       onclick="filterLeadsAjax('{{ $ajaxUrl }}', event)"
+                       class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition border cursor-pointer whitespace-nowrap flex items-center space-x-1.5 {{ $isActive ? 'bg-[#059669] text-white border-[#059669] shadow-2xs' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' }}">
+                        <span>{{ $label }}</span>
+                        @if($isActive)
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
         </div>
-
-        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-medium text-slate-500">Site Visits</span>
-                <div class="text-xl font-bold text-purple-600 font-mono mt-0.5">{{ $leads->where('status', 'site_visit')->count() }}</div>
-            </div>
-            <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fa-solid fa-building text-purple-600"></i></span>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-medium text-slate-500">Converted</span>
-                <div class="text-xl font-bold text-emerald-600 font-mono mt-0.5">{{ $leads->whereIn('status', ['converted', 'booked'])->count() }}</div>
-            </div>
-            <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-trophy text-emerald-600"></i></span>
-        </div>
-    </div>
-
-    <!-- Search & Filter Controls -->
-    <div class="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
-        <form method="GET" action="{{ route('leads.index') }}" class="flex flex-col md:flex-row items-center gap-2.5 w-full md:w-auto flex-1">
-            <div class="relative w-full md:w-80">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or code..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500 transition">
-                <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </div>
-
-            <select name="status" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-indigo-500">
-                <option value="">All Statuses</option>
-                <option value="new" {{ request('status') == 'new' ? 'selected' : '' }}>New Leads</option>
-                <option value="contacted" {{ request('status') == 'contacted' ? 'selected' : '' }}>Contacted</option>
-                <option value="follow_up" {{ request('status') == 'follow_up' ? 'selected' : '' }}>Follow Up</option>
-                <option value="site_visit" {{ request('status') == 'site_visit' ? 'selected' : '' }}>Site Visit</option>
-                <option value="interested" {{ request('status') == 'interested' ? 'selected' : '' }}>Interested</option>
-                <option value="negotiation" {{ request('status') == 'negotiation' ? 'selected' : '' }}>Negotiation</option>
-                <option value="converted" {{ request('status') == 'converted' ? 'selected' : '' }}>Converted (Booked)</option>
-                <option value="lost" {{ request('status') == 'lost' ? 'selected' : '' }}>Lost</option>
-            </select>
-            <button type="submit" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition">Filter</button>
-        </form>
-    </div>
 
     <!-- VIEW 1: DRAG & DROP INTERACTIVE PIPELINE KANBAN BOARD -->
     <div x-show="viewMode === 'kanban'" x-transition class="overflow-x-auto pb-6">
@@ -366,6 +407,7 @@
             {{ $leads->links() }}
         </div>
     </div>
+    </div> <!-- End #leadsDynamicContainer -->
 
     <!-- Create Lead Modal -->
     <div id="createLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-2xs p-4">
@@ -566,5 +608,60 @@
 
         document.getElementById('historyModal').classList.remove('hidden');
     }
+
+    // Dynamic AJAX Filter Engine
+    window.filterLeadsAjax = function(url, event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const container = document.getElementById('leadsDynamicContainer');
+        if (!container) {
+            window.location.href = url;
+            return;
+        }
+
+        container.style.opacity = '0.4';
+        container.style.pointerEvents = 'none';
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContainer = doc.getElementById('leadsDynamicContainer');
+
+            if (newContainer) {
+                container.innerHTML = newContainer.innerHTML;
+                window.history.pushState({}, '', url);
+            } else {
+                window.location.href = url;
+            }
+        })
+        .catch(err => {
+            console.error('AJAX Filter Error:', err);
+            window.location.href = url;
+        })
+        .finally(() => {
+            if (container) {
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'auto';
+            }
+        });
+    };
+
+    window.filterLeadsAjaxForm = function(form, event) {
+        if (event) {
+            event.preventDefault();
+        }
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        const url = form.action + '?' + params.toString();
+        filterLeadsAjax(url, event);
+    };
 </script>
 @endsection

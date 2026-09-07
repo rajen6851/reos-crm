@@ -26,6 +26,8 @@ class User extends Authenticatable
         'avatar_path',
         'is_active',
         'is_super_admin',
+        'is_saas_sub_admin',
+        'saas_permissions',
         'fcm_token',
         'device_type',
     ];
@@ -42,6 +44,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
+            'is_saas_sub_admin' => 'boolean',
+            'saas_permissions' => 'array',
         ];
     }
 
@@ -112,6 +116,30 @@ class User extends Authenticatable
     public function isSaaSFounder(): bool
     {
         return (bool) $this->is_super_admin;
+    }
+
+    public function isSaaSSubAdmin(): bool
+    {
+        return !$this->is_super_admin && (bool) $this->is_saas_sub_admin;
+    }
+
+    public function isSaaSAdmin(): bool
+    {
+        return $this->is_super_admin || $this->isSaaSSubAdmin();
+    }
+
+    public function hasSaaSPermission(string $permissionSlug): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        if (!$this->isSaaSSubAdmin()) {
+            return false;
+        }
+
+        $permissions = $this->saas_permissions ?? [];
+        return in_array($permissionSlug, $permissions);
     }
 
     public function isCompanyAdmin(): bool

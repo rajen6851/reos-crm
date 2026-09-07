@@ -287,6 +287,8 @@
                             };
                             if (auth()->user()->is_super_admin) {
                                 $headerRoleTitle = 'SaaS Founder';
+                            } elseif (auth()->user()->is_saas_sub_admin) {
+                                $headerRoleTitle = 'SaaS Sub-Admin';
                             }
                         @endphp
                         <div class="text-[10px] font-medium text-slate-400 leading-tight">
@@ -313,8 +315,10 @@
             $isBroker = $u->isBroker();
             $isSales = $u->isSales();
             $isManager = $u->isManager();
-            $isAdmin = $u->isCompanyAdmin() || $u->isSaaSFounder();
+            $isAdmin = $u->isCompanyAdmin();
             $isFounder = $u->isSaaSFounder();
+            $isSaasAdmin = $u->isSaaSAdmin();
+            $pendingApprovalsCount = $isSaasAdmin ? \App\Models\SaasApprovalRequest::where('status', 'pending')->count() : 0;
         @endphp
 
         <!-- Clean Off-White Sidebar Navigation -->
@@ -323,7 +327,7 @@
             <!-- CATEGORY 1: CRM & SAAS NAVIGATION -->
             <div class="space-y-1">
                 <div class="px-3 pt-1 pb-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
-                    {{ $isFounder ? 'SaaS Platform Founder Scope' : 'CRM Navigation' }}
+                    {{ $isSaasAdmin ? ($isFounder ? 'SaaS Platform Founder Scope' : 'SaaS Sub-Admin Scope') : 'CRM Navigation' }}
                 </div>
 
                 <!-- 1. Dashboard -->
@@ -332,27 +336,52 @@
                     <span>Dashboard</span>
                 </a>
 
-                <!-- 1.1 Team & Broker Chat -->
+                {{-- 
+                <!-- 1.1 Team & Broker Chat (Disabled for now) -->
                 <a href="{{ route('chat.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
                     <i class="fa-solid fa-comments text-xs w-4 text-center {{ request()->routeIs('chat.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Team Chat</span>
                 </a>
+                --}}
 
-                @if($isFounder)
-                <!-- 2. Builder Tenant Companies (SuperAdmin) -->
-                <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.companies.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-building-user text-xs w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Builder Companies</span>
-                </a>
+                @if($isSaasAdmin)
+                    @if($u->hasSaaSPermission('view_companies') || $u->hasSaaSPermission('onboard_companies'))
+                    <!-- 2. Builder Tenant Companies (SaaS Admin) -->
+                    <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.companies.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
+                        <i class="fa-solid fa-building-user text-xs w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
+                        <span>Builder Companies</span>
+                    </a>
+                    @endif
 
-                <!-- 3. SaaS Subscriptions (SuperAdmin) -->
-                <a href="{{ route('admin.saas-subscriptions') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.saas-subscriptions') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-gem text-xs w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>SaaS Subscriptions</span>
-                </a>
+                    @if($u->hasSaaSPermission('manage_subscriptions'))
+                    <!-- 3. SaaS Subscriptions (SaaS Admin) -->
+                    <a href="{{ route('admin.saas-subscriptions') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.saas-subscriptions') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
+                        <i class="fa-solid fa-gem text-xs w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
+                        <span>SaaS Subscriptions</span>
+                    </a>
+                    @endif
+
+                    @if($u->hasSaaSPermission('manage_subadmins'))
+                    <!-- 3.1 SaaS Sub-Admins -->
+                    <a href="{{ route('admin.sub-admins.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.sub-admins.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
+                        <i class="fa-solid fa-user-shield text-xs w-4 text-center {{ request()->routeIs('admin.sub-admins.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
+                        <span>SaaS Sub-Admins</span>
+                    </a>
+                    @endif
+
+                    <!-- 3.2 Pending Approvals Queue -->
+                    <a href="{{ route('admin.saas-approvals') }}" class="flex items-center justify-between px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.saas-approvals') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-clock-rotate-left text-xs w-4 text-center {{ request()->routeIs('admin.saas-approvals') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
+                            <span>Pending Approvals</span>
+                        </div>
+                        @if($pendingApprovalsCount > 0)
+                            <span class="px-2 py-0.5 text-[10px] font-extrabold bg-amber-500 text-white rounded-full">{{ $pendingApprovalsCount }}</span>
+                        @endif
+                    </a>
                 @endif
 
-                @if(!$isFounder)
+                @if(!$isSaasAdmin)
                 @if(!$isBroker)
                 <!-- 1.5 Interactive Calendar Schedule -->
                 <a href="{{ route('calendar.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('calendar.*') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
@@ -409,7 +438,7 @@
                 @endif
             </div>
 
-            @if(!$isFounder)
+            @if(!$isSaasAdmin)
             <!-- CATEGORY 2: OPERATIONS & INVENTORY -->
             <div class="space-y-1 border-t border-[#E2E8F0] pt-3">
                 <div class="px-3 pb-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Operations & Inventory</div>
@@ -428,13 +457,15 @@
                 </a>
                 @endif
 
+                {{-- 
+                <!-- HRMS & Staff Attendance (Disabled for now) -->
                 @if(!$isBroker)
-                <!-- HRMS & Staff Attendance -->
                 <a href="{{ route('hrms.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('hrms.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-clipboard-user text-xs w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>HRMS & Attendance</span>
                 </a>
                 @endif
+                --}}
 
                 @if($isAdmin || $isManager)
                 <!-- Team & Users -->
@@ -464,7 +495,7 @@
                     <span>Notifications</span>
                 </a>
 
-                @if(!$isFounder)
+                @if(!$isSaasAdmin)
                 <!-- KYC & Document Vault -->
                 <a href="{{ route('documents.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('documents.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-folder-open text-xs w-4 text-center {{ request()->routeIs('documents.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
@@ -487,7 +518,7 @@
                 @endcan
 
                 @can('manage-company-settings')
-                @if(!$isFounder)
+                @if(!$isSaasAdmin)
                 <!-- Single Builder Company Settings (RERA License, GSTIN) -->
                 <a href="{{ route('company-settings.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('company-settings.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
                     <i class="fa-solid fa-gear text-xs w-4 text-center {{ request()->routeIs('company-settings.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>

@@ -19,8 +19,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. SaaS Platform SuperAdmin / Platform Founder Dashboard
-        if ($user->isSaaSFounder()) {
+        // 1. SaaS Platform SuperAdmin / Sub-Admin Dashboard
+        if ($user->isSaaSAdmin()) {
             $totalCompanies = Company::count();
             $activeSubscriptions = Company::where('status', 'active')->count();
             $totalPlatformRevenue = 4999.00 + 14999.00;
@@ -37,7 +37,10 @@ class DashboardController extends Controller
                 }
             ])->latest()->get();
 
-            return view('dashboard.founder', compact('user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 'subscriptionPlans', 'companies'));
+            $pendingApprovalsCount = \App\Models\SaasApprovalRequest::where('status', 'pending')->count();
+            $saasSubAdminsCount = User::where('is_saas_sub_admin', true)->count();
+
+            return view('dashboard.founder', compact('user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 'subscriptionPlans', 'companies', 'pendingApprovalsCount', 'saasSubAdminsCount'));
         }
 
         // 2. Broker / Channel Partner Dashboard
@@ -180,16 +183,37 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized. Only SaaS Platform Founder can update company subscriptions.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('manage_subscriptions')) {
+            return back()->with('error', 'Unauthorized. SaaS subscription management permission required.');
         }
 
         $validated = $request->validate([
             'status' => 'required|in:active,suspended,pending_subscription,expired',
             'subscription_plan_id' => 'required|exists:subscription_plans,id',
+            'reason' => 'nullable|string',
         ]);
 
         $plan = SubscriptionPlan::findOrFail($validated['subscription_plan_id']);
+
+        // If Sub-Admin, create approval request instead of direct update
+        if ($user->isSaaSSubAdmin()) {
+            \App\Models\SaasApprovalRequest::create([
+                'requested_by_user_id' => $user->id,
+                'action_type' => 'update_company_status',
+                'target_type' => Company::class,
+                'target_id' => $company->id,
+                'target_name' => $company->name,
+                'payload' => [
+                    'company_id' => $company->id,
+                    'status' => $validated['status'],
+                    'subscription_plan_id' => $plan->id,
+                ],
+                'reason' => $validated['reason'] ?? "Request to update subscription status to '{$validated['status']}' on plan '{$plan->name}'",
+                'status' => 'pending',
+            ]);
+
+            return back()->with('success', "Subscription update request for company '{$company->name}' submitted to SaaS Founder for approval!");
+        }
 
         $company->update([
             'status' => $validated['status'],
@@ -253,11 +277,27 @@ class DashboardController extends Controller
         return back()->with('success', "Company '{$company->name}' details updated successfully!");
     }
 
-    public function destroyCompanyByFounder(Company $company)
+    public function destroyCompanyByFounder(Request $request, Company $company)
     {
         $user = Auth::user();
-        if (!$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('delete_companies')) {
+            return back()->with('error', 'Unauthorized to delete builder companies.');
+        }
+
+        // If Sub-Admin, request approval from SaaS Founder
+        if ($user->isSaaSSubAdmin()) {
+            \App\Models\SaasApprovalRequest::create([
+                'requested_by_user_id' => $user->id,
+                'action_type' => 'delete_company',
+                'target_type' => Company::class,
+                'target_id' => $company->id,
+                'target_name' => $company->name . " (Code: {$company->code})",
+                'payload' => ['company_id' => $company->id],
+                'reason' => $request->input('reason', 'Sub-admin requested company deletion.'),
+                'status' => 'pending',
+            ]);
+
+            return back()->with('success', "Approval request to delete company '{$company->name}' submitted to SaaS Founder!");
         }
 
         $name = $company->name;
@@ -269,8 +309,8 @@ class DashboardController extends Controller
     public function showCompanyByFounder($id)
     {
         $user = Auth::user();
-        if (!$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized.');
+        if (!$user->isSaaSAdmin() || (!$user->hasSaaSPermission('view_companies') && !$user->hasSaaSPermission('onboard_companies'))) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized. Company viewing permission required.');
         }
 
         $company = Company::withoutGlobalScopes()
@@ -318,8 +358,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized. Only SaaS Platform Founder can view company list.');
+        if (!$user->isSaaSAdmin() || (!$user->hasSaaSPermission('view_companies') && !$user->hasSaaSPermission('onboard_companies'))) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized. Company viewing permission required.');
         }
 
         $totalCompanies = Company::count();
@@ -350,8 +390,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized. Only SaaS Platform Founder can onboard companies.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('onboard_companies')) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized. Company onboarding permission required.');
         }
 
         $subscriptionPlans = SubscriptionPlan::all();
@@ -366,8 +406,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized. Only SaaS Platform Founder can onboard companies.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('onboard_companies')) {
+            return back()->with('error', 'Unauthorized. Company onboarding permission required.');
         }
 
         $validated = $request->validate([
@@ -446,8 +486,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('manage_subscriptions')) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized. SaaS subscription management permission required.');
         }
 
         $totalCompanies = Company::count();
@@ -465,8 +505,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized. Only SaaS Platform Founder can create plans.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('manage_subscriptions')) {
+            return back()->with('error', 'Unauthorized. SaaS subscription management permission required.');
         }
 
         $validated = $request->validate([
@@ -495,12 +535,28 @@ class DashboardController extends Controller
         return back()->with('success', "New SaaS Subscription Plan '{$plan->name}' created successfully!");
     }
 
-    public function destroySubscriptionPlan(SubscriptionPlan $plan)
+    public function destroySubscriptionPlan(Request $request, SubscriptionPlan $plan)
     {
         $user = Auth::user();
 
-        if (!$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized. Only SaaS Platform Founder can delete plans.');
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('delete_plans')) {
+            return back()->with('error', 'Unauthorized to delete subscription plans.');
+        }
+
+        // If Sub-Admin, request approval from SaaS Founder
+        if ($user->isSaaSSubAdmin()) {
+            \App\Models\SaasApprovalRequest::create([
+                'requested_by_user_id' => $user->id,
+                'action_type' => 'destroy_plan',
+                'target_type' => SubscriptionPlan::class,
+                'target_id' => $plan->id,
+                'target_name' => $plan->name,
+                'payload' => ['plan_id' => $plan->id],
+                'reason' => $request->input('reason', 'Sub-admin requested SaaS plan deletion.'),
+                'status' => 'pending',
+            ]);
+
+            return back()->with('success', "Approval request to delete plan '{$plan->name}' submitted to SaaS Founder!");
         }
 
         $name = $plan->name;

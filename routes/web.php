@@ -49,6 +49,15 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/admin/saas-plans', [DashboardController::class, 'storeSubscriptionPlan'])->name('admin.saas-plans.store');
     Route::delete('/admin/saas-plans/{plan}', [DashboardController::class, 'destroySubscriptionPlan'])->name('admin.saas-plans.destroy');
 
+    // SaaS Multi Sub-Admin Management & Approval Workflow
+    Route::get('/admin/sub-admins', [\App\Http\Controllers\SaasSubAdminController::class, 'index'])->name('admin.sub-admins.index');
+    Route::post('/admin/sub-admins', [\App\Http\Controllers\SaasSubAdminController::class, 'store'])->name('admin.sub-admins.store');
+    Route::put('/admin/sub-admins/{user}', [\App\Http\Controllers\SaasSubAdminController::class, 'update'])->name('admin.sub-admins.update');
+    Route::delete('/admin/sub-admins/{user}', [\App\Http\Controllers\SaasSubAdminController::class, 'destroy'])->name('admin.sub-admins.destroy');
+    Route::get('/admin/saas-approvals', [\App\Http\Controllers\SaasSubAdminController::class, 'pendingApprovals'])->name('admin.saas-approvals');
+    Route::post('/admin/saas-approvals/{approvalRequest}/approve', [\App\Http\Controllers\SaasSubAdminController::class, 'approveRequest'])->name('admin.saas-approvals.approve');
+    Route::post('/admin/saas-approvals/{approvalRequest}/reject', [\App\Http\Controllers\SaasSubAdminController::class, 'rejectRequest'])->name('admin.saas-approvals.reject');
+
     // Broker Portal & Channel Partners Directory
     Route::get('/brokers', [BrokerController::class, 'brokersDirectory'])->name('brokers.index');
     Route::post('/brokers', [BrokerController::class, 'storeBroker'])->name('brokers.store');
@@ -135,6 +144,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/support-tickets/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])->name('support-tickets.update-status');
     Route::delete('/support-tickets/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
 
+    /*
     // Internal & Broker Single and Group Chat System
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/conversations', [ChatController::class, 'fetchConversations'])->name('chat.conversations');
@@ -142,7 +152,9 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/chat/{chat}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/chat/direct', [ChatController::class, 'startDirectChat'])->name('chat.direct');
     Route::post('/chat/group', [ChatController::class, 'createGroupChat'])->name('chat.group');
+    */
 
+    /*
     // System Activity Audit Logs & HRMS Attendance Module
     Route::get('/hrms', [\App\Http\Controllers\HrmsController::class, 'index'])->name('hrms.index');
     Route::post('/hrms/clock-in', [\App\Http\Controllers\HrmsController::class, 'clockIn'])->name('hrms.clock-in');
@@ -151,6 +163,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/hrms/leave-requests/{leaveRequest}/status', [\App\Http\Controllers\HrmsController::class, 'updateLeaveStatus'])->name('hrms.leave-requests.status');
     Route::post('/hrms/salary-slips', [\App\Http\Controllers\HrmsController::class, 'generateSalarySlip'])->name('hrms.salary-slips.store');
     Route::get('/hrms/salary-slips/{salarySlip}', [\App\Http\Controllers\HrmsController::class, 'showSalarySlip'])->name('hrms.salary-slips.show');
+    */
 
     // Operations, Analytics & System
     Route::get('/follow-ups', [FollowUpController::class, 'index'])->name('follow-ups.index');
