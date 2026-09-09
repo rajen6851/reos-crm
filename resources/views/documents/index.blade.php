@@ -1,219 +1,291 @@
 @extends('layouts.reos')
 
-@section('title', 'KYC & Document Vault – REOS Enterprise')
+@section('title', 'Company Private Digital Drive & File Vault – REOS Enterprise')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeTab: 'all' }">
+{{--
+|--------------------------------------------------------------------------
+| PREVIOUS INTER-ENTITY SHARING VIEW (COMMENTED OUT AS PER USER REQUEST)
+|--------------------------------------------------------------------------
+|
+| <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeTab: 'all' }">
+|     <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+|         <div class="space-y-1">
+|             <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-[#4F46E5] uppercase tracking-wider border border-indigo-100">
+|                 <i class="fa-solid fa-folder-open text-[#4F46E5]"></i>
+|                 <span>Enterprise Document Management Vault</span>
+|             </div>
+|             <h1 class="page-heading text-2xl font-extrabold text-[#0F172A] tracking-tight">KYC & Digital File Repository</h1>
+|             <p class="body-text text-xs text-[#64748B]">Organized identity verification, RERA licenses, partnership deeds, customer PAN/Aadhar cards, and employee records.</p>
+|         </div>
+|         <button onclick="document.getElementById('uploadKycModal').classList.remove('hidden')" class="px-5 py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
+|             <i class="fa-solid fa-cloud-arrow-up text-white text-sm"></i>
+|             <span>+ Upload KYC Document</span>
+|         </button>
+|     </div>
+|     <!-- Shared entity tables for Customers, Brokers, Employees... -->
+| </div>
+|
+--}}
+
+<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeCategory: 'all', activeConfidentiality: 'all', searchKeyword: '' }">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="space-y-1">
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-[#4F46E5] uppercase tracking-wider border border-indigo-100">
-                <i class="fa-solid fa-folder-open text-[#4F46E5]"></i>
-                <span>Enterprise Document Management Vault</span>
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 md:p-8 border border-slate-800 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="space-y-2 z-10">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 uppercase tracking-wider border border-indigo-400/30">
+                <i class="fa-solid fa-hard-drive text-indigo-400"></i>
+                <span>Company Private Drive & Cloud Storage</span>
             </div>
-            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A] tracking-tight">KYC & Digital File Repository</h1>
-            <p class="body-text text-xs text-[#64748B]">
-                Organized identity verification, RERA licenses, partnership deeds, customer PAN/Aadhar cards, and employee records.
+            <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Company Digital File Repository</h1>
+            <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                Secure internal Google Drive for your company's land title deeds, RERA approvals, GST & tax filings, audited balance sheets, corporate partnership agreements, and project marketing collaterals.
             </p>
         </div>
 
-        <button onclick="document.getElementById('uploadKycModal').classList.remove('hidden')" class="px-5 py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-            <i class="fa-solid fa-cloud-arrow-up text-white text-sm"></i>
-            <span>+ Upload KYC Document</span>
-        </button>
-    </div>
-
-    <!-- Metric Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
-            <div>
-                <span class="label-text text-[#64748B]">Total Repository Files</span>
-                <div class="text-2xl font-extrabold text-[#0F172A] mt-1 font-mono">{{ $documents->count() }} Files</div>
-            </div>
-            <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-lg border border-indigo-100"><i class="fa-solid fa-folder-tree"></i></span>
-        </div>
-
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
-            <div>
-                <span class="label-text text-[#64748B]">Expiring Soon (30 Days)</span>
-                <div class="text-2xl font-extrabold text-amber-600 mt-1 font-mono">{{ $expiringSoonCount }} Files</div>
-            </div>
-            <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg border border-amber-200"><i class="fa-solid fa-clock-rotate-left"></i></span>
-        </div>
-
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
-            <div>
-                <span class="label-text text-[#64748B]">Expired Documents</span>
-                <div class="text-2xl font-extrabold text-[#DC2626] mt-1 font-mono">{{ $expiredCount }} Files</div>
-            </div>
-            <span class="w-10 h-10 rounded-2xl bg-rose-50 text-[#DC2626] flex items-center justify-center text-lg border border-rose-200"><i class="fa-solid fa-circle-exclamation"></i></span>
+        <div class="flex items-center space-x-3 z-10 shrink-0">
+            <button onclick="document.getElementById('uploadCompanyDriveModal').classList.remove('hidden')" class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold rounded-2xl shadow-lg transition flex items-center space-x-2 cursor-pointer border border-indigo-400/30">
+                <i class="fa-solid fa-cloud-arrow-up text-white text-sm"></i>
+                <span>+ Upload Company File</span>
+            </button>
         </div>
     </div>
 
-    <!-- Category Filter Tabs Bar (Organized View) -->
-    <div class="flex items-center space-x-2 bg-white p-2 rounded-2xl border border-[#E2E8F0] shadow-2xs overflow-x-auto text-xs font-semibold">
-        <button @click="activeTab = 'all'" :class="activeTab === 'all' ? 'bg-[#FEF2F2] text-[#DC2626] border-[#FEE2E2]' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">
-            <i class="fa-solid fa-boxes-stacked"></i>
-            <span>All Documents ({{ $documents->count() }})</span>
-        </button>
+    <!-- Alert Status Messages -->
+    @if(session('status'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+            <span>{{ session('status') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-circle-xmark text-rose-600 text-base"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
 
-        <button @click="activeTab = 'customer'" :class="activeTab === 'customer' ? 'bg-sky-50 text-sky-800 border-sky-200' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">
-            <i class="fa-solid fa-user-tag text-sky-600"></i>
-            <span>Customer / Purchaser KYC ({{ $documents->filter(fn($d) => str_contains($d->documentable_type, 'Lead'))->count() }})</span>
-        </button>
+    <!-- Drive Metric Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+            <div>
+                <span class="text-slate-500 font-medium">Total Company Storage Files</span>
+                <div class="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{{ $totalFilesCount }} Files</div>
+            </div>
+            <span class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl border border-indigo-100"><i class="fa-solid fa-folder-tree"></i></span>
+        </div>
 
-        <button @click="activeTab = 'broker'" :class="activeTab === 'broker' ? 'bg-amber-50 text-amber-900 border-amber-200' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">
-            <i class="fa-solid fa-handshake text-amber-600"></i>
-            <span>Broker & Partner Licenses ({{ $documents->filter(fn($d) => str_contains($d->documentable_type, 'Broker'))->count() }})</span>
-        </button>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+            <div>
+                <span class="text-slate-500 font-medium">Legal & RERA Documents</span>
+                <div class="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">{{ $legalFilesCount }} Files</div>
+            </div>
+            <span class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl border border-emerald-100"><i class="fa-solid fa-scale-balanced"></i></span>
+        </div>
 
-        <button @click="activeTab = 'employee'" :class="activeTab === 'employee' ? 'bg-purple-50 text-purple-900 border-purple-200' : 'text-[#475569] border-transparent hover:bg-slate-50'" class="px-4 py-2 rounded-xl border transition flex items-center space-x-2 cursor-pointer shrink-0">
-            <i class="fa-solid fa-user-tie text-purple-600"></i>
-            <span>Staff Employee Records ({{ $documents->filter(fn($d) => str_contains($d->documentable_type, 'User'))->count() }})</span>
-        </button>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+            <div>
+                <span class="text-slate-500 font-medium">Tax & Financial Assets</span>
+                <div class="text-2xl font-extrabold text-sky-700 mt-1 font-mono">{{ $financialFilesCount }} Files</div>
+            </div>
+            <span class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl border border-sky-100"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+            <div>
+                <span class="text-slate-500 font-medium">Confidential Vault Files</span>
+                <div class="text-2xl font-extrabold text-rose-700 mt-1 font-mono">{{ $confidentialFilesCount }} Files</div>
+            </div>
+            <span class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl border border-rose-100"><i class="fa-solid fa-lock"></i></span>
+        </div>
     </div>
 
-    <!-- Organized Documents List Table -->
-    <div class="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xs overflow-hidden">
-        <div class="p-5 border-b border-[#E2E8F0] flex justify-between items-center">
-            <h3 class="section-heading text-base">Organized Digital Documents Ledger</h3>
-            <span class="text-xs text-[#64748B] font-medium">Sorted by upload date</span>
+    <!-- Category / Folder Navigation Bar -->
+    <div class="bg-white p-3 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between px-2">
+            <span class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-folder text-indigo-600"></i>
+                <span>Company Drive Folders & Categories</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-medium">Private Tenant Storage</span>
+        </div>
+
+        <div class="flex items-center space-x-2 overflow-x-auto text-xs font-semibold pb-1 scrollbar-none">
+            <button @click="activeCategory = 'all'" :class="activeCategory === 'all' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-border-all"></i>
+                <span>All Drive Files ({{ $totalFilesCount }})</span>
+            </button>
+
+            <button @click="activeCategory = 'Legal & RERA Documents'" :class="activeCategory === 'Legal & RERA Documents' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-gavel text-amber-500"></i>
+                <span>Legal & RERA Approvals</span>
+            </button>
+
+            <button @click="activeCategory = 'Company Registration & Tax'" :class="activeCategory === 'Company Registration & Tax' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-building-flag text-sky-500"></i>
+                <span>Company Registration & GST</span>
+            </button>
+
+            <button @click="activeCategory = 'Financial & Banking Assets'" :class="activeCategory === 'Financial & Banking Assets' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-vault text-emerald-500"></i>
+                <span>Financial & Bank Audits</span>
+            </button>
+
+            <button @click="activeCategory = 'Project & Marketing Collaterals'" :class="activeCategory === 'Project & Marketing Collaterals' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-photo-film text-purple-500"></i>
+                <span>Project Marketing Collaterals</span>
+            </button>
+
+            <button @click="activeCategory = 'HR & Internal Policies'" :class="activeCategory === 'HR & Internal Policies' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-book-user text-rose-500"></i>
+                <span>HR Policies & Guidelines</span>
+            </button>
+
+            <button @click="activeCategory = 'General Drive Vault'" :class="activeCategory === 'General Drive Vault' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl transition flex items-center space-x-2 cursor-pointer shrink-0">
+                <i class="fa-solid fa-box-archive text-slate-500"></i>
+                <span>General Vault</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Confidentiality Filter Bar -->
+    <div class="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+        <div class="relative flex-1 max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400"></i>
+            <input type="text" x-model="searchKeyword" placeholder="Search company file by title, code or notes..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 font-medium">
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <span class="text-slate-500 font-semibold">Access Level Filter:</span>
+            <select x-model="activeConfidentiality" class="bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:border-indigo-500">
+                <option value="all">All Access Levels</option>
+                <option value="Confidential (Admins Only)">🔒 Confidential (Admins Only)</option>
+                <option value="Internal Team Access">👥 Internal Team Access</option>
+                <option value="Public / Shareable">🌐 Public / Shareable</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Company Files Table & Ledger -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        <div class="p-5 border-b border-slate-200/80 flex justify-between items-center">
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900">Company Private Files & Vault Ledger</h3>
+                <p class="text-xs text-slate-500">Strictly isolated internal company assets</p>
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Total: {{ $documents->count() }} records</span>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-[#64748B] font-bold border-b border-[#E2E8F0] uppercase tracking-wider text-[10px]">
+                <thead class="bg-slate-50/90 text-slate-500 font-bold border-b border-slate-200/80 uppercase tracking-wider text-[10px]">
                     <tr>
-                        <th class="p-4">Entity Type & Owner Name</th>
-                        <th class="p-4">Document Details</th>
-                        <th class="p-4">Doc Number</th>
-                        <th class="p-4">Expiry Date</th>
-                        <th class="p-4">Verification Status</th>
+                        <th class="p-4">Document Title & Name</th>
+                        <th class="p-4">Drive Folder / Category</th>
+                        <th class="p-4">Confidentiality Tag</th>
+                        <th class="p-4">Uploaded / Renewal Date</th>
                         <th class="p-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#E2E8F0] font-medium">
+                <tbody class="divide-y divide-slate-200/80 font-medium">
                     @forelse($documents as $doc)
                     @php
-                        $isCustomer = str_contains($doc->documentable_type, 'Lead');
-                        $isBroker = str_contains($doc->documentable_type, 'Broker');
-                        $isUser = str_contains($doc->documentable_type, 'User');
+                        $isConfidential = str_contains($doc->document_number ?? '', 'Confidential');
+                        $isPublic = str_contains($doc->document_number ?? '', 'Public');
+                        $confCategory = $doc->document_number ?? 'Internal Team Access';
 
-                        $tabCategory = $isCustomer ? 'customer' : ($isBroker ? 'broker' : 'employee');
-
-                        $entityName = 'N/A';
-                        $entitySub = 'Record ID #' . $doc->documentable_id;
-                        $entityPhone = '';
-
-                        if ($isCustomer && $doc->documentable) {
-                            $entityName = $doc->documentable->first_name . ' ' . $doc->documentable->last_name;
-                            $entitySub = 'Customer Code: ' . ($doc->documentable->lead_code ?? 'LD-' . $doc->documentable_id);
-                            $entityPhone = $doc->documentable->phone;
-                        } elseif ($isBroker && $doc->documentable) {
-                            $entityName = $doc->documentable->agency_name;
-                            $entitySub = 'Broker Code: ' . ($doc->documentable->broker_code ?? 'BRK-' . $doc->documentable_id);
-                            $entityPhone = $doc->documentable->phone;
-                        } elseif ($isUser && $doc->documentable) {
-                            $entityName = $doc->documentable->name;
-                            $entitySub = 'Staff Designation: ' . ($doc->documentable->designation ?? 'Employee');
-                            $entityPhone = $doc->documentable->phone ?? $doc->documentable->email;
-                        }
+                        $isPdf = str_contains($doc->file_path, '.pdf');
+                        $isImg = str_contains($doc->file_path, '.jpg') || str_contains($doc->file_path, '.png') || str_contains($doc->file_path, '.jpeg');
                     @endphp
-                    <tr x-show="activeTab === 'all' || activeTab === '{{ $tabCategory }}'" class="hover:bg-slate-50/80 transition">
-                        <!-- Entity Owner Column -->
+                    <tr x-show="(activeCategory === 'all' || activeCategory === '{{ $doc->document_type }}') && (activeConfidentiality === 'all' || activeConfidentiality === '{{ $confCategory }}') && (searchKeyword === '' || '{{ strtolower($doc->notes ?? '') }}'.includes(searchKeyword.toLowerCase()) || '{{ strtolower($doc->document_type) }}'.includes(searchKeyword.toLowerCase()))" class="hover:bg-slate-50/80 transition">
+                        <!-- Document Title -->
                         <td class="p-4">
-                            <div class="flex items-center space-x-3">
-                                @if($isCustomer)
-                                    <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 font-bold text-xs flex items-center justify-center border border-sky-200 shrink-0">
-                                        <i class="fa-solid fa-user text-sky-600"></i>
+                            <div class="flex items-center space-x-3.5">
+                                <div class="w-10 h-10 rounded-2xl {{ $isPdf ? 'bg-rose-50 text-rose-600 border-rose-200' : ($isImg ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-indigo-50 text-indigo-600 border-indigo-200') }} border font-bold text-base flex items-center justify-center shrink-0">
+                                    <i class="fa-solid {{ $isPdf ? 'fa-file-pdf' : ($isImg ? 'fa-file-image' : 'fa-file-lines') }}"></i>
+                                </div>
+                                <div>
+                                    <div class="font-extrabold text-slate-900 text-sm">
+                                        {{ $doc->notes ?? $doc->document_type }}
                                     </div>
-                                    <div>
-                                        <div class="font-extrabold text-[#0F172A] text-sm">{{ $entityName }}</div>
-                                        <div class="text-[11px] text-[#64748B] font-mono">{{ $entitySub }}</div>
-                                        @if($entityPhone)<div class="text-[10px] text-sky-700 font-mono font-bold"><i class="fa-solid fa-phone mr-1"></i>{{ $entityPhone }}</div>@endif
+                                    <div class="text-[11px] text-slate-400 font-mono mt-0.5">
+                                        Uploaded: {{ $doc->created_at->format('d M Y, h:i A') }}
                                     </div>
-                                @elseif($isBroker)
-                                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 font-bold text-xs flex items-center justify-center border border-amber-200 shrink-0">
-                                        <i class="fa-solid fa-handshake text-amber-600"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-extrabold text-[#0F172A] text-sm">{{ $entityName }}</div>
-                                        <div class="text-[11px] text-[#64748B] font-mono">{{ $entitySub }}</div>
-                                        @if($entityPhone)<div class="text-[10px] text-amber-800 font-mono font-bold"><i class="fa-solid fa-phone mr-1"></i>{{ $entityPhone }}</div>@endif
-                                    </div>
-                                @else
-                                    <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 font-bold text-xs flex items-center justify-center border border-purple-200 shrink-0">
-                                        <i class="fa-solid fa-user-tie text-purple-600"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-extrabold text-[#0F172A] text-sm">{{ $entityName }}</div>
-                                        <div class="text-[11px] text-[#64748B] font-mono">{{ $entitySub }}</div>
-                                        @if($entityPhone)<div class="text-[10px] text-purple-700 font-mono font-bold">{{ $entityPhone }}</div>@endif
-                                    </div>
-                                @endif
+                                </div>
                             </div>
                         </td>
 
-                        <!-- Document Details Column -->
+                        <!-- Category Folder -->
                         <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 text-[#4F46E5] border border-indigo-200 inline-flex items-center space-x-1.5">
-                                <i class="fa-solid fa-file-pdf text-[#4F46E5]"></i>
+                            <span class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200 inline-flex items-center space-x-1.5">
+                                <i class="fa-solid fa-folder text-indigo-500"></i>
                                 <span>{{ $doc->document_type }}</span>
                             </span>
-                            @if($doc->notes)
-                                <div class="text-[11px] text-[#64748B] mt-1 font-medium italic">"{{ $doc->notes }}"</div>
+                        </td>
+
+                        <!-- Confidentiality Tag -->
+                        <td class="p-4">
+                            @if($isConfidential)
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-lock text-rose-600"></i>
+                                    <span>Confidential (Admins)</span>
+                                </span>
+                            @elseif($isPublic)
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-globe text-emerald-600"></i>
+                                    <span>Public / Shareable</span>
+                                </span>
+                            @else
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200 inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-users text-sky-600"></i>
+                                    <span>Internal Team Access</span>
+                                </span>
                             @endif
                         </td>
 
-                        <!-- Document Number -->
-                        <td class="p-4 font-mono font-bold text-[#0F172A]">
-                            {{ $doc->document_number ?? 'N/A' }}
-                        </td>
-
-                        <!-- Expiry Date -->
+                        <!-- Expiry / Renewal Date -->
                         <td class="p-4">
                             @if($doc->expiry_date)
                                 @php
                                     $isExpired = \Carbon\Carbon::parse($doc->expiry_date)->isPast();
                                 @endphp
-                                <span class="{{ $isExpired ? 'text-[#DC2626] font-bold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200' : 'text-[#0F172A] font-semibold' }}">
+                                <span class="{{ $isExpired ? 'text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200' : 'text-slate-900 font-semibold' }}">
+                                    <i class="fa-solid fa-calendar-days mr-1 text-slate-400"></i>
                                     {{ \Carbon\Carbon::parse($doc->expiry_date)->format('d M Y') }}
                                 </span>
                             @else
-                                <span class="text-slate-400 font-medium">No Expiry Date</span>
+                                <span class="text-slate-400 font-medium italic">No Renewal Needed</span>
                             @endif
-                        </td>
-
-                        <!-- Verification Status -->
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-[#059669] border border-emerald-200 inline-flex items-center space-x-1">
-                                <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                                <span>Verified</span>
-                            </span>
                         </td>
 
                         <!-- Action Buttons -->
                         <td class="p-4 text-right">
                             <div class="flex items-center justify-end space-x-2">
-                                <a href="{{ $doc->file_path }}" target="_blank" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] btn-text rounded-xl border border-indigo-200 transition flex items-center space-x-1">
-                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    <span>View File</span>
+                                <a href="{{ $doc->file_path }}" target="_blank" download class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl border border-indigo-200 transition flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-download"></i>
+                                    <span>Download</span>
                                 </a>
 
-                                <form method="POST" action="{{ route('documents.destroy', $doc->id) }}" onsubmit="return confirm('Delete this KYC document file?');">
+                                @if(Auth::user()->isCompanyAdmin() || Auth::user()->isManager() || Auth::user()->isSaaSFounder())
+                                <form method="POST" action="{{ route('documents.destroy', $doc->id) }}" onsubmit="return confirm('Delete this company drive file?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1.5 text-slate-400 hover:text-[#DC2626] transition" title="Delete File">
+                                    <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 transition cursor-pointer" title="Delete File">
                                         <i class="fa-solid fa-trash-can text-rose-500"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
-                            No organized KYC documents uploaded yet. Click "+ Upload KYC Document" to attach files.
+                        <td colspan="5" class="p-12 text-center text-slate-400 font-medium">
+                            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            No files uploaded to your Company Drive yet. Click "+ Upload Company File" to store internal documents.
                         </td>
                     </tr>
                     @endforelse
@@ -222,127 +294,72 @@
         </div>
     </div>
 
-    <!-- Upload KYC Modal (With Entity Dropdowns) -->
-    <div id="uploadKycModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-5">
-            <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
-                <h3 class="section-heading text-lg">Upload & Organize KYC File</h3>
-                <button onclick="document.getElementById('uploadKycModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+    <!-- Upload Company File Modal -->
+    <div id="uploadCompanyDriveModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+                    <h3 class="text-base font-extrabold text-slate-900">Upload to Company Private Drive</h3>
+                </div>
+                <button onclick="document.getElementById('uploadCompanyDriveModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer text-lg">✕</button>
             </div>
 
             <form action="{{ route('documents.kyc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
+
                 <div>
-                    <label class="form-label">Select Entity Category *</label>
-                    <select id="entityCategorySelect" name="documentable_type" onchange="toggleEntityOptions()" required class="form-input">
-                        <option value="App\Models\Lead">Customer / Purchaser (Lead)</option>
-                        <option value="App\Models\Broker">Broker</option>
-                        <option value="App\Models\User">Company Staff / Employee</option>
-                    </select>
-                </div>
-
-                <!-- Entity Selection Dropdowns -->
-                <div id="leadSelectWrapper">
-                    <label class="form-label">Select Customer Lead *</label>
-                    <select id="leadSelect" name="documentable_id" class="form-input">
-                        @foreach($leads as $l)
-                            <option value="{{ $l->id }}">{{ $l->first_name }} {{ $l->last_name }} ({{ $l->phone }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div id="brokerSelectWrapper" class="hidden">
-                    <label class="form-label">Select Broker *</label>
-                    <select id="brokerSelect" disabled name="documentable_id" class="form-input">
-                        @foreach($brokers as $b)
-                            <option value="{{ $b->id }}">{{ $b->agency_name }} ({{ $b->broker_code }} - {{ $b->phone }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div id="userSelectWrapper" class="hidden">
-                    <label class="form-label">Select Staff Employee *</label>
-                    <select id="userSelect" disabled name="documentable_id" class="form-input">
-                        @foreach($teamUsers as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
-                        @endforeach
-                    </select>
+                    <label class="form-label font-bold text-slate-700">Document Title / File Name *</label>
+                    <input type="text" name="file_name" required placeholder="e.g. Master Land Deed 2026 / RERA Approval License" class="form-input">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="form-label">Document Type *</label>
-                        <select name="document_type" required class="form-input">
-                            <option value="Aadhar Card">Aadhar Card</option>
-                            <option value="PAN Card">PAN Card</option>
-                            <option value="RERA License">RERA License</option>
-                            <option value="Partnership Deed">Partnership Deed</option>
-                            <option value="GST Certificate">GST Certificate</option>
-                            <option value="Passport">Passport</option>
+                        <label class="form-label font-bold text-slate-700">Folder / Category *</label>
+                        <select name="category" required class="form-input">
+                            <option value="Legal & RERA Documents">📜 Legal & RERA Documents</option>
+                            <option value="Company Registration & Tax">🏛️ Company Registration & GST</option>
+                            <option value="Financial & Banking Assets">💰 Financial & Banking Assets</option>
+                            <option value="Project & Marketing Collaterals">🎨 Project & Marketing Collaterals</option>
+                            <option value="HR & Internal Policies">📋 HR & Internal Policies</option>
+                            <option value="General Drive Vault">📁 General Drive Vault</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="form-label">Doc Number / ID</label>
-                        <input type="text" name="document_number" placeholder="ABCDE1234F" class="form-input font-mono">
+                        <label class="form-label font-bold text-slate-700">Confidentiality Level *</label>
+                        <select name="confidentiality" required class="form-input">
+                            <option value="Confidential (Admins Only)">🔒 Confidential (Admins Only)</option>
+                            <option value="Internal Team Access" selected>👥 Internal Team Access</option>
+                            <option value="Public / Shareable">🌐 Public / Shareable</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="form-label">Upload File (PDF/Image) *</label>
+                        <label class="form-label font-bold text-slate-700">Select Document File *</label>
                         <input type="file" name="document_file" required class="form-input">
+                        <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, ZIP (Max 20MB)</span>
                     </div>
 
                     <div>
-                        <label class="form-label">Expiry Date (Optional)</label>
+                        <label class="form-label font-bold text-slate-700">Renewal / Expiry Date (Optional)</label>
                         <input type="date" name="expiry_date" class="form-input font-mono">
                     </div>
                 </div>
 
                 <div>
-                    <label class="form-label">Notes / Instructions</label>
-                    <textarea name="notes" rows="2" placeholder="Self-attested KYC document..." class="form-input"></textarea>
+                    <label class="form-label font-bold text-slate-700">Notes / Description (Optional)</label>
+                    <textarea name="notes" rows="2" placeholder="Sanctioned layout plan approved by authority..." class="form-input"></textarea>
                 </div>
 
-                <div class="flex justify-end space-x-2 pt-2 border-t border-[#E2E8F0]">
-                    <button type="button" onclick="document.getElementById('uploadKycModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-[#0F172A] btn-text rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text rounded-xl shadow-xs">Upload & Organize File →</button>
+                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="document.getElementById('uploadCompanyDriveModal').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs cursor-pointer">Upload File →</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-<script>
-    function toggleEntityOptions() {
-        const cat = document.getElementById('entityCategorySelect').value;
-        const lWrap = document.getElementById('leadSelectWrapper');
-        const bWrap = document.getElementById('brokerSelectWrapper');
-        const uWrap = document.getElementById('userSelectWrapper');
-
-        const lSel = document.getElementById('leadSelect');
-        const bSel = document.getElementById('brokerSelect');
-        const uSel = document.getElementById('userSelect');
-
-        lWrap.classList.add('hidden');
-        bWrap.classList.add('hidden');
-        uWrap.classList.add('hidden');
-
-        lSel.disabled = true;
-        bSel.disabled = true;
-        uSel.disabled = true;
-
-        if (cat.includes('Lead')) {
-            lWrap.classList.remove('hidden');
-            lSel.disabled = false;
-        } else if (cat.includes('Broker')) {
-            bWrap.classList.remove('hidden');
-            bSel.disabled = false;
-        } else if (cat.includes('User')) {
-            uWrap.classList.remove('hidden');
-            uSel.disabled = false;
-        }
-    }
-</script>
 @endsection

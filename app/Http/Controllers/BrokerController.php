@@ -240,7 +240,14 @@ class BrokerController extends Controller
                 ->find($request->get('broker_id'));
         }
 
-        return view('brokers.index', compact('brokers', 'selectedBroker'));
+        $pendingBrokerApprovals = \App\Models\SaasApprovalRequest::where('company_id', Auth::user()->company_id)
+            ->where('action_type', 'delete_broker')
+            ->where('status', 'pending')
+            ->with(['requestedBy'])
+            ->latest()
+            ->get();
+
+        return view('brokers.index', compact('brokers', 'selectedBroker', 'pendingBrokerApprovals'));
     }
 
     public function storeBroker(Request $request)
@@ -332,12 +339,42 @@ class BrokerController extends Controller
         return redirect()->route('brokers.index')->with('success', "Partner Broker '{$broker->agency_name}' specs updated successfully!");
     }
 
-    public function destroy(Broker $broker)
+    public function destroy(Broker $broker, \App\Services\NotificationService $notificationService)
     {
-        if (!Auth::user()->isCompanyAdmin() && Auth::user()->role?->slug !== 'founder') {
-            return back()->with('error', 'Only Company Admins can delete broker profiles.');
+        $currentUser = Auth::user();
+
+        // CRITICAL APPROVAL FLOW: If non-Director tries to delete a Broker, send approval request
+        if (!$currentUser->isDirectorOrFounder()) {
+            \App\Models\SaasApprovalRequest::create([
+                'company_id' => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type' => 'delete_broker',
+                'target_type' => Broker::class,
+                'target_id' => $broker->id,
+                'target_name' => $broker->agency_name . " (" . ($broker->broker_code ?? 'BROKER') . ")",
+                'payload' => ['broker_id' => $broker->id],
+                'reason' => "Admin {$currentUser->name} requested deletion of broker '{$broker->agency_name}'.",
+                'status' => 'pending',
+            ]);
+
+            $directors = \App\Models\User::where('company_id', $currentUser->company_id)
+                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
+                ->get();
+
+            foreach ($directors as $director) {
+                $notificationService->notify(
+                    $director,
+                    'critical_approval_request',
+                    "🚨 Critical Approval Needed: Delete Channel Partner / Broker",
+                    "Admin {$currentUser->name} requested to DELETE broker profile '{$broker->agency_name}'. Please review and approve.",
+                    route('brokers.index')
+                );
+            }
+
+            return redirect()->route('brokers.index')->with('warning', "⚠️ Broker Deletion Request Submitted! Deleting a channel partner requires Main Owner / Director approval. Request sent to Director.");
         }
 
+        // Direct Deletion by Director / Founder
         $agencyName = $broker->agency_name;
         $broker->delete();
 

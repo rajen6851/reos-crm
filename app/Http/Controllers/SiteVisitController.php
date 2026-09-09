@@ -26,6 +26,8 @@ class SiteVisitController extends Controller
         if ($user->isSales()) {
             $query->where('assigned_to_user_id', $user->id);
             $logsQuery->where('user_id', $user->id);
+        } elseif ($user->isManager()) {
+            $query->where('assigned_to_manager_id', $user->id);
         }
 
         $siteVisits = $query->latest()->get();

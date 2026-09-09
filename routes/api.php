@@ -69,9 +69,11 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::post('/leads', [SalesExecutiveApiController::class, 'storeLead']);
+        Route::post('/leads/check-duplicate', [SalesExecutiveApiController::class, 'checkDuplicate']);
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
         Route::post('/leads/{id}/notes', [SalesExecutiveApiController::class, 'addNote']);
+        Route::post('/leads/{id}/calls', [SalesExecutiveApiController::class, 'logCall']);
         Route::get('/leads/{id}/follow-ups', [SalesExecutiveApiController::class, 'followUps']);
         Route::post('/leads/{id}/follow-ups', [SalesExecutiveApiController::class, 'scheduleFollowUp']);
         Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
@@ -81,11 +83,16 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
         Route::get('/projects/{id}/units', [SalesExecutiveApiController::class, 'projectUnits']);
         Route::get('/bookings', [SalesExecutiveApiController::class, 'bookings']);
         Route::post('/bookings', [SalesExecutiveApiController::class, 'createBooking']);
+        Route::post('/bookings/{id}/payments', [SalesExecutiveApiController::class, 'recordPayment']);
+        Route::post('/bookings/{id}/skip-agreement-request', [SalesExecutiveApiController::class, 'requestAgreementSkip']);
     });
 
     // Broker Subsystem APIs (/api/broker/*)
     Route::prefix('broker')->group(function () {
         Route::get('/dashboard', [BrokerApiController::class, 'dashboard']);
+        Route::get('/profile', [BrokerApiController::class, 'profile']);
+        Route::post('/bank-details', [BrokerApiController::class, 'updateBankDetails']);
+        Route::post('/payout-request', [BrokerApiController::class, 'requestPayout']);
         Route::post('/leads', [BrokerApiController::class, 'submitLead']);
         Route::get('/leads', [BrokerApiController::class, 'leads']);
         Route::get('/leads/{id}', [BrokerApiController::class, 'show']);
@@ -99,3 +106,4 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
         Route::post('/notifications/{id}/read', [BrokerApiController::class, 'markNotificationRead']);
     });
 });
+

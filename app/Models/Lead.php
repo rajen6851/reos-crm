@@ -23,6 +23,7 @@ class Lead extends Model
         'source_id',
         'broker_id',
         'assigned_to_user_id',
+        'assigned_to_manager_id',
         'interested_project_id',
         'interested_unit_type',
         'budget_min',
@@ -53,6 +54,11 @@ class Lead extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to_user_id');
+    }
+
+    public function assignedManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to_manager_id');
     }
 
     public function broker(): BelongsTo

@@ -34,7 +34,71 @@
         </div>
     </div>
 
-    <!-- Main Grid Row 1: Total Property Units Card + Property Inventory Donut Chart + Lead Summary Grid -->
+    <!-- Pending Critical Approval Requests for Director / Founder / Main Owner -->
+    @if(auth()->user()->isDirectorOrFounder() && isset($pendingCompanyApprovals) && $pendingCompanyApprovals->count() > 0)
+    <div class="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-[#0F172A] text-sm">Critical Approval Requests (Main Owner Verification Required)</h3>
+                    <p class="text-xs text-[#64748B]">Admins have requested critical actions (Staff/Project/Broker/Booking deletion or Admin user creation) that require your Director authorization.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-amber-200/80 text-amber-900 text-xs font-bold rounded-full border border-amber-300">
+                {{ $pendingCompanyApprovals->count() }} Pending Request{{ $pendingCompanyApprovals->count() > 1 ? 's' : '' }}
+            </span>
+        </div>
+
+        <div class="space-y-3">
+            @foreach($pendingCompanyApprovals as $approval)
+            <div class="bg-white rounded-2xl p-4 border border-amber-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg border {{ $approval->action_badge }}">
+                        {{ $approval->action_label }}
+                    </span>
+                    <div>
+                        <div class="text-xs font-bold text-[#0F172A]">
+                            Target Item: <span class="text-[#DC2626] font-mono">{{ $approval->target_name }}</span>
+                        </div>
+                        <div class="text-[11px] text-[#64748B] mt-0.5">
+                            Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                        </div>
+                        @if($approval->reason)
+                            <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
+                                💬 <em>"{{ $approval->reason }}"</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
+                    <form action="{{ route('users.approvals.approve', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to APPROVE & EXECUTE this critical action?')" class="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-check text-xs"></i>
+                            <span>Approve & Execute</span>
+                        </button>
+                    </form>
+
+                    <form action="{{ route('users.approvals.reject', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to REJECT this request?')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                            <span>Reject</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <!-- Main Grid Row 1 -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Col 1: Left Stats + Mini KPI Grid (4 cols on lg) -->
         <div class="lg:col-span-4 space-y-4 flex flex-col justify-between">

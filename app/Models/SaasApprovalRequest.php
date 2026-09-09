@@ -11,6 +11,7 @@ class SaasApprovalRequest extends Model
     use HasFactory;
 
     protected $fillable = [
+        'company_id',
         'requested_by_user_id',
         'action_type',
         'target_type',
@@ -45,9 +46,9 @@ class SaasApprovalRequest extends Model
     public function getActionBadgeAttribute(): string
     {
         return match ($this->action_type) {
-            'delete_company' => 'bg-rose-100 text-rose-800 border-rose-300',
-            'destroy_plan' => 'bg-amber-100 text-amber-800 border-amber-300',
-            'update_company_status' => 'bg-sky-100 text-sky-800 border-sky-300',
+            'delete_company', 'delete_user', 'delete_project', 'delete_broker', 'delete_booking' => 'bg-rose-100 text-rose-800 border-rose-300',
+            'destroy_plan', 'promote_user', 'create_admin_user' => 'bg-amber-100 text-amber-800 border-amber-300',
+            'update_company_status', 'update_user_role' => 'bg-sky-100 text-sky-800 border-sky-300',
             'delete_subadmin' => 'bg-purple-100 text-purple-800 border-purple-300',
             default => 'bg-slate-100 text-slate-800 border-slate-300',
         };
@@ -60,6 +61,13 @@ class SaasApprovalRequest extends Model
             'destroy_plan' => 'Delete SaaS Subscription Plan',
             'update_company_status' => 'Update Company Subscription Status',
             'delete_subadmin' => 'Delete SaaS Sub-Admin',
+            'delete_user' => 'Delete Staff Account',
+            'delete_project' => 'Delete Real Estate Project',
+            'delete_broker' => 'Delete Channel Partner / Broker',
+            'delete_booking' => 'Delete Property Booking & Contract',
+            'promote_user' => 'Promote to Admin/Director',
+            'create_admin_user' => 'Create Admin Account',
+            'update_user_role' => 'Update Staff Role & Rights',
             default => str_replace('_', ' ', ucfirst($this->action_type)),
         };
     }

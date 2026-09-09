@@ -572,4 +572,171 @@ class SalesExecutiveApiController extends Controller
             'data' => $booking->load(['unit', 'lead', 'project']),
         ], 201);
     }
+
+    /**
+     * Live duplicate lead detection before submission from mobile app
+     */
+    public function checkDuplicate(Request $request, DuplicateLeadService $duplicateService)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'phone' => 'required|string',
+            'email' => 'nullable|email',
+        ]);
+
+        $duplicate = $duplicateService->findDuplicate($user->company_id, $validated['phone'], $validated['email'] ?? null);
+
+        if (!$duplicate) {
+            return response()->json([
+                'status' => 'success',
+                'is_duplicate' => false,
+                'message' => 'No duplicate lead found.',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'is_duplicate' => true,
+            'duplicate_lead' => [
+                'id' => $duplicate->id,
+                'lead_code' => $duplicate->lead_code,
+                'name' => trim($duplicate->first_name . ' ' . $duplicate->last_name),
+                'phone' => $duplicate->phone,
+                'email' => $duplicate->email,
+                'status' => $duplicate->status,
+                'assigned_to' => $duplicate->assignedToUser?->name ?? 'Unassigned',
+                'created_at' => $duplicate->created_at->format('Y-m-d H:i:s'),
+            ],
+            'message' => 'Duplicate lead exists in system.',
+        ]);
+    }
+
+    /**
+     * Log calling activity (Connected, Not Connected, Busy, Callback Required, Missed Call)
+     */
+    public function logCall(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        $lead = Lead::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'call_status' => 'required|in:connected,not_connected,busy,callback_required,missed_call',
+            'duration_seconds' => 'nullable|integer|min:0',
+            'notes' => 'nullable|string',
+            'next_followup_at' => 'nullable|date',
+        ]);
+
+        $statusLabel = match ($validated['call_status']) {
+            'connected' => 'Call Connected',
+            'not_connected' => 'Call Not Connected',
+            'busy' => 'Line Busy',
+            'callback_required' => 'Callback Requested',
+            'missed_call' => 'Missed Call Alert',
+        };
+
+        $activity = LeadActivity::create([
+            'company_id' => $user->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'activity_type' => 'call_logged',
+            'description' => "[$statusLabel] Duration: " . ($validated['duration_seconds'] ?? 0) . "s. Notes: " . ($validated['notes'] ?? 'None'),
+        ]);
+
+        if (!empty($validated['next_followup_at'])) {
+            FollowUp::create([
+                'company_id' => $user->company_id,
+                'lead_id' => $lead->id,
+                'user_id' => $user->id,
+                'scheduled_at' => $validated['next_followup_at'],
+                'notes' => "Auto-scheduled after call status: $statusLabel",
+                'status' => 'pending',
+            ]);
+
+            if (in_array($lead->status, ['new', 'assigned', 'contacted'])) {
+                $lead->update(['status' => 'follow_up']);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Call logged successfully.',
+            'data' => $activity,
+        ], 201);
+    }
+
+    /**
+     * Record payment entry directly from mobile field app
+     */
+    public function recordPayment(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        $booking = Booking::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'payment_method' => 'required|string|in:cash,cheque,upi,bank_transfer,card,online',
+            'reference_number' => 'nullable|string|max:100',
+            'notes' => 'nullable|string',
+        ]);
+
+        $payment = \App\Models\Payment::create([
+            'company_id' => $user->company_id,
+            'booking_id' => $booking->id,
+            'receipt_number' => 'RCP-' . time() . '-' . rand(100, 999),
+            'amount' => $validated['amount'],
+            'payment_date' => now(),
+            'payment_method' => $validated['payment_method'] === 'bank_transfer' ? 'net_banking' : $validated['payment_method'],
+            'transaction_reference' => $validated['reference_number'] ?? null,
+            'status' => 'cleared',
+            'notes' => $validated['notes'] ?? 'Payment recorded via mobile app by ' . $user->name,
+            'recorded_by_user_id' => $user->id,
+            'created_by_user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Payment entry recorded and receipt generated.',
+            'data' => $payment,
+        ], 201);
+    }
+
+    /**
+     * Submit Agreement Skip Request from Mobile App (Approval Workflow)
+     */
+    public function requestAgreementSkip(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        $booking = Booking::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $agreement = \App\Models\Agreement::updateOrCreate(
+            ['company_id' => $user->company_id, 'booking_id' => $booking->id],
+            [
+                'agreement_number' => 'AGR-' . time(),
+                'status' => 'skip_requested',
+                'skip_requested_by_user_id' => $user->id,
+                'skip_reason' => $validated['reason'],
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Agreement skip request submitted for Manager & Founder approval.',
+            'data' => $agreement,
+        ], 201);
+    }
 }
+

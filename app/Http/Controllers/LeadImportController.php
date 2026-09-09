@@ -85,7 +85,7 @@ class LeadImportController extends Controller
                 $execIndex++;
             }
 
-            Lead::create([
+            $newLead = Lead::create([
                 'company_id' => $user->company_id,
                 'assigned_to_user_id' => $assignedUserId,
                 'project_id' => $defaultProject?->id,
@@ -98,6 +98,9 @@ class LeadImportController extends Controller
                 'priority' => 'warm',
                 'notes' => 'Imported via CSV bulk upload.',
             ]);
+
+            // Auto-distribute to Manager Round-Robin Pool
+            app(\App\Services\LeadDistributionService::class)->distributeNewLead($newLead, app(\App\Services\NotificationService::class));
 
             $importedCount++;
         }

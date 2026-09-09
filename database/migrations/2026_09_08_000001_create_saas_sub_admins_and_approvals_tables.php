@@ -19,6 +19,7 @@ return new class extends Migration
 
         Schema::create('saas_approval_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->nullable()->constrained('companies')->cascadeOnDelete();
             $table->foreignId('requested_by_user_id')->constrained('users')->cascadeOnDelete();
             $table->string('action_type'); // e.g. delete_company, destroy_plan, update_company_status, delete_subadmin
             $table->string('target_type')->nullable(); // e.g. App\Models\Company, App\Models\SubscriptionPlan

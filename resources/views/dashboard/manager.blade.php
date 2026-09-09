@@ -181,7 +181,7 @@
                         </div>
                         <div>
                             <div class="font-extrabold text-[#0F172A] text-sm">{{ $exec->name }}</div>
-                            <div class="text-[11px] text-[#64748B] font-medium">{{ $exec->designation ?? 'Sales Executive' }}</div>
+                            <div class="text-[11px] text-[#64748B] font-medium">{{ $exec->role->name ?? $exec->designation ?? 'Sales Executive' }}</div>
                         </div>
                     </div>
 

@@ -66,10 +66,13 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/broker/submit-lead', [BrokerController::class, 'storeLead'])->name('broker.submit-lead');
 
     // Users & Team Management
+    Route::get('/company-approvals', [UserController::class, 'companyApprovals'])->name('company.approvals');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/approvals/{approvalRequest}/approve', [UserController::class, 'approveRequest'])->name('users.approvals.approve');
+    Route::post('/users/approvals/{approvalRequest}/reject', [UserController::class, 'rejectRequest'])->name('users.approvals.reject');
 
     // Profile & FCM
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

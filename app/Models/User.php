@@ -16,6 +16,7 @@ class User extends Authenticatable
     protected $fillable = [
         'company_id',
         'role_id',
+        'reporting_manager_id',
         'name',
         'email',
         'phone',
@@ -57,6 +58,16 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function reportingManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reporting_manager_id');
+    }
+
+    public function teamExecutives(): HasMany
+    {
+        return $this->hasMany(User::class, 'reporting_manager_id');
     }
 
     public function leads(): HasMany

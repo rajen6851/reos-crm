@@ -380,4 +380,115 @@ class BrokerApiController extends Controller
             'message' => 'Notification marked as read.',
         ]);
     }
+
+    /**
+     * Get Broker Profile details including Bank Account & KYC Status
+     */
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+        $broker = $this->getBrokerForUser($user);
+
+        if (!$broker) {
+            return response()->json(['message' => 'Broker account not found.'], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'broker' => [
+                'id' => $broker->id,
+                'name' => $broker->name ?? $user->name,
+                'email' => $broker->email ?? $user->email,
+                'phone' => $broker->phone ?? $user->phone,
+                'firm_name' => $broker->firm_name,
+                'rera_number' => $broker->rera_number,
+                'pan_number' => $broker->pan_number,
+                'bank_name' => $broker->bank_name,
+                'account_number' => $broker->account_number,
+                'ifsc_code' => $broker->ifsc_code,
+                'commission_rate' => $broker->commission_rate,
+                'status' => $broker->status,
+                'referral_code' => 'BRK-' . $broker->id,
+            ],
+        ]);
+    }
+
+    /**
+     * Update Broker Bank Account & KYC Info from mobile app
+     */
+    public function updateBankDetails(Request $request)
+    {
+        $user = $request->user();
+        $broker = $this->getBrokerForUser($user);
+
+        if (!$broker) {
+            return response()->json(['message' => 'Broker account not found.'], 404);
+        }
+
+        $validated = $request->validate([
+            'bank_name' => 'required|string|max:100',
+            'account_number' => 'required|string|max:50',
+            'ifsc_code' => 'required|string|max:20',
+            'account_holder_name' => 'nullable|string|max:150',
+            'pan_number' => 'nullable|string|max:20',
+            'rera_number' => 'nullable|string|max:50',
+        ]);
+
+        $broker->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Bank details and KYC updated successfully.',
+            'broker' => $broker->fresh(),
+        ]);
+    }
+
+    /**
+     * Submit payout claim request for approved commission balance
+     */
+    public function requestPayout(Request $request)
+    {
+        $user = $request->user();
+        $broker = $this->getBrokerForUser($user);
+
+        if (!$broker) {
+            return response()->json(['message' => 'Broker account not found.'], 404);
+        }
+
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:100',
+            'notes' => 'nullable|string',
+        ]);
+
+        $approvedCommissionsSum = BrokerCommission::withoutGlobalScopes()
+            ->where('broker_id', $broker->id)
+            ->whereIn('status', ['approved', 'ready_for_payout'])
+            ->sum('total_commission_amount');
+
+        if ($validated['amount'] > $approvedCommissionsSum) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Requested payout amount ₹{$validated['amount']} exceeds available approved commission balance ₹{$approvedCommissionsSum}.",
+            ], 422);
+        }
+
+        $payoutRequest = BrokerPayout::withoutGlobalScopes()->create([
+            'company_id' => $broker->company_id ?? 1,
+            'broker_id' => $broker->id,
+            'payout_code' => 'PO-REQ-' . time() . '-' . rand(100, 999),
+            'amount_paid' => $validated['amount'],
+            'payout_date' => now(),
+            'payment_method' => 'bank_transfer',
+            'status' => 'processing',
+            'processed_by_user_id' => $user->id,
+            'remarks' => $validated['notes'] ?? 'Payout claim requested via Broker App by ' . ($broker->name ?? $user->name),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Payout claim request submitted to Accounts Team.',
+            'payout_request' => $payoutRequest,
+        ], 201);
+    }
 }
+

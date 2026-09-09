@@ -26,6 +26,70 @@
         @endcan
     </div>
 
+    <!-- Pending Critical Approval Requests for Director / Founder / Main Owner -->
+    @if(auth()->user()->isDirectorOrFounder() && isset($pendingProjectApprovals) && $pendingProjectApprovals->count() > 0)
+    <div class="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-[#0F172A] text-sm">Critical Approval Requests (Main Owner Verification Required)</h3>
+                    <p class="text-xs text-[#64748B]">Admins have requested project deletion actions that require your Director/Owner authorization before execution.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-amber-200/80 text-amber-900 text-xs font-bold rounded-full border border-amber-300">
+                {{ $pendingProjectApprovals->count() }} Pending Request{{ $pendingProjectApprovals->count() > 1 ? 's' : '' }}
+            </span>
+        </div>
+
+        <div class="space-y-3">
+            @foreach($pendingProjectApprovals as $approval)
+            <div class="bg-white rounded-2xl p-4 border border-amber-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg border {{ $approval->action_badge }}">
+                        {{ $approval->action_label }}
+                    </span>
+                    <div>
+                        <div class="text-xs font-bold text-[#0F172A]">
+                            Target Project: <span class="text-[#DC2626] font-mono">{{ $approval->target_name }}</span>
+                        </div>
+                        <div class="text-[11px] text-[#64748B] mt-0.5">
+                            Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                        </div>
+                        @if($approval->reason)
+                            <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
+                                💬 <em>"{{ $approval->reason }}"</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
+                    <form action="{{ route('users.approvals.approve', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to APPROVE & DELETE this project permanently?')" class="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-check text-xs"></i>
+                            <span>Approve & Delete Project</span>
+                        </button>
+                    </form>
+
+                    <form action="{{ route('users.approvals.reject', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to REJECT this deletion request?')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                            <span>Reject</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <!-- Projects Grid -->
     @if($projects->isEmpty())
         <div class="p-8 text-center bg-white rounded-3xl border border-[#E2E8F0] text-xs text-slate-500 font-medium">

@@ -319,6 +319,9 @@
             $isFounder = $u->isSaaSFounder();
             $isSaasAdmin = $u->isSaaSAdmin();
             $pendingApprovalsCount = $isSaasAdmin ? \App\Models\SaasApprovalRequest::where('status', 'pending')->count() : 0;
+            $companyPendingApprovalsCount = ($u->isDirectorOrFounder() && $u->company_id) 
+                ? \App\Models\SaasApprovalRequest::where('company_id', $u->company_id)->where('status', 'pending')->count() 
+                : 0;
         @endphp
 
         <!-- Clean Off-White Sidebar Navigation -->
@@ -335,6 +338,19 @@
                     <i class="fa-solid fa-house text-xs w-4 text-center {{ request()->routeIs('dashboard') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
                     <span>Dashboard</span>
                 </a>
+
+                @if($u->isDirectorOrFounder() && !$isSaasAdmin)
+                <!-- 1.1 Critical Approvals (Director / Main Owner Scope) -->
+                <a href="{{ route('company.approvals') }}" class="flex items-center justify-between px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('company.approvals') ? 'bg-[#FEF3C7] text-[#92400E] font-extrabold border border-[#FDE68A]' : 'text-[#475569] hover:bg-amber-50/50 hover:text-[#92400E] font-semibold' }}">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-shield-halved text-xs w-4 text-center {{ request()->routeIs('company.approvals') ? 'text-[#D97706]' : 'text-amber-600' }}"></i>
+                        <span>Critical Approvals</span>
+                    </div>
+                    @if($companyPendingApprovalsCount > 0)
+                        <span class="px-2 py-0.5 text-[10px] font-extrabold bg-[#DC2626] text-white rounded-full shadow-xs animate-pulse">{{ $companyPendingApprovalsCount }}</span>
+                    @endif
+                </a>
+                @endif
 
                 {{-- 
                 <!-- 1.1 Team & Broker Chat (Disabled for now) -->
@@ -565,6 +581,16 @@
                         <span>{{ session('error') }}</span>
                     </div>
                     <button onclick="this.parentElement.remove()" class="text-rose-800 font-bold">✕</button>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 font-bold text-xs flex items-center justify-between shadow-xs">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
+                        <span>{{ session('warning') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-amber-800 font-bold">✕</button>
                 </div>
             @endif
 

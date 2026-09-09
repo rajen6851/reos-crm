@@ -2,98 +2,172 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Broker;
 use App\Models\KycDocument;
-use App\Models\Lead;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/*
+|--------------------------------------------------------------------------
+| PREVIOUS INTER-ENTITY SHARING LOGIC (COMMENTED OUT AS PER USER REQUEST)
+|--------------------------------------------------------------------------
+|
+| class KycDocumentControllerOld extends Controller
+| {
+|     public function index(Request $request)
+|     {
+|         $user = Auth::user();
+|         if ($user->isBroker()) {
+|             return redirect()->route('dashboard');
+|         }
+|         $query = KycDocument::with('documentable')->latest();
+|         if (!$user->isSaaSFounder()) {
+|             $query->where('company_id', $user->company_id);
+|         }
+|         if ($user->isSales()) {
+|             $assignedLeadIds = Lead::where('assigned_to_user_id', $user->id)->pluck('id')->toArray();
+|             $query->where(function ($q) use ($user, $assignedLeadIds) {
+|                 $q->where(function ($lq) use ($assignedLeadIds) {
+|                     $lq->whereIn('documentable_type', ['App\Models\Lead', 'Customer', 'Lead'])
+|                        ->whereIn('documentable_id', $assignedLeadIds);
+|                 })->orWhere(function ($uq) use ($user) {
+|                     $uq->whereIn('documentable_type', ['App\Models\User', 'User'])
+|                        ->where('documentable_id', $user->id);
+|                 });
+|             });
+|         }
+|         $documents = $query->get();
+|         $expiredCount = KycDocument::where('expiry_date', '<', now())->count();
+|         $expiringSoonCount = KycDocument::whereBetween('expiry_date', [now(), now()->addDays(30)])->count();
+|         $leads = $user->isSales() ? Lead::where('assigned_to_user_id', $user->id)->get() : Lead::where('company_id', $user->company_id)->get();
+|         $brokers = Broker::where('company_id', $user->company_id)->get();
+|         $teamUsers = User::where('company_id', $user->company_id)->get();
+|         return view('documents.index_old', compact('documents', 'expiredCount', 'expiringSoonCount', 'leads', 'brokers', 'teamUsers'));
+|     }
+| }
+|
+*/
+
 class KycDocumentController extends Controller
 {
+    /**
+     * Company Private Digital Drive & File Vault
+     * Strictly isolated per company (`company_id`). No inter-entity or cross-user sharing.
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
 
         if ($user->isBroker()) {
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('error', 'Brokers do not have access to company private drive.');
         }
 
-        $query = KycDocument::with('documentable')->latest();
+        $query = KycDocument::latest();
+
+        // Strict Tenant Isolation: Only show files belonging to logged-in user's Company
         if (!$user->isSaaSFounder()) {
             $query->where('company_id', $user->company_id);
         }
 
-        // Sales Executive Privacy Scope: view docs of assigned leads or self
-        if ($user->isSales()) {
-            $assignedLeadIds = Lead::where('assigned_to_user_id', $user->id)->pluck('id')->toArray();
-            $query->where(function ($q) use ($user, $assignedLeadIds) {
-                $q->where(function ($lq) use ($assignedLeadIds) {
-                    $lq->whereIn('documentable_type', ['App\Models\Lead', 'Customer', 'Lead'])
-                       ->whereIn('documentable_id', $assignedLeadIds);
-                })->orWhere(function ($uq) use ($user) {
-                    $uq->whereIn('documentable_type', ['App\Models\User', 'User'])
-                       ->where('documentable_id', $user->id);
-                });
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('notes', 'like', "%{$search}%")
+                  ->orWhere('document_type', 'like', "%{$search}%")
+                  ->orWhere('document_number', 'like', "%{$search}%");
             });
+        }
+
+        // Folder / Category Filter
+        if ($request->filled('category')) {
+            $query->where('document_type', $request->category);
+        }
+
+        // Confidentiality Level Filter
+        if ($request->filled('confidentiality')) {
+            $query->where('document_number', $request->confidentiality);
         }
 
         $documents = $query->get();
 
-        $expiredCount = KycDocument::where('expiry_date', '<', now())->count();
-        $expiringSoonCount = KycDocument::whereBetween('expiry_date', [now(), now()->addDays(30)])->count();
+        // Metrics Calculation for Company Drive
+        $totalFilesCount = $documents->count();
+        $legalFilesCount = KycDocument::where('company_id', $user->company_id ?? 1)
+            ->where('document_type', 'Legal & RERA Documents')
+            ->count();
+        $financialFilesCount = KycDocument::where('company_id', $user->company_id ?? 1)
+            ->whereIn('document_type', ['Company Registration & Tax', 'Financial & Banking Assets'])
+            ->count();
+        $confidentialFilesCount = KycDocument::where('company_id', $user->company_id ?? 1)
+            ->where('document_number', 'Confidential (Admins Only)')
+            ->count();
 
-        $leads = $user->isSales() ? Lead::where('assigned_to_user_id', $user->id)->get() : Lead::where('company_id', $user->company_id)->get();
-        $brokers = Broker::where('company_id', $user->company_id)->get();
-        $teamUsers = User::where('company_id', $user->company_id)->get();
-
-        return view('documents.index', compact('documents', 'expiredCount', 'expiringSoonCount', 'leads', 'brokers', 'teamUsers'));
+        return view('documents.index', compact(
+            'documents',
+            'totalFilesCount',
+            'legalFilesCount',
+            'financialFilesCount',
+            'confidentialFilesCount'
+        ));
     }
 
+    /**
+     * Upload & Store a Company Private File into the Drive
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'documentable_type' => 'required|string',
-            'documentable_id' => 'required|integer',
-            'document_type' => 'required|string|max:255',
-            'document_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file_name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'confidentiality' => 'required|string|max:255',
+            'document_file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,zip|max:20480',
             'expiry_date' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         $user = Auth::user();
+
         if ($user->isBroker()) {
-            return back()->with('error', 'Brokers cannot upload internal KYC documents.');
+            return back()->with('error', 'Brokers cannot upload files to company drive.');
         }
 
         $file = $request->file('document_file');
-        $filePath = $file->store('kyc_documents', 'public');
+        $filePath = $file->store('company_drive_files', 'public');
 
         KycDocument::create([
             'company_id' => $user->company_id ?? 1,
-            'documentable_type' => $request->documentable_type,
-            'documentable_id' => $request->documentable_id,
-            'document_type' => $request->document_type,
-            'document_number' => $request->document_number,
+            'documentable_type' => 'App\Models\Company',
+            'documentable_id' => $user->company_id ?? 1,
+            'document_type' => $request->category, // Folder / Category Name
+            'document_number' => $request->confidentiality, // Confidentiality Level Tag
             'file_path' => '/storage/' . $filePath,
             'expiry_date' => $request->expiry_date,
             'status' => 'verified',
-            'notes' => $request->notes,
+            'notes' => $request->file_name . ($request->notes ? ' - ' . $request->notes : ''),
         ]);
 
-        return back()->with('status', 'KYC Document uploaded & organized successfully!');
+        return back()->with('status', "File '{$request->file_name}' successfully uploaded to Company Drive!");
     }
 
+    /**
+     * Delete a File from Company Drive
+     */
     public function destroy($id)
     {
         $user = Auth::user();
 
         if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized. Only Admins and Managers can delete KYC documents.');
+            return back()->with('error', 'Unauthorized action. Only Company Admins and Managers can delete drive files.');
         }
 
-        $doc = KycDocument::findOrFail($id);
+        $doc = KycDocument::where(function ($q) use ($user) {
+            if (!$user->isSaaSFounder()) {
+                $q->where('company_id', $user->company_id);
+            }
+        })->findOrFail($id);
+
         $doc->delete();
 
-        return back()->with('status', 'Document deleted successfully.');
+        return back()->with('status', 'Drive file deleted successfully.');
     }
 }

@@ -3,6 +3,7 @@
 @section('title', 'CRM Sales Pipeline & Leads – REOS')
 
 @section('content')
+
 <div class="space-y-6" x-data="{ viewMode: 'table' }">
     
     <!-- Breadcrumb & Top Action Header Bar -->
@@ -124,22 +125,40 @@
         <!-- Search & Filter Controls with Clickable Status Buttons -->
         <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-3 text-xs">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-                <!-- Search Keyword Form -->
-                <form method="GET" action="{{ route('leads.index') }}" onsubmit="filterLeadsAjaxForm(this, event)" class="flex items-center gap-2 w-full md:w-auto flex-1">
+                <!-- Search Keyword & Employee Filter Form -->
+                <form method="GET" action="{{ route('leads.index') }}" onsubmit="filterLeadsAjaxForm(this, event)" class="flex flex-wrap items-center gap-2 w-full md:w-auto flex-1">
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
-                    <div class="relative w-full md:w-80">
+
+                    <div class="relative w-full md:w-72">
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or code..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-500 transition">
                         <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
+
+                    @if(!auth()->user()->isSales())
+                    <div class="relative w-full md:w-64">
+                        <select name="assigned_to_user_id" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-500 font-semibold text-xs transition cursor-pointer">
+                            <option value="">👤 Filter by Employee / Staff</option>
+                            <option value="unassigned" {{ request('assigned_to_user_id') === 'unassigned' ? 'selected' : '' }}>⚠️ Unassigned Leads</option>
+                            @foreach($employees as $emp)
+                                <option value="{{ $emp->id }}" {{ request('assigned_to_user_id') == $emp->id ? 'selected' : '' }}>
+                                    {{ $emp->name }} ({{ $emp->role?->name ?? 'Staff' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+
                     <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         <span>Search</span>
                     </button>
-                    @if(request('status') || request('search'))
-                        <a href="{{ route('leads.index') }}" onclick="filterLeadsAjax('{{ route('leads.index') }}', event)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
-                            Clear Filter
+
+                    @if(request('status') || request('search') || request('assigned_to_user_id'))
+                        <a href="{{ route('leads.index') }}" onclick="filterLeadsAjax('{{ route('leads.index') }}', event)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer flex items-center space-x-1">
+                            <i class="fa-solid fa-xmark text-slate-400"></i>
+                            <span>Clear Filters</span>
                         </a>
                     @endif
                 </form>
@@ -168,7 +187,10 @@
                 @foreach($statusOptions as $key => $label)
                     @php
                         $isActive = ($currentStatus === (string)$key) || ($key === '' && empty($currentStatus));
-                        $queryParams = array_filter(array_merge(request()->except('page'), ['status' => $key !== '' ? $key : null]));
+                        $queryParams = array_filter(array_merge(request()->except('page'), [
+                            'status' => $key !== '' ? $key : null,
+                            'assigned_to_user_id' => request('assigned_to_user_id'),
+                        ]));
                         $ajaxUrl = route('leads.index', $queryParams);
                     @endphp
                     <a href="{{ $ajaxUrl }}" 
@@ -231,11 +253,19 @@
                             <div class="text-[11px] font-mono text-slate-500 mt-0.5">{{ $lead->phone }}</div>
                         </div>
 
-                        <div class="text-[11px] text-slate-500 flex justify-between items-center pt-2 border-t border-slate-100">
-                            <span class="font-medium text-slate-700"><i class="fa-solid fa-user text-slate-400 mr-1"></i>{{ $lead->assignedTo->name ?? 'Unassigned' }}</span>
-                            @if($lead->broker || $lead->brokerLead?->broker)
-                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">Broker</span>
-                            @endif
+                        <div class="text-[11px] text-slate-500 flex flex-col gap-1 pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-purple-800 text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center space-x-1" title="Assigned Manager">
+                                    <i class="fa-solid fa-user-tie text-purple-600 text-[10px]"></i>
+                                    <span>Mgr: {{ $lead->assignedManager->name ?? 'None' }}</span>
+                                </span>
+                                @if($lead->broker || $lead->brokerLead?->broker)
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">Broker</span>
+                                @endif
+                            </div>
+                            <div class="font-medium text-slate-700">
+                                <i class="fa-solid fa-user text-slate-400 mr-1"></i>Exec: {{ $lead->assignedTo->name ?? 'Unassigned' }}
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-between pt-1 gap-1.5">
@@ -276,7 +306,8 @@
                         <th class="py-3 px-4">Code</th>
                         <th class="py-3 px-4">Customer Name</th>
                         <th class="py-3 px-4">Contact Information</th>
-                        <th class="py-3 px-4">Assigned To</th>
+                        <th class="py-3 px-4">Assigned Manager</th>
+                        <th class="py-3 px-4">Assigned Exec</th>
                         <th class="py-3 px-4">Pipeline Status</th>
                         <th class="py-3 px-4 text-right">Actions</th>
                     </tr>
@@ -320,6 +351,16 @@
                                 </a>
                             </div>
                             <div class="text-[11px] text-slate-400 font-normal">{{ $lead->email }}</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            @if($lead->assignedManager)
+                                <span class="inline-flex items-center space-x-1 font-bold text-purple-800 bg-purple-50 border border-purple-200/80 px-2.5 py-1 rounded-xl text-xs">
+                                    <i class="fa-solid fa-user-tie text-purple-600 text-[11px]"></i>
+                                    <span>{{ $lead->assignedManager->name }}</span>
+                                </span>
+                            @else
+                                <span class="text-slate-400 font-medium italic text-xs bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200">Not Assigned</span>
+                            @endif
                         </td>
                         <td class="py-3.5 px-4">
                             @can('assign-leads')

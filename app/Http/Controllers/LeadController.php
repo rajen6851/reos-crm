@@ -29,15 +29,27 @@ class LeadController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $query = Lead::with(['assignedTo', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user']);
+        $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user']);
 
-        // Sales Executive Privacy Isolation: Sales Executives see ONLY their assigned leads
+        // Privacy Isolation: Executives see assigned leads; Managers see leads in their manager pool
         if ($user->isSales()) {
             $query->where('assigned_to_user_id', $user->id);
+        } elseif ($user->isManager()) {
+            $query->where('assigned_to_manager_id', $user->id);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        // Employee / Executive Filter
+        if ($request->filled('assigned_to_user_id') || $request->filled('employee_id')) {
+            $empId = $request->get('assigned_to_user_id') ?: $request->get('employee_id');
+            if ($empId === 'unassigned') {
+                $query->whereNull('assigned_to_user_id');
+            } else {
+                $query->where('assigned_to_user_id', $empId);
+            }
         }
 
         if ($request->filled('search')) {
@@ -50,7 +62,7 @@ class LeadController extends Controller
             });
         }
 
-        $leads = $query->latest()->paginate(10);
+        $leads = $query->latest()->paginate(10)->appends($request->all());
 
         /*
         // AI Engine Metrics (Temporarily commented out)
@@ -67,16 +79,25 @@ class LeadController extends Controller
         $sources = LeadSource::all();
         $projects = Project::all();
 
-        // Fetch ONLY Sales Executives for the lead assignment dropdown
-        $salesExecutives = User::where('company_id', $user->company_id)
-            ->whereHas('role', function ($q) {
-                $q->where('slug', 'sales_executive');
-            })
-            ->get();
+        // Fetch Sales Executives & Employees list for filters and assignments
+        $employeesQuery = User::where('company_id', $user->company_id)
+            ->where('is_active', true)
+            ->with('role')
+            ->orderBy('name');
+
+        if ($user->isManager()) {
+            $employeesQuery->where('reporting_manager_id', $user->id);
+        }
+
+        $employees = $employeesQuery->get();
+
+        $salesExecutives = $employees->filter(function ($u) {
+            return $u->role?->slug === 'sales_executive' || $u->isSales();
+        });
 
         $brokers = Broker::all();
 
-        return view('leads.index', compact('leads', 'sources', 'projects', 'salesExecutives', 'brokers'));
+        return view('leads.index', compact('leads', 'sources', 'projects', 'employees', 'salesExecutives', 'brokers'));
     }
 
     public function exportExcel(Request $request)
@@ -91,6 +112,8 @@ class LeadController extends Controller
 
         if ($user->isSales()) {
             $query->where('assigned_to_user_id', $user->id);
+        } elseif ($user->isManager()) {
+            $query->where('assigned_to_manager_id', $user->id);
         }
 
         if ($request->filled('status')) {
@@ -206,6 +229,9 @@ class LeadController extends Controller
             'duplicate_of_lead_id' => $duplicate?->id,
             'notes' => $validated['notes'] ?? null,
         ]);
+
+        // Two-Tier Lead Auto Distribution (Manager Round-Robin Pool)
+        app(\App\Services\LeadDistributionService::class)->distributeNewLead($lead, app(\App\Services\NotificationService::class));
 
         // If a broker_id is set, link BrokerLead pivot record
         if ($lead->broker_id) {
@@ -394,6 +420,10 @@ class LeadController extends Controller
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only access leads assigned to you.');
         }
 
+        if ($user->isManager() && $lead->assigned_to_manager_id !== $user->id) {
+            return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only access leads in your manager pool.');
+        }
+
         if ($user->isBroker()) {
             return redirect()->route('dashboard');
         }
@@ -429,6 +459,10 @@ class LeadController extends Controller
 
         if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only update leads assigned to you.');
+        }
+
+        if ($user->isManager() && $lead->assigned_to_manager_id !== $user->id) {
+            return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only update leads in your manager pool.');
         }
 
         $validated = $request->validate([

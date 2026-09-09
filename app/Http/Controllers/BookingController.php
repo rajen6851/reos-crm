@@ -221,24 +221,55 @@ class BookingController extends Controller
         Payment::create([
             'company_id' => Auth::user()->company_id,
             'booking_id' => $booking->id,
-            'receipt_number' => 'RCT-' . rand(10000, 99999),
+            'payment_code' => 'PAY-' . strtoupper(uniqid()),
             'amount' => $validated['amount'],
-            'payment_date' => now(),
-            'payment_method' => $validated['payment_method'],
+            'payment_mode' => $validated['payment_mode'],
             'transaction_reference' => $validated['transaction_reference'] ?? null,
-            'status' => 'cleared',
+            'payment_date' => $validated['payment_date'] ?? now()->toDateString(),
+            'status' => 'success',
+            'notes' => $validated['notes'] ?? 'Payment recorded via portal',
             'recorded_by_user_id' => Auth::id(),
         ]);
 
         return back()->with('success', 'Payment recorded successfully!');
     }
 
-    public function destroy(Booking $booking)
+    public function destroy(Booking $booking, \App\Services\NotificationService $notificationService)
     {
-        if (!Auth::user()->isCompanyAdmin() && Auth::user()->role?->slug !== 'founder') {
-            return back()->with('error', 'Only Company Admins can delete bookings.');
+        $currentUser = Auth::user();
+
+        // CRITICAL APPROVAL FLOW: If non-Director tries to delete a Booking, send approval request
+        if (!$currentUser->isDirectorOrFounder()) {
+            \App\Models\SaasApprovalRequest::create([
+                'company_id' => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type' => 'delete_booking',
+                'target_type' => Booking::class,
+                'target_id' => $booking->id,
+                'target_name' => "Booking #" . $booking->booking_code . " (Unit " . ($booking->unit?->unit_number ?? 'N/A') . ")",
+                'payload' => ['booking_id' => $booking->id],
+                'reason' => "Admin {$currentUser->name} requested cancellation/deletion of booking '{$booking->booking_code}'.",
+                'status' => 'pending',
+            ]);
+
+            $directors = User::where('company_id', $currentUser->company_id)
+                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
+                ->get();
+
+            foreach ($directors as $director) {
+                $notificationService->notify(
+                    $director,
+                    'critical_approval_request',
+                    "🚨 Critical Approval Needed: Delete Property Booking & Contract",
+                    "Admin {$currentUser->name} requested to DELETE booking '{$booking->booking_code}'. Please review and approve.",
+                    route('bookings.index')
+                );
+            }
+
+            return redirect()->route('bookings.index')->with('warning', "⚠️ Booking Deletion Request Submitted! Contract termination requires Main Owner / Director approval. Request sent to Director.");
         }
 
+        // Direct Deletion by Director / Founder
         $bookingCode = $booking->booking_code;
         if ($booking->unit) {
             $booking->unit->update(['status' => 'available']);

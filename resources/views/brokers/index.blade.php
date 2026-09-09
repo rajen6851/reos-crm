@@ -36,6 +36,70 @@
         </div>
     </div>
 
+    <!-- Pending Critical Approval Requests for Director / Founder / Main Owner -->
+    @if(auth()->user()->isDirectorOrFounder() && isset($pendingBrokerApprovals) && $pendingBrokerApprovals->count() > 0)
+    <div class="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-[#0F172A] text-sm">Critical Approval Requests (Main Owner Verification Required)</h3>
+                    <p class="text-xs text-[#64748B]">Admins have requested broker profile deletion actions that require your Director/Owner authorization before execution.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-amber-200/80 text-amber-900 text-xs font-bold rounded-full border border-amber-300">
+                {{ $pendingBrokerApprovals->count() }} Pending Request{{ $pendingBrokerApprovals->count() > 1 ? 's' : '' }}
+            </span>
+        </div>
+
+        <div class="space-y-3">
+            @foreach($pendingBrokerApprovals as $approval)
+            <div class="bg-white rounded-2xl p-4 border border-amber-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg border {{ $approval->action_badge }}">
+                        {{ $approval->action_label }}
+                    </span>
+                    <div>
+                        <div class="text-xs font-bold text-[#0F172A]">
+                            Target Broker: <span class="text-[#DC2626] font-mono">{{ $approval->target_name }}</span>
+                        </div>
+                        <div class="text-[11px] text-[#64748B] mt-0.5">
+                            Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                        </div>
+                        @if($approval->reason)
+                            <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
+                                💬 <em>"{{ $approval->reason }}"</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
+                    <form action="{{ route('users.approvals.approve', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to APPROVE & DELETE this broker profile?')" class="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-check text-xs"></i>
+                            <span>Approve & Delete Broker</span>
+                        </button>
+                    </form>
+
+                    <form action="{{ route('users.approvals.reject', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to REJECT this deletion request?')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                            <span>Reject</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <!-- CARDS GRID VIEW (Exact Match to Reference Screenshot Design) -->
     <div id="cardsViewContainer" class="block">
         @if($brokers->isEmpty())
@@ -48,26 +112,31 @@
                 @php
                     $initials = strtoupper(substr($b->agency_name, 0, 2));
                     $contactName = $b->user->name ?? $b->agency_name;
-                    $managerInitial = strtoupper(substr($contactName, 0, 1));
+                    $statusBadge = ($b->status === 'active')
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : 'bg-slate-50 text-slate-700 border-slate-200';
                 @endphp
                 <div class="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-2xs hover:shadow-md transition space-y-4 relative">
-                    <!-- Card Top Header: Avatar + Title/Rating + Red 3-Dots Dropdown Menu -->
+                    <!-- Card Header: Avatar + Agency Name + Broker Code + Status + Red 3-Dots Menu -->
                     <div class="flex items-start justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-full bg-indigo-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs shrink-0">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs shrink-0">
                                 {{ $initials }}
                             </div>
                             <div>
                                 <div class="text-slate-900 font-extrabold text-base leading-tight">{{ $b->agency_name }}</div>
-                                <div class="flex items-center space-x-1 text-xs text-amber-500 font-bold mt-0.5">
-                                    <i class="fa-solid fa-star text-amber-400 text-xs"></i>
-                                    <span>4.5</span>
-                                    <span class="text-[#64748B] font-mono text-[11px] font-semibold ml-1">({{ $b->broker_code }})</span>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="px-2 py-0.5 rounded bg-indigo-50 text-[#4F46E5] font-mono font-bold text-[11px] border border-indigo-200">
+                                        {{ $b->broker_code }}
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border {{ $statusBadge }}">
+                                        {{ $b->status ?? 'active' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Red 3-Dots Vertical Button & Floating Menu (Pure Vanilla JS - 100% Working Guaranteed) -->
+                        <!-- Red 3-Dots Vertical Dropdown Menu -->
                         <div class="relative">
                             <button type="button" onclick="event.stopPropagation(); toggleBrokerDropdown({{ $b->id }});" class="w-8 h-9 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white flex items-center justify-center transition shadow-md cursor-pointer active:scale-95" title="More Options">
                                 <i class="fa-solid fa-ellipsis-vertical text-base pointer-events-none"></i>
@@ -77,7 +146,7 @@
                                 <!-- Option 1: Edit -->
                                 <button type="button" onclick="event.stopPropagation(); openEditBrokerModal({{ json_encode($b) }}); hideAllBrokerDropdowns();" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl font-bold flex items-center space-x-2 transition cursor-pointer">
                                     <i class="fa-solid fa-pen-to-square text-slate-500 text-xs"></i>
-                                    <span>Edit</span>
+                                    <span>Edit Specs</span>
                                 </button>
 
                                 <!-- Option 2: Delete -->
@@ -95,60 +164,68 @@
                                 <!-- Option 3: Preview -->
                                 <a href="{{ route('brokers.show', $b->id) }}" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl font-bold flex items-center space-x-2 transition block">
                                     <i class="fa-solid fa-eye text-slate-500 text-xs"></i>
-                                    <span>Preview</span>
+                                    <span>View Ledger</span>
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contact Details List -->
-                    <div class="space-y-2 text-xs text-[#0F172A] font-semibold pt-1">
-                        <div class="flex items-center space-x-2 text-[#64748B]">
-                            <i class="fa-regular fa-envelope text-slate-400 w-4 text-center"></i>
-                            <span class="font-mono text-[#0F172A]">{{ $b->email }}</span>
+                    <!-- Complete Contact Details -->
+                    <div class="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80 space-y-2 text-xs text-[#0F172A]">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[#64748B] text-[11px] font-semibold uppercase">Contact Person</span>
+                            <span class="font-bold text-slate-900 flex items-center space-x-1">
+                                <i class="fa-solid fa-user-tie text-emerald-600 text-xs"></i>
+                                <span>{{ $contactName }}</span>
+                            </span>
                         </div>
-                        <div class="flex items-center space-x-2 text-[#64748B]">
-                            <i class="fa-solid fa-phone text-slate-400 w-4 text-center"></i>
-                            <span class="font-mono text-[#0F172A]">{{ $b->phone }}</span>
+                        <div class="flex items-center justify-between border-t border-slate-200/60 pt-1.5">
+                            <span class="text-[#64748B] text-[11px] font-semibold uppercase">Phone</span>
+                            <span class="font-mono font-bold text-slate-900">{{ $b->phone }}</span>
                         </div>
-                        <div class="flex items-center space-x-2 text-[#64748B]">
-                            <i class="fa-solid fa-globe text-slate-400 w-4 text-center"></i>
-                            <span class="text-[#0F172A]">India</span>
+                        <div class="flex items-center justify-between border-t border-slate-200/60 pt-1.5">
+                            <span class="text-[#64748B] text-[11px] font-semibold uppercase">Email</span>
+                            <span class="font-mono font-bold text-slate-900">{{ $b->email }}</span>
                         </div>
                     </div>
 
-                    <!-- Category Pills -->
-                    <div class="flex flex-wrap items-center gap-2 pt-1">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] border border-emerald-200 flex items-center space-x-1">
-                            <span>Collab</span>
-                        </span>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center space-x-1">
-                            <span>Rated</span>
-                        </span>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 flex items-center space-x-1">
-                            <span>{{ number_format($b->commission_rate, 2) }}%</span>
-                        </span>
+                    <!-- Performance Metrics Strip: Submitted Leads, Converted Bookings, Commission Rate -->
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="p-2.5 rounded-2xl bg-indigo-50/60 border border-indigo-100">
+                            <span class="text-[10px] text-[#64748B] font-semibold uppercase block">Leads</span>
+                            <span class="font-mono font-extrabold text-[#4F46E5] text-sm mt-0.5 block">{{ $b->total_submitted_leads ?? 0 }}</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+                            <span class="text-[10px] text-[#64748B] font-semibold uppercase block">Booked</span>
+                            <span class="font-mono font-extrabold text-[#059669] text-sm mt-0.5 block">{{ $b->converted_leads ?? 0 }}</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-2xl bg-purple-50/60 border border-purple-100">
+                            <span class="text-[10px] text-[#64748B] font-semibold uppercase block">Comm.</span>
+                            <span class="font-mono font-extrabold text-purple-700 text-sm mt-0.5 block">{{ number_format($b->commission_rate, 2) }}%</span>
+                        </div>
                     </div>
 
-                    <!-- Horizontal Separator -->
-                    <div class="border-t border-[#E2E8F0] pt-3 flex items-center justify-between">
-                        <!-- Left Action Icons Row -->
-                        <div class="flex items-center space-x-3 text-slate-500 text-sm">
-                            <a href="mailto:{{ $b->email }}" class="hover:text-[#4F46E5] transition" title="Send Email">
-                                <i class="fa-regular fa-envelope"></i>
+                    <!-- Footer Action Strip: Direct Communication & Profile Link -->
+                    <div class="border-t border-[#E2E8F0] pt-3 flex items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2">
+                            <a href="mailto:{{ $b->email }}" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-indigo-600 transition" title="Send Email">
+                                <i class="fa-regular fa-envelope text-xs"></i>
                             </a>
-                            <a href="tel:{{ $b->phone }}" class="hover:text-[#059669] transition" title="Call Phone">
-                                <i class="fa-solid fa-phone"></i>
+                            <a href="tel:{{ $b->phone }}" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition" title="Call Phone">
+                                <i class="fa-solid fa-phone text-xs"></i>
                             </a>
-                            <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $b->phone) }}" target="_blank" class="hover:text-emerald-600 transition" title="WhatsApp Chat">
-                                <i class="fa-regular fa-comment-dots"></i>
+                            <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $b->phone) }}" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#059669] font-bold text-xs border border-emerald-200 transition flex items-center space-x-1" title="WhatsApp Chat">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                                <span class="hidden sm:inline">WhatsApp</span>
                             </a>
                         </div>
 
-                        <!-- Right Assigned Manager Initial Circle Badge -->
-                        <div class="w-7 h-7 rounded-full bg-[#0F172A] text-white flex items-center justify-center font-extrabold text-xs shadow-xs" title="Assigned Contact: {{ $contactName }}">
-                            {{ $managerInitial }}
-                        </div>
+                        <a href="{{ route('brokers.show', $b->id) }}" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] font-bold text-xs rounded-xl border border-indigo-200 transition flex items-center space-x-1 shrink-0">
+                            <span>Ledger & Profile</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </a>
                     </div>
                 </div>
                 @endforeach

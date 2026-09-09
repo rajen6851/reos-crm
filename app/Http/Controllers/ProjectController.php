@@ -47,8 +47,15 @@ class ProjectController extends Controller
             return view('projects.index', compact('projects', 'companies'));
         }
 
+        $pendingProjectApprovals = \App\Models\SaasApprovalRequest::where('company_id', $user->company_id)
+            ->where('action_type', 'delete_project')
+            ->where('status', 'pending')
+            ->with(['requestedBy'])
+            ->latest()
+            ->get();
+
         $projects = Project::with(['buildings.floors', 'units'])->latest()->get();
-        return view('projects.index', compact('projects'));
+        return view('projects.index', compact('projects', 'pendingProjectApprovals'));
     }
 
     public function store(Request $request, StorageService $storageService)
@@ -65,32 +72,33 @@ class ProjectController extends Controller
             'banner_image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif|max:5120',
         ]);
 
-        $bannerPath = '/uploads/projects/default_project.jpg';
-        if ($request->hasFile('banner_image')) {
-            $bannerPath = $storageService->uploadToPublic($request->file('banner_image'), 'projects');
-        }
-
         $project = Project::create([
             'company_id' => Auth::user()->company_id ?? 1,
             'name' => $validated['name'],
             'code' => $validated['code'],
-            'city' => $validated['city'] ?? 'Hyderabad',
-            'rera_number' => $validated['rera_number'],
+            'location_address' => $validated['city'] ?? 'Head Office Location',
+            'city' => $validated['city'] ?? 'Default City',
+            'state' => 'State',
+            'pincode' => '400001',
+            'rera_number' => $validated['rera_number'] ?? 'P0240000' . rand(1000, 9999),
             'project_type' => $validated['project_type'],
             'visibility' => $validated['visibility'] ?? 'public',
-            'banner_image' => $bannerPath,
-            'amenities' => ['Clubhouse', 'Swimming Pool', 'Gym', 'EV Parking'],
             'status' => 'active',
         ]);
 
-        // Auto create Tower 1 and 5 units
+        if ($request->hasFile('banner_image')) {
+            $project->banner_image = $storageService->uploadToPublic($request->file('banner_image'), 'projects');
+            $project->save();
+        }
+
+        // Auto-seed default building structure for new project
         $building = ProjectBuilding::create([
             'company_id' => Auth::user()->company_id ?? 1,
             'project_id' => $project->id,
-            'name' => 'Tower 1',
-            'code' => 'T1',
+            'name' => 'Tower A',
+            'code' => 'TWR-A',
             'total_floors' => 5,
-            'total_units' => 5,
+            'total_units' => 10,
         ]);
 
         $floor = ProjectFloor::create([
@@ -150,10 +158,44 @@ class ProjectController extends Controller
         return redirect()->route('projects.index')->with('success', "Project {$project->name} & Banner Image updated successfully!");
     }
 
-    public function destroy(Project $project)
+    public function destroy(Project $project, \App\Services\NotificationService $notificationService)
     {
         Gate::authorize('manage-projects');
 
+        $currentUser = Auth::user();
+
+        // CRITICAL APPROVAL FLOW: If non-Director tries to delete a Project, send approval request
+        if (!$currentUser->isDirectorOrFounder()) {
+            \App\Models\SaasApprovalRequest::create([
+                'company_id' => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type' => 'delete_project',
+                'target_type' => Project::class,
+                'target_id' => $project->id,
+                'target_name' => $project->name . " (" . ($project->code ?? 'PROJ') . ")",
+                'payload' => ['project_id' => $project->id],
+                'reason' => "Admin {$currentUser->name} requested deletion of project '{$project->name}'.",
+                'status' => 'pending',
+            ]);
+
+            $directors = \App\Models\User::where('company_id', $currentUser->company_id)
+                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
+                ->get();
+
+            foreach ($directors as $director) {
+                $notificationService->notify(
+                    $director,
+                    'critical_approval_request',
+                    "🚨 Critical Approval Needed: Delete Real Estate Project",
+                    "Admin {$currentUser->name} requested to DELETE project '{$project->name}'. Please review and approve.",
+                    route('projects.index')
+                );
+            }
+
+            return redirect()->route('projects.index')->with('warning', "⚠️ Project Deletion Request Submitted! Deleting a project requires Main Owner / Director approval. Request sent to Director.");
+        }
+
+        // Direct Deletion by Director / Founder
         $name = $project->name;
         $project->delete();
 
@@ -427,7 +469,7 @@ class ProjectController extends Controller
             }
         }
 
-        \App\Models\Lead::create([
+        $newLead = \App\Models\Lead::create([
             'company_id' => $project->company_id,
             'lead_code' => $leadCode,
             'first_name' => $firstName,
@@ -441,6 +483,9 @@ class ProjectController extends Controller
             'status' => 'new',
             'notes' => 'Submitted via Public Project Showcase Link. ' . ($validated['notes'] ?? ''),
         ]);
+
+        // Auto-distribute lead to Company Managers via Round-Robin
+        app(\App\Services\LeadDistributionService::class)->distributeNewLead($newLead, app(\App\Services\NotificationService::class));
 
         return back()->with('inquiry_success', 'Thank you! Your inquiry has been received. Our sales team will get in touch with you shortly.');
     }

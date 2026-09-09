@@ -120,7 +120,7 @@ class DatabaseSeeder extends Seeder
             'is_super_admin' => true,
         ]);
 
-        // Company 1 Users
+        // Company 1 Users (Apex Realty Infra Pvt Ltd)
         $director1 = User::create([
             'company_id' => $company1->id,
             'role_id' => $roles1['director']->id,
@@ -139,21 +139,136 @@ class DatabaseSeeder extends Seeder
             'password' => $defaultPassword,
         ]);
 
+        // Sales Manager 1
         $manager1 = User::create([
             'company_id' => $company1->id,
             'role_id' => $roles1['manager']->id,
-            'name' => 'Priya Nair (Manager)',
-            'email' => 'manager@apexrealty.com',
+            'name' => 'Priya Nair (Sales Manager 1)',
+            'email' => 'priya.manager@apexrealty.com',
             'phone' => '9800000003',
             'password' => $defaultPassword,
         ]);
 
-        $sales1 = User::create([
+        // Sales Manager 2
+        $manager2 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['manager']->id,
+            'name' => 'Rahul Sharma (Sales Manager 2)',
+            'email' => 'rahul.manager@apexrealty.com',
+            'phone' => '9800000008',
+            'password' => $defaultPassword,
+        ]);
+
+        // Sales Manager 3
+        $manager3 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['manager']->id,
+            'name' => 'Anjali Mehta (Sales Manager 3)',
+            'email' => 'anjali.manager@apexrealty.com',
+            'phone' => '9800000009',
+            'password' => $defaultPassword,
+        ]);
+
+        // Sales Manager 1 Team (Exec 1 to Exec 4)
+        $exec1_1 = User::create([
             'company_id' => $company1->id,
             'role_id' => $roles1['sales_executive']->id,
-            'name' => 'Vikram Singh (Sales Exec)',
+            'reporting_manager_id' => $manager1->id,
+            'name' => 'Vikram Singh (Executive 1)',
             'email' => 'sales@apexrealty.com',
             'phone' => '9800000004',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec1_2 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager1->id,
+            'name' => 'Neha Gupta (Executive 2)',
+            'email' => 'neha.exec@apexrealty.com',
+            'phone' => '9800000014',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec1_3 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager1->id,
+            'name' => 'Rohan Verma (Executive 3)',
+            'email' => 'rohan.exec@apexrealty.com',
+            'phone' => '9800000015',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec1_4 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager1->id,
+            'name' => 'Kavita Patel (Executive 4)',
+            'email' => 'kavita.exec@apexrealty.com',
+            'phone' => '9800000016',
+            'password' => $defaultPassword,
+        ]);
+
+        // Sales Manager 2 Team (Exec 5 to Exec 7)
+        $exec2_1 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager2->id,
+            'name' => 'Amit Kulkarni (Executive 5)',
+            'email' => 'amit.exec@apexrealty.com',
+            'phone' => '9800000017',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec2_2 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager2->id,
+            'name' => 'Suresh Reddy (Executive 6)',
+            'email' => 'suresh.exec@apexrealty.com',
+            'phone' => '9800000018',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec2_3 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager2->id,
+            'name' => 'Deepika Roy (Executive 7)',
+            'email' => 'deepika.exec@apexrealty.com',
+            'phone' => '9800000019',
+            'password' => $defaultPassword,
+        ]);
+
+        // Sales Manager 3 Team (Exec 8 to Exec 10)
+        $exec3_1 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager3->id,
+            'name' => 'Pooja Shah (Executive 8)',
+            'email' => 'pooja.exec@apexrealty.com',
+            'phone' => '9800000020',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec3_2 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager3->id,
+            'name' => 'Karan Joshi (Executive 9)',
+            'email' => 'karan.exec@apexrealty.com',
+            'phone' => '9800000021',
+            'password' => $defaultPassword,
+        ]);
+
+        $exec3_3 = User::create([
+            'company_id' => $company1->id,
+            'role_id' => $roles1['sales_executive']->id,
+            'reporting_manager_id' => $manager3->id,
+            'name' => 'Sunil Rao (Executive 10)',
+            'email' => 'sunil.exec@apexrealty.com',
+            'phone' => '9800000022',
             'password' => $defaultPassword,
         ]);
 
@@ -187,7 +302,7 @@ class DatabaseSeeder extends Seeder
             'password' => $defaultPassword,
         ]);
 
-        $manager2 = User::create([
+        $managerGyansheela = User::create([
             'company_id' => $company2->id,
             'role_id' => $roles2['manager']->id,
             'name' => 'Krishna (Manager)',
@@ -303,6 +418,8 @@ class DatabaseSeeder extends Seeder
         $sourceBroker = LeadSource::create(['company_id' => $company1->id, 'name' => 'Broker Channel', 'slug' => 'broker-channel']);
 
         // 9. Sample Leads
+        $leadDistributionService = new \App\Services\LeadDistributionService();
+
         Lead::create([
             'company_id' => $company1->id,
             'lead_code' => 'LD-8801',
@@ -311,7 +428,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'amit.k@gmail.com',
             'phone' => '9988776655',
             'source_id' => $sourceWeb->id,
-            'assigned_to_user_id' => $sales1->id,
+            'assigned_to_user_id' => $exec1_1->id,
+            'assigned_to_manager_id' => $manager1->id,
             'interested_project_id' => $project1->id,
             'status' => 'site_visit',
         ]);
@@ -325,7 +443,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '9123456789',
             'source_id' => $sourceBroker->id,
             'broker_id' => $broker->id,
-            'assigned_to_user_id' => $sales1->id,
+            'assigned_to_user_id' => $exec1_1->id,
+            'assigned_to_manager_id' => $manager1->id,
             'interested_project_id' => $project1->id,
             'status' => 'negotiation',
         ]);
@@ -338,5 +457,37 @@ class DatabaseSeeder extends Seeder
             'submitted_at' => now()->subDays(4),
             'broker_visible_status' => 'Negotiation',
         ]);
+
+        // 10. Generate 10 New Dummy Leads Auto-Distributed between Manager 1 (Priya) and Manager 2 (Rahul)
+        $sampleNames = [
+            ['Rohan', 'Verma'],
+            ['Sneha', 'Kapoor'],
+            ['Manish', 'Chawla'],
+            ['Pooja', 'Mehta'],
+            ['Karan', 'Joshi'],
+            ['Divya', 'Saxena'],
+            ['Abhinav', 'Singhal'],
+            ['Kavita', 'Rao'],
+            ['Ravi', 'Tiwari'],
+            ['Ananya', 'Deshmukh'],
+        ];
+
+        foreach ($sampleNames as $idx => $n) {
+            $num = $idx + 1;
+            $dLead = Lead::create([
+                'company_id' => $company1->id,
+                'lead_code' => "LD-AUTO-{$num}",
+                'first_name' => $n[0],
+                'last_name' => $n[1],
+                'email' => strtolower($n[0]) . '.' . strtolower($n[1]) . '@gmail.com',
+                'phone' => "981100000{$num}",
+                'source_id' => $sourceWeb->id,
+                'interested_project_id' => $project1->id,
+                'status' => 'new',
+            ]);
+
+            // Auto-distribute lead between Manager 1 and Manager 2 via Round-Robin
+            $leadDistributionService->distributeNewLead($dLead);
+        }
     }
 }

@@ -68,9 +68,15 @@ class DashboardController extends Controller
             $subscriptionPlans = SubscriptionPlan::where('is_active', true)->get();
             $subscriptionSummary = $company ? $company->usageSummary() : null;
 
+            $pendingCompanyApprovals = \App\Models\SaasApprovalRequest::where('company_id', $user->company_id)
+                ->where('status', 'pending')
+                ->with(['requestedBy'])
+                ->latest()
+                ->get();
+
             return view('dashboard.admin', compact(
                 'user', 'company', 'totalUsers', 'totalProjects', 'totalUnits', 'availableUnits',
-                'bookedUnits', 'totalLeads', 'teamUsers', 'subscriptionPlans', 'subscriptionSummary'
+                'bookedUnits', 'totalLeads', 'teamUsers', 'subscriptionPlans', 'subscriptionSummary', 'pendingCompanyApprovals'
             ));
         }
 
@@ -107,12 +113,13 @@ class DashboardController extends Controller
 
         $salesExecutives = User::where('company_id', $user->company_id)
             ->whereHas('role', function ($q) {
-                $q->whereIn('slug', ['sales_executive', 'executive', 'sales_manager', 'manager']);
+                $q->whereIn('slug', ['sales_executive', 'executive']);
             })
+            ->with(['role'])
             ->withCount([
                 'assignedLeads as total_assigned_leads',
                 'assignedLeads as converted_leads_count' => function ($q) {
-                    $q->where('status', 'converted');
+                    $q->whereIn('status', ['converted', 'booked']);
                 }
             ])
             ->get();

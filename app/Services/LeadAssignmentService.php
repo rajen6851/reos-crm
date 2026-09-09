@@ -33,14 +33,19 @@ class LeadAssignmentService
                 'assigned_at' => now(),
             ]);
 
-            // Update main Lead (keep within allowed enum: new, contacted, follow_up, site_visit, interested, negotiation, converted, lost)
             $oldStatus = $lead->status;
             $newStatus = ($oldStatus === 'new') ? 'contacted' : $oldStatus;
 
-            $lead->update([
+            $updatePayload = [
                 'assigned_to_user_id' => $assignedTo->id,
                 'status' => $newStatus,
-            ]);
+            ];
+
+            if ($assignedBy->isManager()) {
+                $updatePayload['assigned_to_manager_id'] = $assignedBy->id;
+            }
+
+            $lead->update($updatePayload);
 
             // Sync broker visible status
             $this->statusService->syncBrokerVisibleStatus(

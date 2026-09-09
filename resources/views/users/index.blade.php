@@ -28,6 +28,70 @@
         </div>
     </div>
 
+    <!-- Pending Critical Approval Requests for Director / Founder / Main Owner -->
+    @if(auth()->user()->isDirectorOrFounder() && isset($pendingUserApprovals) && $pendingUserApprovals->count() > 0)
+    <div class="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-[#0F172A] text-sm">Critical Approval Requests (Main Owner Verification Required)</h3>
+                    <p class="text-xs text-[#64748B]">Admins have requested critical user management actions that require your Director/Owner authorization before execution.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-amber-200/80 text-amber-900 text-xs font-bold rounded-full border border-amber-300">
+                {{ $pendingUserApprovals->count() }} Pending Approval{{ $pendingUserApprovals->count() > 1 ? 's' : '' }}
+            </span>
+        </div>
+
+        <div class="space-y-3">
+            @foreach($pendingUserApprovals as $approval)
+            <div class="bg-white rounded-2xl p-4 border border-amber-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg border {{ $approval->action_badge }}">
+                        {{ $approval->action_label }}
+                    </span>
+                    <div>
+                        <div class="text-xs font-bold text-[#0F172A]">
+                            Target: <span class="text-[#DC2626] font-mono">{{ $approval->target_name }}</span>
+                        </div>
+                        <div class="text-[11px] text-[#64748B] mt-0.5">
+                            Requested by: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                        </div>
+                        @if($approval->reason)
+                            <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
+                                💬 <em>"{{ $approval->reason }}"</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
+                    <form action="{{ route('users.approvals.approve', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to APPROVE & EXECUTE this critical action?')" class="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-check text-xs"></i>
+                            <span>Approve & Execute</span>
+                        </button>
+                    </form>
+
+                    <form action="{{ route('users.approvals.reject', $approval->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to REJECT this request?')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                            <span>Reject</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <!-- Summary Metrics Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
@@ -94,6 +158,7 @@
                         <tr>
                             <th class="p-4">Staff Name & Avatar</th>
                             <th class="p-4">Internal System Role</th>
+                            <th class="p-4">Reporting Manager</th>
                             <th class="p-4">Org, Branch & Dept</th>
                             <th class="p-4">Contact Info</th>
                             <th class="p-4">Leads Performance</th>
@@ -140,6 +205,16 @@
                                     <i class="fa-solid fa-user-tie text-[#4F46E5] mr-1"></i>
                                     <span>{{ $displayRoleName }}</span>
                                 </span>
+                            </td>
+                            <td class="p-4 text-xs font-medium text-slate-700">
+                                @if($u->reportingManager)
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-xl bg-sky-50 text-sky-800 border border-sky-200 inline-flex items-center space-x-1">
+                                        <i class="fa-solid fa-user-tie text-sky-600 mr-1"></i>
+                                        <span>{{ $u->reportingManager->name }}</span>
+                                    </span>
+                                @else
+                                    <span class="text-slate-400 italic text-[11px] bg-slate-50 px-2 py-0.5 rounded border border-slate-200">Direct / Management</span>
+                                @endif
                             </td>
                             <td class="p-4 text-xs font-medium text-slate-700">
                                 @php
@@ -294,6 +369,16 @@
                     </div>
 
                     <div>
+                        <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">Reporting Manager (For Executives)</label>
+                        <select name="reporting_manager_id" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-semibold focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                            <option value="">None (Reports to Admin / Direct)</option>
+                            @foreach($managers as $m)
+                                <option value="{{ $m->id }}" {{ auth()->user()->isManager() && auth()->id() == $m->id ? 'selected' : '' }}>{{ $m->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">Initial Password *</label>
                         <input type="password" name="password" required value="password123" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
                     </div>
@@ -397,6 +482,16 @@
                     </div>
 
                     <div>
+                        <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">Reporting Manager (For Executives)</label>
+                        <select id="edit_reporting_manager_id" name="reporting_manager_id" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-semibold focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                            <option value="">None (Reports to Admin / Direct)</option>
+                            @foreach($managers as $m)
+                                <option value="{{ $m->id }}">{{ $m->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">New Password (Optional)</label>
                         <input type="password" name="password" placeholder="••••••••" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
                         <p class="text-[10px] text-[#64748B] mt-1 font-medium">Leave blank to keep current password unchanged.</p>
@@ -423,6 +518,7 @@
         document.getElementById('edit_department').value = user.department || 'Sales';
         document.getElementById('edit_designation').value = user.designation || 'Executive';
         document.getElementById('edit_role_id').value = user.role_id || '';
+        document.getElementById('edit_reporting_manager_id').value = user.reporting_manager_id || '';
         document.getElementById('editUserModal').classList.remove('hidden');
     }
 </script>
