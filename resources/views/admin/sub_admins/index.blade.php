@@ -5,26 +5,26 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                <span>SaaS Platform Control</span>
-                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                <span class="text-emerald-700">Sub-Admins & Permissions</span>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Sub-Admins Directory</span>
             </div>
-            <h1 class="page-heading">SaaS Sub-Admins & Granular Access Control</h1>
-            <p class="body-text mt-1">Create multiple SaaS Sub-Admins with restricted permissions and approval-gated sensitive actions.</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">SaaS Sub-Admins & Access Control</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Manage SaaS Sub-Admins with restricted permissions and approval-gated sensitive actions</p>
         </div>
         <div class="flex items-center space-x-3">
             @if($pendingApprovalsCount > 0)
-                <a href="{{ route('admin.saas-approvals') }}" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center space-x-2 animate-pulse">
+                <a href="{{ route('admin.saas-approvals') }}" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center space-x-2 animate-pulse">
                     <i class="fa-solid fa-bell"></i>
                     <span>{{ $pendingApprovalsCount }} Pending SaaS Approvals</span>
                 </a>
             @endif
-            <button onclick="document.getElementById('createSubAdminModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-user-plus"></i>
-                <span>Create New SaaS Sub-Admin</span>
+            <button onclick="document.getElementById('createSubAdminModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-user-plus text-xs"></i>
+                <span>Create SaaS Sub-Admin</span>
             </button>
         </div>
     </div>

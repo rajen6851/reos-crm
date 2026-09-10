@@ -1,428 +1,375 @@
 @extends('layouts.reos')
 
-@section('title', 'Admin Dashboard – REOS')
+@section('title', 'Dashboard')
 
 @section('content')
 <div class="space-y-6 pb-12">
-    <!-- Top Hero Banner: Premium Real Estate Operations Greeting -->
-    <div class="reos-card p-6 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white">
-        <div class="space-y-1.5">
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#059669] border border-emerald-200 uppercase tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-[#059669] animate-pulse"></span>
-                <span>Builder Admin Dashboard</span>
-            </div>
-            <h1 class="page-heading flex items-center space-x-2">
-                <span>Good {{ date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening') }}, {{ strtok($user->name, ' ') }}</span>
-                <i class="fa-solid fa-building-user text-emerald-600 text-2xl"></i>
-            </h1>
-            <p class="body-text">
-                Overview for <strong class="text-[#0F172A] font-semibold">{{ $company->name }}</strong>: 
-                <span class="text-[#059669] font-bold font-mono">{{ $availableUnits }}</span> units available & 
-                <span class="text-[#059669] font-bold font-mono">{{ $totalLeads }}</span> CRM leads active across active projects.
-            </p>
+
+    <!-- Top Greeting Header & Date/Time Formatting -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-[#0F172A] tracking-tight">Good Morning, {{ explode(' ', auth()->user()->name)[0] }}</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">{{ date('d M Y') }} | Indian (timezone formatting)</p>
         </div>
 
-        <div class="flex items-center space-x-3 shrink-0">
-            <a href="{{ route('reports.index') }}" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] btn-text rounded-xl border border-[#E2E8F0] shadow-2xs transition flex items-center space-x-2">
-                <i class="fa-solid fa-download text-[#64748B] text-xs"></i>
-                <span>Export Report</span>
-            </a>
-            <a href="{{ route('users.index') }}" class="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white btn-text rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Add Team User</span>
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Segmented Period Selector (Today, This Week, This Month, Custom) -->
+            <div class="inline-flex items-center bg-[#E2E8F0]/70 p-1 rounded-lg text-xs font-semibold text-slate-600">
+                <button class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs font-bold transition">Today</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Week</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Month</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">Custom</button>
+            </div>
+
+            <!-- Permissions Matrix Link Button -->
+            <a href="{{ route('permissions.index') }}" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 font-bold text-xs rounded-lg shadow-2xs transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-shield-halved text-xs"></i>
+                <span>Permissions Matrix</span>
             </a>
         </div>
     </div>
 
-    <!-- Pending Critical Approval Requests for Director / Founder / Main Owner -->
-    @if(auth()->user()->isDirectorOrFounder() && isset($pendingCompanyApprovals) && $pendingCompanyApprovals->count() > 0)
-    <div class="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-lg shrink-0">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div>
-                    <h3 class="font-extrabold text-[#0F172A] text-sm">Critical Approval Requests (Main Owner Verification Required)</h3>
-                    <p class="text-xs text-[#64748B]">Admins have requested critical actions (Staff/Project/Broker/Booking deletion or Admin user creation) that require your Director authorization.</p>
-                </div>
+    <!-- 6 KPI Metric Cards Grid Across Top -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <!-- Card 1: Total Leads -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Total Leads</span>
+                <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <span class="px-3 py-1 bg-amber-200/80 text-amber-900 text-xs font-bold rounded-full border border-amber-300">
-                {{ $pendingCompanyApprovals->count() }} Pending Request{{ $pendingCompanyApprovals->count() > 1 ? 's' : '' }}
-            </span>
+            <div class="text-2xl font-bold text-slate-900 font-mono">1,284</div>
+            <div class="text-xs font-semibold text-emerald-600">(+12.8%)</div>
         </div>
 
-        <div class="space-y-3">
-            @foreach($pendingCompanyApprovals as $approval)
-            <div class="bg-white rounded-2xl p-4 border border-amber-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Card 2: Active Properties -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Active Properties</span>
+            </div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">248</div>
+            <div class="text-xs font-semibold text-emerald-600">(+6.4%)</div>
+        </div>
+
+        <!-- Card 3: Site Visits -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Site Visits</span>
+                <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
+            </div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">186</div>
+            <div class="text-xs font-semibold text-emerald-600">(+18.2%)</div>
+        </div>
+
+        <!-- Card 4: Deals Closed -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Deals Closed</span>
+                <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
+            </div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">42</div>
+            <div class="text-xs font-semibold text-emerald-600">(+9.6%)</div>
+        </div>
+
+        <!-- Card 5: Revenue -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Revenue</span>
+                <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
+            </div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">₹2.84 Cr</div>
+            <div class="text-xs font-semibold text-emerald-600">(+14.5%)</div>
+        </div>
+
+        <!-- Card 6: Pending Follow-ups -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>Pending Follow-ups</span>
+            </div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">73</div>
+            <div class="text-xs font-semibold text-rose-500">(-8.2%)</div>
+        </div>
+    </div>
+
+    <!-- Middle Section: Lead & Deal Velocity Chart, Sales Funnel, Today's Agenda -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left (6 Cols): Lead & Deal Velocity Dual Y-Axis Stacked Chart -->
+        <div class="lg:col-span-6 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-[#0F172A]">Lead & Deal Velocity</h2>
+            </div>
+
+            <!-- Chart Canvas -->
+            <div class="h-64 relative">
+                <canvas id="velocityStackedChart"></canvas>
+            </div>
+
+            <!-- Chart Legend -->
+            <div class="flex items-center justify-center space-x-5 text-xs font-semibold text-slate-600 pt-1">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-xs bg-[#0F172A]"></span>
+                    <span>Leads</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-xs bg-[#2563EB]"></span>
+                    <span>Lead Stage</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-xs bg-[#F97316]"></span>
+                    <span>Deal</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-xs bg-[#94A3B8]"></span>
+                    <span>Deal Stage</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle (3 Cols): Sales Funnel (Matching Screenshot Stages) -->
+        <div class="lg:col-span-3 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-[#0F172A]">Sales Funnel</h2>
+                <span class="text-[11px] text-slate-400 font-semibold">Conversion %</span>
+            </div>
+
+            <!-- Funnel Inverted Pyramid Stack -->
+            <div class="py-2 space-y-1 flex flex-col items-center justify-center flex-1 text-white text-[11px] font-bold">
+                <!-- Stage 1: Prospecting (1,284) -->
+                <div class="w-full bg-[#0F172A] py-2.5 px-3 rounded-t-sm flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">1,284</span>
+                    <span class="text-[10px]">Prospecting</span>
+                </div>
+
+                <!-- Stage 2: Contacted (890) -->
+                <div class="w-[88%] bg-[#1E3A8A] py-2 px-3 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">890</span>
+                    <span class="text-[10px]">Contacted</span>
+                </div>
+
+                <!-- Stage 3: Qualified (412) -->
+                <div class="w-[76%] bg-[#2563EB] py-2 px-3 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">412</span>
+                    <span class="text-[10px]">Qualified (412)</span>
+                </div>
+
+                <!-- Stage 4: Site Visit (186) -->
+                <div class="w-[62%] bg-[#3B82F6] py-1.5 px-2.5 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">186</span>
+                    <span class="text-[10px]">Site Visit (186)</span>
+                </div>
+
+                <!-- Stage 5: Negotiation (64) -->
+                <div class="w-[48%] bg-[#6366F1] py-1.5 px-2 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">64</span>
+                    <span class="text-[10px]">Negotiation (64)</span>
+                </div>
+
+                <!-- Stage 6: Won (42) -->
+                <div class="w-[36%] bg-[#10B981] py-1.5 px-2 rounded-b-sm flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">42</span>
+                    <span class="text-[10px]">Won (42)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right (3 Cols): Today's Agenda & Site Visits -->
+        <div class="lg:col-span-3 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-[#0F172A]">Today's Agenda & Site Visits</h2>
+            </div>
+
+            <!-- Agenda Events List -->
+            <div class="space-y-4 flex-1 text-xs py-2">
+                <!-- Event 1 -->
                 <div class="flex items-start space-x-3">
-                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg border {{ $approval->action_badge }}">
-                        {{ $approval->action_label }}
-                    </span>
-                    <div>
-                        <div class="text-xs font-bold text-[#0F172A]">
-                            Target Item: <span class="text-[#DC2626] font-mono">{{ $approval->target_name }}</span>
+                    <span class="font-mono text-slate-500 text-[11px] w-16 pt-0.5 shrink-0">10:30 AM</span>
+                    <div class="space-y-0.5">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                            <span class="font-bold text-slate-900">Site Visit:</span>
                         </div>
-                        <div class="text-[11px] text-[#64748B] mt-0.5">
-                            Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
-                        </div>
-                        @if($approval->reason)
-                            <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
-                                💬 <em>"{{ $approval->reason }}"</em>
-                            </div>
-                        @endif
+                        <div class="text-slate-600 pl-4">Skyline Residency</div>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
-                    <form action="{{ route('users.approvals.approve', $approval->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" onclick="return confirm('Are you sure you want to APPROVE & EXECUTE this critical action?')" class="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
-                            <i class="fa-solid fa-check text-xs"></i>
-                            <span>Approve & Execute</span>
-                        </button>
-                    </form>
-
-                    <form action="{{ route('users.approvals.reject', $approval->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" onclick="return confirm('Are you sure you want to REJECT this request?')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
-                            <i class="fa-solid fa-xmark text-xs"></i>
-                            <span>Reject</span>
-                        </button>
-                    </form>
+                <!-- Event 2 -->
+                <div class="flex items-start space-x-3">
+                    <span class="font-mono text-slate-500 text-[11px] w-16 pt-0.5 shrink-0">02:00 PM</span>
+                    <div class="space-y-0.5">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-slate-800"></span>
+                            <span class="font-bold text-slate-900">Negotiation Call:</span>
+                        </div>
+                        <div class="text-slate-600 pl-4">Mr. Gupta</div>
+                    </div>
                 </div>
             </div>
-            @endforeach
         </div>
     </div>
-    @endif
 
-    <!-- Main Grid Row 1 -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Col 1: Left Stats + Mini KPI Grid (4 cols on lg) -->
-        <div class="lg:col-span-4 space-y-4 flex flex-col justify-between">
-            <!-- Total Property Units Card -->
-            <a href="{{ route('projects.index') }}" class="reos-card p-6 flex-1 flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer block">
-                <div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="label-text">Total Property Units</span>
-                            <h2 class="kpi-number mt-2 text-3xl">{{ number_format($totalUnits) }}</h2>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                            <i class="fa-solid fa-building"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#059669] border border-emerald-200">
-                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-                        <span>{{ $availableUnits }} Units Ready for Booking →</span>
-                    </div>
-                    <p class="body-text text-xs mt-2">Active inventory across {{ $totalProjects }} developer projects</p>
-                </div>
-            </a>
+    <!-- Bottom Section: Recent High-Priority Leads Table & Property Inventory Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left (8 Cols): Recent High-Priority Leads Table -->
+        <div class="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col justify-between">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-[#0F172A]">Recent High-Priority Leads</h2>
+            </div>
 
-            <!-- Mini 2x2 Metric Cards Grid -->
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Card 1: Available Units -->
-                <a href="{{ route('projects.index') }}" class="reos-card p-4 space-y-2 hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer block">
-                    <div class="flex items-center justify-between">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-[#059669] flex items-center justify-center font-bold text-sm border border-emerald-100">
-                            <i class="fa-solid fa-door-open"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-[#059669] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                            Available
-                        </span>
-                    </div>
-                    <div>
-                        <div class="label-text">Available Units</div>
-                        <div class="text-xl font-bold text-[#0F172A] font-mono mt-0.5">{{ number_format($availableUnits) }} →</div>
-                    </div>
-                </a>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
+                        <tr>
+                            <th class="p-3 w-8"><input type="checkbox" class="rounded border-slate-300"></th>
+                            <th class="p-3">Customer Name <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Phone <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Property Name <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Assigned Agent <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Status <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-800">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
+                            <td class="p-3 font-bold text-slate-900">Vikram Malhotra</td>
+                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
+                                <span>+91 98260...</span>
+                                <span class="text-xs" title="India">🇮🇳</span>
+                            </td>
+                            <td class="p-3 text-slate-700">Skyline Residency 3BHK</td>
+                            <td class="p-3 text-slate-700 flex items-center space-x-2">
+                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
+                                <span class="truncate">Rajesh Malh...</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Qualified
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        </tr>
 
-                <!-- Card 2: Occupancy Rate -->
-                <a href="{{ route('bookings.index') }}" class="reos-card p-4 space-y-2 hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer block">
-                    <div class="flex items-center justify-between">
-                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-[#D97706] flex items-center justify-center font-bold text-sm border border-amber-100">
-                            <i class="fa-solid fa-chart-pie"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-[#D97706] bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
-                            Booked
-                        </span>
-                    </div>
-                    <div>
-                        <div class="label-text">Sold Ratio</div>
-                        @php
-                            $conversionRate = $totalUnits > 0 ? round(($bookedUnits / $totalUnits) * 100, 1) : 0;
-                        @endphp
-                        <div class="text-xl font-bold text-[#0F172A] font-mono mt-0.5">{{ $conversionRate }}% →</div>
-                    </div>
-                </a>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
+                            <td class="p-3 font-bold text-slate-900">Sunita Rao</td>
+                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
+                                <span>+91 98260...</span>
+                                <span class="text-xs" title="India">🇮🇳</span>
+                            </td>
+                            <td class="p-3 text-slate-700">Green Valley Villa</td>
+                            <td class="p-3 text-slate-700 flex items-center space-x-2">
+                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">MG</div>
+                                <span class="truncate">Mr. Gupta</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+                                    Site Visit
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        </tr>
 
-                <!-- Card 3: CRM Leads -->
-                <a href="{{ route('leads.index') }}" class="reos-card p-4 space-y-2 hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer block">
-                    <div class="flex items-center justify-between">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-[#4F46E5] flex items-center justify-center font-bold text-sm border border-indigo-100">
-                            <i class="fa-solid fa-users text-xs"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-[#4F46E5] bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
-                            Active
-                        </span>
-                    </div>
-                    <div>
-                        <div class="label-text">CRM Leads</div>
-                        <div class="text-xl font-bold text-[#0F172A] font-mono mt-0.5">{{ number_format($totalLeads) }} →</div>
-                    </div>
-                </a>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
+                            <td class="p-3 font-bold text-slate-900">Amitabh Verma</td>
+                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
+                                <span>+91 98260...</span>
+                                <span class="text-xs" title="India">🇮🇳</span>
+                            </td>
+                            <td class="p-3 text-slate-700">Croteckivii Property</td>
+                            <td class="p-3 text-slate-700 flex items-center space-x-2">
+                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
+                                <span class="truncate">Rajesh Malh...</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-900 border border-amber-200">
+                                    Negotiation
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        </tr>
 
-                <!-- Card 4: Team Staff -->
-                <a href="{{ route('users.index') }}" class="reos-card p-4 space-y-2 hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer block">
-                    <div class="flex items-center justify-between">
-                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm border border-purple-100">
-                            <i class="fa-solid fa-user-tie text-xs"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
-                            Staff
-                        </span>
-                    </div>
-                    <div>
-                        <div class="label-text">Active Team</div>
-                        <div class="text-xl font-bold text-[#0F172A] font-mono mt-0.5">{{ number_format($totalUsers) }} →</div>
-                    </div>
-                </a>
+                        <!-- Row 4 -->
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
+                            <td class="p-3 font-bold text-slate-900">Amitabh Verma</td>
+                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
+                                <span>+91 98260...</span>
+                                <span class="text-xs" title="India">🇮🇳</span>
+                            </td>
+                            <td class="p-3 text-slate-700">Skylie Residency 3BHK</td>
+                            <td class="p-3 text-slate-700 flex items-center space-x-2">
+                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
+                                <span class="truncate">Rajesh Malh...</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                    Contacted
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
+                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Col 2: Property Inventory Distribution Donut Chart (4 cols on lg) -->
-        <div class="lg:col-span-4 reos-card p-6 flex flex-col justify-between">
+        <!-- Right (4 Cols): Property Inventory Breakdown Donut Chart -->
+        <div class="lg:col-span-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
             <div>
-                <div class="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                    <h2 class="section-heading">Inventory Distribution</h2>
-                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-[#059669] border border-emerald-200">
-                        Live Data
-                    </span>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <h2 class="text-sm font-bold text-[#0F172A]">Property Inventory Breakdown</h2>
                 </div>
 
-                <!-- Donut Chart & Legend Container -->
-                <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <!-- Donut Canvas Container -->
+                <!-- Donut Chart -->
+                <div class="mt-4 flex flex-col items-center">
                     <div class="relative w-40 h-40 flex items-center justify-center">
-                        <canvas id="inventoryDonutChart"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                            <span class="text-2xl font-bold text-[#0F172A] font-mono leading-none">{{ $totalUnits }}</span>
-                            <span class="label-text text-[10px] mt-1">Total Units</span>
+                        <canvas id="inventoryBreakdownChart"></canvas>
+                    </div>
+
+                    <!-- Chart Legend -->
+                    <div class="w-full mt-5 flex items-center justify-center space-x-4 text-xs font-semibold text-slate-600">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-xs bg-[#0F172A]"></span>
+                            <span>Available: <strong>164</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-xs bg-[#2563EB]"></span>
+                            <span>Reserved: <strong>32</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-xs bg-[#94A3B8]"></span>
+                            <span>Sold: <strong>52</strong></span>
                         </div>
                     </div>
-
-                    <!-- Custom Legend Items -->
-                    <div class="space-y-2.5 text-xs flex-1 w-full">
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#0D9488]"></span>
-                                <span class="table-text">Available</span>
-                            </span>
-                            <span class="font-bold text-[#0F172A] font-mono">{{ $availableUnits }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#F43F5E]"></span>
-                                <span class="table-text">Booked / Sold</span>
-                            </span>
-                            <span class="font-bold text-[#0F172A] font-mono">{{ $bookedUnits }}</span>
-                        </div>
-                        @php
-                            $holdUnits = max(0, $totalUnits - ($availableUnits + $bookedUnits));
-                        @endphp
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>
-                                <span class="table-text">Reserved / Hold</span>
-                            </span>
-                            <span class="font-bold text-[#0F172A] font-mono">{{ $holdUnits }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Summary Meters Bar -->
-            <div class="mt-6 pt-4 border-t border-[#E2E8F0] grid grid-cols-3 gap-2 text-center">
-                <div class="bg-[#F8FAFC] p-2 rounded-lg border border-[#E2E8F0]">
-                    <div class="label-text text-[10px]">Available</div>
-                    <div class="text-base font-bold text-[#0D9488] font-mono mt-0.5">{{ $availableUnits }}</div>
-                </div>
-                <div class="bg-[#F8FAFC] p-2 rounded-lg border border-[#E2E8F0]">
-                    <div class="label-text text-[10px]">Booked</div>
-                    <div class="text-base font-bold text-[#F43F5E] font-mono mt-0.5">{{ $bookedUnits }}</div>
-                </div>
-                <div class="bg-[#F8FAFC] p-2 rounded-lg border border-[#E2E8F0]">
-                    <div class="label-text text-[10px]">Hold</div>
-                    <div class="text-base font-bold text-[#F59E0B] font-mono mt-0.5">{{ $holdUnits }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Col 3: Lead Activity Trend Bar Chart (4 cols on lg) -->
-        <div class="lg:col-span-4 reos-card p-6 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                    <h2 class="section-heading">Lead Summary</h2>
-                    <a href="{{ route('leads.index') }}" class="text-xs text-[#4F46E5] hover:underline font-semibold flex items-center space-x-1">
-                        <span>View Logs ›</span>
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div class="p-3 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
-                        <span class="label-text text-[10px]">Total Leads</span>
-                        <div class="text-xl font-bold text-[#0F172A] font-mono mt-0.5">{{ number_format($totalLeads) }}</div>
-                        <span class="body-text text-[11px]">Active pipeline</span>
-                    </div>
-                    <div class="p-3 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
-                        <span class="label-text text-[10px]">Site Visits</span>
-                        <div class="text-xl font-bold text-[#4F46E5] font-mono mt-0.5">{{ max(1, intval($totalLeads * 0.45)) }}</div>
-                        <span class="body-text text-[11px]">Completed tours</span>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <h3 class="label-text text-xs text-[#0F172A] mb-2">Weekly Lead Inquiries Trend</h3>
-                    <div class="h-36 relative">
-                        <canvas id="weeklyActivityBarChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Action Dark Teal Banner (Dreams ERP Match) -->
-            <div class="mt-4 p-4 rounded-xl bg-[#0D9488] text-white flex items-center justify-between shadow-xs">
-                <div>
-                    <div class="btn-text text-xs text-white">Run Cost Sheet & Booking</div>
-                    <div class="body-text text-[11px] text-teal-100 opacity-90">Process monthly sales pay & booking</div>
-                </div>
-                <a href="{{ route('bookings.index') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-[#0D9488] btn-text rounded-full shadow-xs transition cursor-pointer">
-                    Run Payroll
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Grid Row 2: Sales Pipeline Funnel & Navy Revenue Card -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Dark Navy Revenue Card with Gold Accent Highlight -->
-        <div class="lg:col-span-4 bg-[#0F172A] text-white p-6 rounded-2xl shadow-md relative overflow-hidden flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between">
-                    <span class="label-text text-indigo-300">Total Portfolio Value</span>
-                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded bg-[#C9A227] text-white uppercase tracking-wider shadow-2xs">
-                        ★ VIP Portfolio
-                    </span>
-                </div>
-                <div class="text-3xl font-extrabold font-mono tracking-tight text-white mt-2">
-                    ₹{{ number_format($bookedUnits * 6500000 + $availableUnits * 5000000) }}
-                </div>
-                <p class="body-text text-xs text-slate-400 mt-1">Combined value of active developer property inventory</p>
-            </div>
-
-            <div class="my-6 space-y-2.5 border-t border-slate-800 pt-4">
-                <div class="flex justify-between items-center text-xs">
-                    <span class="text-slate-400">Booked Sales Revenue</span>
-                    <span class="font-mono font-bold text-[#059669]">₹{{ number_format($bookedUnits * 6500000) }}</span>
-                </div>
-                <div class="flex justify-between items-center text-xs">
-                    <span class="text-slate-400">Available Inventory Value</span>
-                    <span class="font-mono font-bold text-indigo-300">₹{{ number_format($availableUnits * 5000000) }}</span>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-                <a href="{{ route('reports.index') }}" class="w-full text-center py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white btn-text rounded-xl shadow-xs transition">
-                    <i class="fa-solid fa-download text-xs mr-1.5"></i> Download Statement
-                </a>
-            </div>
-        </div>
-
-        <!-- Sales Pipeline Funnel (8 cols) -->
-        <div class="lg:col-span-8 reos-card p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
-                <div>
-                    <h2 class="section-heading">CRM Sales Pipeline</h2>
-                    <p class="body-text text-xs">Live lead conversion stages across active projects</p>
-                </div>
-                <a href="{{ route('leads.index') }}" class="px-4 py-2 bg-[#0F172A] hover:bg-slate-800 text-white btn-text rounded-xl shadow-xs transition">
-                    + Add New Lead
-                </a>
-            </div>
-
-            <!-- Pipeline Cards Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Stage 1: New Leads -->
-                <div class="p-4 rounded-xl bg-white border border-[#E2E8F0] border-l-4 border-l-[#2563EB] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="label-text">New Inquiries</span>
-                        <div class="w-7 h-7 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-inbox"></i></div>
-                    </div>
-                    <div class="text-2xl font-bold text-[#0F172A] font-mono mt-1">{{ number_format($totalLeads) }}</div>
-                    <div class="body-text text-[11px]">Fresh captured leads</div>
-                </div>
-
-                <!-- Stage 2: Site Visit Scheduled -->
-                <div class="p-4 rounded-xl bg-white border border-[#E2E8F0] border-l-4 border-l-[#D97706] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="label-text">Site Visits</span>
-                        <div class="w-7 h-7 rounded-lg bg-amber-50 text-[#D97706] flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-shoe-prints"></i></div>
-                    </div>
-                    <div class="text-2xl font-bold text-[#0F172A] font-mono mt-1">{{ max(1, intval($totalLeads * 0.45)) }}</div>
-                    <div class="body-text text-[11px]">Property tours completed</div>
-                </div>
-
-                <!-- Stage 3: Bookings Converted -->
-                <div class="p-4 rounded-xl bg-white border border-[#E2E8F0] border-l-4 border-l-[#059669] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="label-text">Bookings Converted</span>
-                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-[#059669] flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-circle-check"></i></div>
-                    </div>
-                    <div class="text-2xl font-bold text-[#0F172A] font-mono mt-1">{{ number_format($bookedUnits) }}</div>
-                    <div class="body-text text-[11px]">Bookings & agreements</div>
-                </div>
-            </div>
-
-            <!-- Recent Team Activity Table -->
-            <div class="pt-2">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="label-text text-[#0F172A]">Active Team Roster</h3>
-                    <a href="{{ route('users.index') }}" class="text-xs text-[#4F46E5] font-semibold hover:underline">Manage Team →</a>
-                </div>
-                <div class="overflow-x-auto rounded-xl border border-[#E2E8F0]">
-                    <table class="w-full text-left text-xs text-[#0F172A]">
-                        <thead class="bg-[#F8FAFC] text-[#64748B] font-bold uppercase tracking-wider text-[10px]">
-                            <tr>
-                                <th class="py-2.5 px-3">Member</th>
-                                <th class="py-2.5 px-3">Role</th>
-                                <th class="py-2.5 px-3">Email</th>
-                                <th class="py-2.5 px-3 text-right">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[#E2E8F0]">
-                            @foreach($teamUsers->take(4) as $u)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="py-2.5 px-3 font-semibold text-[#0F172A] flex items-center space-x-2">
-                                    <div class="w-6 h-6 rounded-full bg-indigo-50 text-[#4F46E5] font-bold text-[10px] flex items-center justify-center border border-indigo-100">
-                                        {{ strtoupper(substr($u->name, 0, 2)) }}
-                                    </div>
-                                    <span class="table-text">{{ $u->name }}</span>
-                                </td>
-                                <td class="py-2.5 px-3">
-                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-[#0F172A] border border-[#E2E8F0]">
-                                        {{ $u->role->name ?? 'Staff' }}
-                                    </span>
-                                </td>
-                                <td class="py-2.5 px-3 font-mono text-[#64748B] text-[11px]">{{ $u->email }}</td>
-                                <td class="py-2.5 px-3 text-right">
-                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-[#059669] border border-emerald-200">Active</span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -432,49 +379,34 @@
 <!-- Chart.js Scripts Initialization -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Property Inventory Donut Chart
-        const ctxDonut = document.getElementById('inventoryDonutChart').getContext('2d');
-        new Chart(ctxDonut, {
-            type: 'doughnut',
-            data: {
-                labels: ['Available', 'Booked / Sold', 'Reserved / Hold'],
-                datasets: [{
-                    data: [{{ $availableUnits }}, {{ $bookedUnits }}, {{ $holdUnits }}],
-                    backgroundColor: ['#0D9488', '#F43F5E', '#F59E0B'],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '80%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ' ' + context.label + ': ' + context.raw + ' Units';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // 2. Weekly Activity Bar Chart
-        const ctxBar = document.getElementById('weeklyActivityBarChart').getContext('2d');
-        new Chart(ctxBar, {
+        // 1. Lead & Deal Velocity Dual Y-Axis Stacked Chart
+        const ctxVelocity = document.getElementById('velocityStackedChart').getContext('2d');
+        new Chart(ctxVelocity, {
             type: 'bar',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Leads & Inquiries',
-                    data: [12, 19, 15, 22, 18, 25, 14],
-                    backgroundColor: '#4F46E5',
-                    borderRadius: 4,
-                    barThickness: 14
-                }]
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Leads',
+                        data: [120, 130, 160, 175, 145, 190, 150, 210, 200, 235, 220, 210],
+                        backgroundColor: '#0F172A'
+                    },
+                    {
+                        label: 'Lead Stage',
+                        data: [75, 80, 125, 95, 95, 135, 95, 165, 135, 165, 145, 155],
+                        backgroundColor: '#2563EB'
+                    },
+                    {
+                        label: 'Deal',
+                        data: [35, 40, 50, 50, 40, 55, 45, 65, 50, 70, 60, 65],
+                        backgroundColor: '#F97316'
+                    },
+                    {
+                        label: 'Deal Stage',
+                        data: [35, 35, 55, 40, 45, 55, 45, 65, 40, 70, 50, 65],
+                        backgroundColor: '#94A3B8'
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -484,13 +416,39 @@
                 },
                 scales: {
                     x: {
+                        stacked: true,
                         grid: { display: false },
                         ticks: { font: { size: 10, family: 'Manrope' }, color: '#64748B' }
                     },
                     y: {
-                        grid: { color: '#E2E8F0' },
-                        ticks: { font: { size: 10, family: 'Manrope' }, color: '#64748B', stepSize: 5 }
+                        stacked: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: { font: { size: 10, family: 'Manrope' }, color: '#64748B' },
+                        max: 600
                     }
+                }
+            }
+        });
+
+        // 2. Property Inventory Breakdown Donut Chart
+        const ctxInventory = document.getElementById('inventoryBreakdownChart').getContext('2d');
+        new Chart(ctxInventory, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Reserved', 'Sold'],
+                datasets: [{
+                    data: [164, 32, 52],
+                    backgroundColor: ['#0F172A', '#2563EB', '#94A3B8'],
+                    borderWidth: 0,
+                    hoverOffset: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }
                 }
             }
         });

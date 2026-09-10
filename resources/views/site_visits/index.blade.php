@@ -5,19 +5,19 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '', statusFilter: 'all' }">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>›</span>
-                <span class="text-[#0F172A] font-bold">Site Visits Schedule</span>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Site Visits</span>
             </div>
-            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Site Visits & Property Conduct Schedule</h1>
-            <p class="body-text text-xs text-[#64748B] mt-0.5">Track customer site visit appointments, feedback, executive conducts, and conversion logs</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Site Visits & Property Conduct Schedule</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Track customer site visit appointments, feedback, executive conducts, and conversion logs</p>
         </div>
 
         <div class="flex items-center space-x-2 shrink-0">
-            <span class="px-4 py-2 bg-sky-50 text-sky-900 border border-sky-200 text-xs font-extrabold rounded-2xl flex items-center space-x-2">
+            <span class="px-3.5 py-2 bg-sky-50/80 text-sky-900 border border-sky-200/80 text-xs font-bold rounded-xl flex items-center space-x-2">
                 <i class="fa-solid fa-calendar-check text-sky-600"></i>
                 <span>{{ $siteVisits->count() }} Total Scheduled Visits</span>
             </span>
@@ -26,33 +26,33 @@
 
     <!-- Summary Metrics Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-xs flex justify-between items-center hover:shadow-md transition">
             <div>
-                <span class="label-text text-[#64748B]">Total Visits Conducted</span>
-                <div class="text-2xl font-extrabold text-[#0F172A] mt-1 font-mono">{{ $siteVisits->count() }} Appointments</div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Conducted</span>
+                <div class="text-2xl font-extrabold text-slate-900 mt-1 font-mono tracking-tight">{{ $siteVisits->count() }} Appointments</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg border border-sky-100"><i class="fa-solid fa-[#0F172A] fa-location-dot text-sky-600"></i></span>
+            <span class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base font-bold border border-sky-100"><i class="fa-solid fa-location-dot"></i></span>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-xs flex justify-between items-center hover:shadow-md transition">
             <div>
-                <span class="label-text text-[#64748B]">Assigned Executives</span>
-                <div class="text-2xl font-extrabold text-[#059669] mt-1 font-mono">{{ $siteVisits->pluck('assigned_to_user_id')->unique()->filter()->count() }} Staff</div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Assigned Executives</span>
+                <div class="text-2xl font-extrabold text-emerald-600 mt-1 font-mono tracking-tight">{{ $siteVisits->pluck('assigned_to_user_id')->unique()->filter()->count() }} Staff</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-emerald-50 text-[#059669] flex items-center justify-center text-lg border border-emerald-200"><i class="fa-solid fa-user-tie text-[#059669]"></i></span>
+            <span class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base font-bold border border-emerald-100"><i class="fa-solid fa-user-tie"></i></span>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-xs flex justify-between items-center hover:shadow-md transition">
             <div>
-                <span class="label-text text-[#64748B]">Projects Visited</span>
-                <div class="text-2xl font-extrabold text-[#4F46E5] mt-1 font-mono">{{ $siteVisits->pluck('project_id')->unique()->filter()->count() }} Enclaves</div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Projects Visited</span>
+                <div class="text-2xl font-extrabold text-indigo-600 mt-1 font-mono tracking-tight">{{ $siteVisits->pluck('project_id')->unique()->filter()->count() }} Enclaves</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-lg border border-indigo-100"><i class="fa-solid fa-building text-[#4F46E5]"></i></span>
+            <span class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base font-bold border border-indigo-100"><i class="fa-solid fa-building"></i></span>
         </div>
     </div>
 
     <!-- Site Visits Directory Table -->
-    <div class="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-2xs space-y-4">
+    <div class="bg-white rounded-xl border border-slate-200/80 p-5 space-y-4 shadow-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <h2 class="text-base font-extrabold text-[#0F172A]">Scheduled & Conducted Site Visits</h2>
 

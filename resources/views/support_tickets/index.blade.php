@@ -3,16 +3,21 @@
 @section('title', 'Support Tickets & Helpdesk - REOS')
 
 @section('content')
-<div class="space-y-8" x-data="{ showModal: false }">
+<div class="space-y-6" x-data="{ showModal: false }">
 
     <!-- Header Banner -->
-    <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black text-slate-900">Customer & Team Support Desk</h1>
-            <p class="text-xs text-slate-600 mt-1 font-medium">Create tickets, track issue resolutions, and collaborate with operations staff</p>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
+                <span>›</span>
+                <span class="text-[#0F172A] font-bold">Support Tickets</span>
+            </div>
+            <h1 class="page-heading text-2xl font-extrabold text-slate-900">Customer & Team Support Desk</h1>
+            <p class="body-text text-xs text-slate-500 mt-0.5">Create tickets, track issue resolutions, and collaborate with operations staff</p>
         </div>
         <div>
-            <button type="button" @click="showModal = true" onclick="openSupportModal()" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-500/20 transition flex items-center space-x-2 cursor-pointer">
+            <button type="button" @click="showModal = true" onclick="openSupportModal()" class="px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs shadow-xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span>Raise Support Ticket</span>
             </button>
@@ -21,7 +26,7 @@
 
     <!-- Alert Message -->
     @if(session('success'))
-    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center space-x-2">
+    <div class="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center space-x-2">
         <i class="fa-solid fa-circle-check text-emerald-600"></i>
         <span>{{ session('success') }}</span>
     </div>
@@ -29,33 +34,33 @@
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="{{ route('support-tickets.index', ['status' => 'open']) }}" class="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm hover:border-indigo-300 transition">
-            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Open Tickets</div>
-            <div class="text-2xl font-black text-amber-600 mt-1 font-mono">{{ $openCount }}</div>
-            <div class="text-[11px] text-slate-500 font-bold mt-1">Awaiting Agent</div>
+        <a href="{{ route('support-tickets.index', ['status' => 'open']) }}" class="reos-card p-4 hover:border-blue-300 transition">
+            <div class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Open Tickets</div>
+            <div class="text-2xl font-bold text-amber-600 mt-1 font-mono">{{ $openCount }}</div>
+            <div class="text-[11px] text-slate-500 font-medium mt-1">Awaiting Agent</div>
         </a>
 
-        <a href="{{ route('support-tickets.index', ['status' => 'in_progress']) }}" class="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm hover:border-indigo-300 transition">
-            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">In Progress</div>
-            <div class="text-2xl font-black text-indigo-600 mt-1 font-mono">{{ $inProgressCount }}</div>
-            <div class="text-[11px] text-slate-500 font-bold mt-1">Active Investigation</div>
+        <a href="{{ route('support-tickets.index', ['status' => 'in_progress']) }}" class="reos-card p-4 hover:border-blue-300 transition">
+            <div class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">In Progress</div>
+            <div class="text-2xl font-bold text-blue-600 mt-1 font-mono">{{ $inProgressCount }}</div>
+            <div class="text-[11px] text-slate-500 font-medium mt-1">Active Investigation</div>
         </a>
 
-        <a href="{{ route('support-tickets.index', ['status' => 'resolved']) }}" class="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm hover:border-indigo-300 transition">
-            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Resolved</div>
-            <div class="text-2xl font-black text-emerald-600 mt-1 font-mono">{{ $resolvedCount }}</div>
-            <div class="text-[11px] text-slate-500 font-bold mt-1">Solution Provided</div>
+        <a href="{{ route('support-tickets.index', ['status' => 'resolved']) }}" class="reos-card p-4 hover:border-blue-300 transition">
+            <div class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Resolved</div>
+            <div class="text-2xl font-bold text-emerald-600 mt-1 font-mono">{{ $resolvedCount }}</div>
+            <div class="text-[11px] text-slate-500 font-medium mt-1">Solution Provided</div>
         </a>
 
-        <a href="{{ route('support-tickets.index', ['status' => 'closed']) }}" class="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm hover:border-indigo-300 transition">
-            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Closed</div>
-            <div class="text-2xl font-black text-slate-600 mt-1 font-mono">{{ $closedCount }}</div>
-            <div class="text-[11px] text-slate-500 font-bold mt-1">Completed & Closed</div>
+        <a href="{{ route('support-tickets.index', ['status' => 'closed']) }}" class="reos-card p-4 hover:border-blue-300 transition">
+            <div class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Closed</div>
+            <div class="text-2xl font-bold text-slate-600 mt-1 font-mono">{{ $closedCount }}</div>
+            <div class="text-[11px] text-slate-500 font-medium mt-1">Completed & Closed</div>
         </a>
     </div>
 
     <!-- Filter Bar & Tickets Table -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+    <div class="reos-card p-5 space-y-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <h2 class="text-lg font-black text-slate-900">Support Ticket Register</h2>
             <div class="flex flex-wrap items-center gap-2 text-xs font-bold">

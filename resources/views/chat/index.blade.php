@@ -7,19 +7,24 @@
     <!-- Top Header Bar -->
     <div class="mb-4 flex flex-wrap justify-between items-center gap-3">
         <div>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
+                <span>›</span>
+                <span class="text-[#0F172A] font-bold">Team Chat</span>
+            </div>
             <h1 class="page-heading flex items-center gap-2">
-                <i class="fa-solid fa-[#059669] fa-comments text-emerald-600"></i>
+                <i class="fa-solid fa-comments text-blue-600"></i>
                 <span>Team & Broker Chat</span>
             </h1>
             <p class="body-text">Direct 1-to-1 messaging and team group discussions</p>
         </div>
         <div class="flex items-center space-x-2">
-            <button @click="showDirectModal = true" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200 transition flex items-center gap-2">
+            <button @click="showDirectModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs rounded-lg border border-emerald-200 transition flex items-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>New Direct Chat</span>
             </button>
             @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
-            <button @click="showGroupModal = true" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2">
+            <button @click="showGroupModal = true" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-users-gear"></i>
                 <span>Create Group Chat</span>
             </button>
@@ -28,7 +33,7 @@
     </div>
 
     <!-- Dual Pane Chat Container -->
-    <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col md:flex-row min-h-0">
+    <div class="flex-1 bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden flex flex-col md:flex-row min-h-0">
         <!-- Left Pane: Conversations List -->
         <div class="w-full md:w-80 lg:w-96 border-r border-slate-200 flex flex-col bg-slate-50/50 min-h-0">
             <!-- Search & Filters -->

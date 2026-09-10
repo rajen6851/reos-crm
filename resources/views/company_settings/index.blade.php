@@ -3,24 +3,26 @@
 @section('title', 'Company Settings - REOS')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-8">
-    <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-gear text-2xl text-indigo-600"></i>
-                <h1 class="text-2xl font-black text-slate-900">Real Estate Company Profile & Settings</h1>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
+                <span>›</span>
+                <span class="text-[#0F172A] font-bold">Company Settings</span>
             </div>
-            <p class="text-xs text-slate-600 mt-1 font-medium">Configure corporate information, RERA license numbers, GST details, and payment gateways</p>
+            <h1 class="page-heading text-2xl font-extrabold text-slate-900">Real Estate Company Profile & Settings</h1>
+            <p class="body-text text-xs text-slate-500 mt-0.5 font-medium">Configure corporate information, RERA license numbers, GST details, and payment gateways</p>
         </div>
-        <div class="flex items-center space-x-2 text-xs font-bold text-slate-700 bg-indigo-50 border border-indigo-200 px-3.5 py-2 rounded-2xl">
-            <span class="text-indigo-900">Company ID: #{{ $company->id ?? '1' }}</span>
+        <div class="flex items-center space-x-2 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg">
+            <span class="text-slate-900 font-mono">Company ID: #{{ $company->id ?? '1' }}</span>
         </div>
     </div>
 
     <!-- Company Settings Form -->
-    <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
+    <div class="reos-card p-6 space-y-6">
         <div class="border-b border-slate-100 pb-3">
-            <h2 class="text-lg font-black text-slate-900">Corporate Information</h2>
+            <h2 class="text-lg font-bold text-slate-900">Corporate Information</h2>
             <p class="text-xs text-slate-500">Legal business entity details used in tax invoices and buyer agreements.</p>
         </div>
 
@@ -63,7 +65,7 @@
             </div>
 
             <div class="flex justify-end pt-2">
-                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-xs transition">
+                <button type="submit" class="px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     Save Company Settings
                 </button>
             </div>

@@ -5,10 +5,10 @@
 @section('content')
 <div class="space-y-6 pb-12">
     <!-- Header Banner & Breadcrumb -->
-    <div class="reos-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
                 <span>›</span>
                 <span class="text-[#0F172A] font-bold">HRMS & Attendance</span>
             </div>
@@ -30,14 +30,14 @@
 
         <div class="flex items-center space-x-3 shrink-0">
             @if(!auth()->user()->isSaaSFounder())
-            <button onclick="document.getElementById('applyLeaveModal').classList.remove('hidden')" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] btn-text text-xs rounded-xl border border-[#E2E8F0] shadow-2xs transition flex items-center space-x-2 cursor-pointer">
+            <button onclick="document.getElementById('applyLeaveModal').classList.remove('hidden')" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-[#0F172A] btn-text text-xs rounded-lg border border-[#E2E8F0] shadow-2xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-calendar-plus text-[#4F46E5] text-xs"></i>
                 <span>Apply for Leave</span>
             </button>
             @endif
 
             @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
-            <button onclick="document.getElementById('generateSalarySlipModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
+            <button onclick="document.getElementById('generateSalarySlipModal').classList.remove('hidden')" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white btn-text text-xs rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer font-semibold">
                 <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
                 <span>+ Generate Salary Slip</span>
             </button>

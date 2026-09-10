@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="reos-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
                 <span>›</span>
                 <span class="text-[#0F172A] font-bold">Reports & Analytics</span>
             </div>
@@ -16,12 +16,12 @@
         </div>
         <div class="flex items-center space-x-3">
             @can('manage-users')
-            <a href="{{ route('users.index') }}" class="px-4 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2">
+            <a href="{{ route('users.index') }}" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white btn-text text-xs rounded-lg shadow-xs transition flex items-center space-x-2 font-semibold">
                 <i class="fa-solid fa-user-tie text-white"></i>
                 <span>Manage Sales Executives</span>
             </a>
             @endcan
-            <div class="flex items-center space-x-2 text-xs font-bold text-[#4F46E5] bg-indigo-50 border border-indigo-200 px-3.5 py-2.5 rounded-xl shadow-2xs">
+            <div class="flex items-center space-x-2 text-xs font-bold text-[#4F46E5] bg-indigo-50 border border-indigo-200 px-3 py-2 rounded-lg shadow-2xs">
                 <i class="fa-solid fa-bolt text-[#4F46E5]"></i>
                 <span>Live Real-time Sync Active</span>
             </div>
@@ -29,40 +29,40 @@
     </div>
 
     <!-- Summary Metrics -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total CRM Leads</div>
-            <div class="text-3xl font-black text-slate-900 font-mono mt-2">{{ $totalLeads }}</div>
+            <div class="text-3xl font-bold text-slate-900 font-mono mt-2">{{ $totalLeads }}</div>
             <div class="text-xs text-emerald-600 font-bold mt-1">Conversions: {{ $convertedLeads }}</div>
         </div>
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Site Visits Conducted</div>
-            <div class="text-3xl font-black text-indigo-600 font-mono mt-2">{{ $siteVisits }}</div>
+            <div class="text-3xl font-bold text-blue-600 font-mono mt-2">{{ $siteVisits }}</div>
             <div class="text-xs text-slate-600 font-bold mt-1">Scheduled & Conducted</div>
         </div>
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Unit Bookings</div>
-            <div class="text-3xl font-black text-emerald-600 font-mono mt-2">{{ $totalBookings }}</div>
+            <div class="text-3xl font-bold text-emerald-600 font-mono mt-2">{{ $totalBookings }}</div>
             <div class="text-xs text-slate-600 font-bold mt-1">Units Secured</div>
         </div>
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Token Revenue Collected</div>
-            <div class="text-3xl font-black text-purple-600 font-mono mt-2">₹{{ number_format($totalRevenue) }}</div>
+            <div class="text-3xl font-bold text-purple-600 font-mono mt-2">₹{{ number_format($totalRevenue) }}</div>
             <div class="text-xs text-purple-700 font-bold mt-1">Token Payments</div>
         </div>
     </div>
 
     <!-- Sales Executive Performance Table -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+    <div class="reos-card p-5 space-y-4">
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-black text-slate-900">Sales Executive Performance Breakdown</h2>
+            <h2 class="text-lg font-bold text-slate-900">Sales Executive Performance Breakdown</h2>
             @can('manage-users')
-            <a href="{{ route('users.index') }}" class="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition">
+            <a href="{{ route('users.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">
                 + Add / Manage Executives →
             </a>
             @endcan
         </div>
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
             <table class="w-full text-left text-sm text-slate-700">
                 <thead class="text-xs uppercase bg-slate-50 text-slate-800 font-extrabold tracking-wider border-b border-slate-200">
                     <tr>

@@ -120,6 +120,17 @@ class DatabaseSeeder extends Seeder
             'is_super_admin' => true,
         ]);
 
+        $saasSubAdmin = User::firstOrCreate(['email' => 'subadmin@reos.com'], [
+            'company_id' => $company1->id,
+            'role_id' => $roles1['admin']->id,
+            'name' => 'Vikram Roy (SaaS Sub-Admin)',
+            'email' => 'subadmin@reos.com',
+            'phone' => '9800000099',
+            'password' => $defaultPassword,
+            'is_saas_sub_admin' => true,
+            'saas_permissions' => ['onboard_companies', 'manage_subscriptions', 'view_reports'],
+        ]);
+
         // Company 1 Users (Apex Realty Infra Pvt Ltd)
         $director1 = User::create([
             'company_id' => $company1->id,
@@ -144,7 +155,7 @@ class DatabaseSeeder extends Seeder
             'company_id' => $company1->id,
             'role_id' => $roles1['manager']->id,
             'name' => 'Priya Nair (Sales Manager 1)',
-            'email' => 'priya.manager@apexrealty.com',
+            'email' => 'manager@apexrealty.com',
             'phone' => '9800000003',
             'password' => $defaultPassword,
         ]);

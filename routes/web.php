@@ -74,6 +74,12 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/users/approvals/{approvalRequest}/approve', [UserController::class, 'approveRequest'])->name('users.approvals.approve');
     Route::post('/users/approvals/{approvalRequest}/reject', [UserController::class, 'rejectRequest'])->name('users.approvals.reject');
 
+    // Permissions & Access Control Center (SaaS Owner & Company Founder Matrix)
+    Route::get('/permissions', [\App\Http\Controllers\PermissionController::class, 'index'])->name('permissions.index');
+    Route::post('/permissions/roles/{role}/update', [\App\Http\Controllers\PermissionController::class, 'updateRolePermissions'])->name('permissions.roles.update');
+    Route::post('/permissions/users/{user}/update', [\App\Http\Controllers\PermissionController::class, 'updateUserPermissions'])->name('permissions.users.update');
+    Route::post('/permissions/saas-users/{user}/update', [\App\Http\Controllers\PermissionController::class, 'updateSaasPermissions'])->name('permissions.saas-users.update');
+
     // Profile & FCM
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

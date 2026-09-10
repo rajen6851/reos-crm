@@ -1,140 +1,137 @@
 @extends('layouts.reos')
 
-@section('title', 'Broker Portal – REOS')
+@section('title', 'Broker Portal')
 
 @section('content')
-<div class="space-y-6 pb-12 max-w-7xl mx-auto px-2 sm:px-4">
-    <!-- Hero Banner: ERP Greeting & Action Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs">
+<div class="space-y-6 pb-12">
+
+    <!-- Top Greeting Header & Date/Time Formatting -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 uppercase tracking-wider border border-amber-200 mb-2">
-                <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                <span>Broker Portal</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
-                <span>{{ $broker->agency_name ?? $user->name }}</span>
-                <i class="fa-solid fa-handshake text-[#059669] text-2xl"></i>
+            <h1 class="text-2xl font-bold text-[#0F172A] tracking-tight">
+                Good {{ date('H') < 12 ? 'Morning' : (date('H') < 18 ? 'Afternoon' : 'Evening') }}, {{ $broker->agency_name ?? explode(' ', auth()->user()->name)[0] }}
             </h1>
-            <p class="text-xs md:text-sm text-slate-500 mt-1">
-                Submit customer leads, monitor real-time milestone status, share public property links with buyers, and track earned commission payouts.
+            <p class="text-xs text-slate-500 font-medium mt-0.5">
+                {{ date('d M Y') }} | Indian (timezone formatting) &bull; Channel Partner Portal &bull; <strong class="text-slate-900 font-semibold">{{ $brokerLeads->count() }}</strong> referral leads submitted
             </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Segmented Period Selector -->
+            <div class="inline-flex items-center bg-[#E2E8F0]/70 p-1 rounded-lg text-xs font-semibold text-slate-600">
+                <button class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs font-bold transition">Today</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Week</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Month</button>
+                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">Custom</button>
+            </div>
+
+            <!-- Referral Link Button -->
             @if($projects->isNotEmpty())
             @php
                 $firstProj = $projects->first();
                 $brokerRefUrl = route('projects.public', $firstProj->id) . '?ref=' . ($broker->id ?? 1);
             @endphp
-            <button onclick="copyBrokerShareUrl('{{ $brokerRefUrl }}')" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer">
-                <span id="heroCopyBtnText"><i class="fa-solid fa-link mr-1"></i>Copy Referral Link</span>
+            <button onclick="copyBrokerShareUrl('{{ $brokerRefUrl }}')" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-lg border border-slate-200 shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                <i class="fa-solid fa-link text-xs text-slate-500"></i>
+                <span id="heroCopyBtnText">Copy Referral Link</span>
             </button>
             @endif
 
-            <button onclick="document.getElementById('submitLeadModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer">
-                <i class="fa-solid fa-[#DC2626] fa-plus text-xs"></i>
-                <span>+ Submit Customer Lead</span>
+            <!-- Submit Lead Button -->
+            <button onclick="document.getElementById('submitLeadModal').classList.remove('hidden')" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center space-x-1.5 cursor-pointer">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Submit Referral Lead</span>
             </button>
         </div>
     </div>
 
-    <!-- Stat Cards Grid with Micro-Trends (Clickable Widgets) -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+    <!-- 4 Key Broker Metric Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <!-- Card 1: Total Commissions -->
-        <a href="{{ $broker ? route('brokers.show', $broker->id) : route('brokers.index') }}" class="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer space-y-2 block">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Earned</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <a href="{{ $broker ? route('brokers.show', $broker->id) : route('brokers.index') }}" class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs hover:border-slate-300 transition space-y-1 block">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-semibold uppercase tracking-wider">
+                <span>Total Earned</span>
+                <i class="fa-solid fa-money-bill-wave text-emerald-600 text-xs"></i>
             </div>
             <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalCommissions) }}</div>
-            <div class="inline-flex items-center space-x-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-arrow-up text-[9px]"></i>
-                <span>Across Bookings →</span>
-            </div>
+            <div class="text-xs font-semibold text-emerald-600">Across Bookings &rarr;</div>
         </a>
 
         <!-- Card 2: Approved Payouts -->
-        <a href="{{ $broker ? route('brokers.show', $broker->id) : route('brokers.index') }}" class="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer space-y-2 block">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Approved Payouts</span>
-                <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-circle-check"></i></div>
+        <a href="{{ $broker ? route('brokers.show', $broker->id) : route('brokers.index') }}" class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs hover:border-slate-300 transition space-y-1 block">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-semibold uppercase tracking-wider">
+                <span>Approved Payouts</span>
+                <i class="fa-solid fa-circle-check text-blue-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-emerald-700 font-mono">₹{{ number_format($approvedCommissions) }}</div>
-            <div class="inline-flex items-center space-x-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-check text-[9px]"></i>
-                <span>Ready for Transfer →</span>
-            </div>
+            <div class="text-2xl font-bold text-blue-700 font-mono">₹{{ number_format($approvedCommissions) }}</div>
+            <div class="text-xs font-semibold text-blue-600">Ready for Transfer &rarr;</div>
         </a>
 
         <!-- Card 3: Submitted Leads -->
-        <a href="{{ route('leads.index') }}" class="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition transform cursor-pointer space-y-2 block">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Submitted Leads</span>
-                <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-chart-line"></i></div>
+        <a href="{{ route('leads.index') }}" class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs hover:border-slate-300 transition space-y-1 block">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-semibold uppercase tracking-wider">
+                <span>Submitted Leads</span>
+                <i class="fa-solid fa-chart-line text-indigo-600 text-xs"></i>
             </div>
             <div class="text-2xl font-bold text-indigo-700 font-mono">{{ $brokerLeads->count() }} Leads</div>
-            <div class="inline-flex items-center space-x-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-user-plus text-[9px]"></i>
-                <span>Active Referrals →</span>
-            </div>
+            <div class="text-xs font-semibold text-indigo-600">Active Referrals &rarr;</div>
         </a>
 
         <!-- Card 4: Partner Rate -->
-        <div class="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Partner Rate</span>
-                <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-tag"></i></div>
+        <div class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-600 font-semibold uppercase tracking-wider">
+                <span>Partner Rate</span>
+                <i class="fa-solid fa-tag text-purple-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-sky-700 font-mono">{{ number_format($broker->commission_rate ?? 2.5, 2) }}%</div>
-            <div class="inline-flex items-center space-x-1 text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-handshake text-[9px]"></i>
-                <span>Default Rate</span>
-            </div>
+            <div class="text-2xl font-bold text-purple-700 font-mono">{{ number_format($broker->commission_rate ?? 2.5, 2) }}%</div>
+            <div class="text-xs font-semibold text-purple-600">Commission Slab</div>
         </div>
     </div>
 
     <!-- My Submitted Referral Leads Table -->
-    <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col justify-between">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
             <div>
-                <h2 class="text-base font-bold text-slate-900">My Submitted Referral Leads</h2>
-                <p class="text-xs text-slate-500">Live milestone progress & status tracking</p>
+                <h2 class="text-sm font-bold text-[#0F172A]">My Submitted Referral Leads</h2>
+                <p class="text-xs text-slate-500 font-medium">Live milestone progress & status tracking</p>
             </div>
-            <button onclick="document.getElementById('submitLeadModal').classList.remove('hidden')" class="px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-xs rounded-xl transition cursor-pointer">
+            <button onclick="document.getElementById('submitLeadModal').classList.remove('hidden')" class="px-3 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg transition cursor-pointer">
                 + Submit New Lead
             </button>
         </div>
 
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
-            <table class="w-full text-left text-xs text-slate-700">
-                <thead class="bg-slate-50 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
                     <tr>
-                        <th class="py-3 px-4">Lead Name / Code</th>
-                        <th class="py-3 px-4">Contact Phone</th>
-                        <th class="py-3 px-4">Interested Property</th>
-                        <th class="py-3 px-4">Submitted Date</th>
-                        <th class="py-3 px-4 text-right">Live Status</th>
+                        <th class="p-3.5">Lead Name / Code</th>
+                        <th class="p-3.5">Contact Phone</th>
+                        <th class="p-3.5">Interested Property</th>
+                        <th class="p-3.5">Submitted Date</th>
+                        <th class="p-3.5 text-right">Live Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 text-slate-800">
                     @forelse($brokerLeads as $bl)
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-bold text-slate-900">
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="p-3.5 font-bold text-slate-900">
                             <div>{{ $bl->lead->name ?? 'Buyer Customer' }}</div>
-                            <div class="text-[10px] text-indigo-600 font-mono">{{ $bl->lead->lead_code ?? 'LD-BRK' }}</div>
+                            <div class="text-[10px] text-blue-600 font-mono font-normal">{{ $bl->lead->lead_code ?? 'LD-BRK' }}</div>
                         </td>
-                        <td class="py-3 px-4 font-mono font-bold text-slate-700">{{ $bl->lead->phone ?? 'N/A' }}</td>
-                        <td class="py-3 px-4 font-bold text-slate-800">{{ $bl->project->name ?? 'Property Project' }}</td>
-                        <td class="py-3 px-4 font-mono text-slate-500">{{ date('d M Y', strtotime($bl->submitted_at)) }}</td>
-                        <td class="py-3 px-4 text-right">
-                            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 uppercase">
+                        <td class="p-3.5 font-mono font-bold text-slate-900">{{ $bl->lead->phone ?? 'N/A' }}</td>
+                        <td class="p-3.5 font-semibold text-slate-700">{{ $bl->project->name ?? 'Property Project' }}</td>
+                        <td class="p-3.5 font-mono text-slate-500">{{ date('d M Y', strtotime($bl->submitted_at)) }}</td>
+                        <td class="p-3.5 text-right">
+                            <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200 uppercase">
                                 {{ $bl->broker_visible_status ?? 'Submitted' }}
                             </span>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-6 text-center text-xs text-slate-400 font-medium">No referral leads submitted yet. Click "+ Submit Customer Lead" to start earning commissions!</td>
+                        <td colspan="5" class="p-6 text-center text-xs text-slate-400 font-medium">
+                            No referral leads submitted yet. Click "+ Submit Referral Lead" to start earning commissions!
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -143,14 +140,14 @@
     </div>
 
     <!-- Public Properties Catalog Grid -->
-    <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
             <div>
-                <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                    <i class="fa-solid fa-globe text-indigo-600"></i>
+                <h2 class="text-sm font-bold text-[#0F172A] flex items-center space-x-2">
+                    <i class="fa-solid fa-globe text-blue-600"></i>
                     <span>Public Properties Catalog & Shareable Links</span>
                 </h2>
-                <p class="text-xs text-slate-500">Live builder projects available for channel partner customer referrals</p>
+                <p class="text-xs text-slate-500 font-medium">Live builder projects available for channel partner customer referrals</p>
             </div>
         </div>
 
@@ -159,25 +156,25 @@
             @php
                 $shareUrl = route('projects.public', $proj->id) . '?ref=' . ($broker->id ?? 1);
             @endphp
-            <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3 flex flex-col justify-between">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition space-y-3 flex flex-col justify-between">
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 uppercase">
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200 uppercase">
                             {{ $proj->city }}
                         </span>
                         <span class="text-xs font-mono font-bold text-emerald-600">
                             {{ $proj->availableUnitsCount() }} Units Free
                         </span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900">{{ $proj->name }}</h3>
+                    <h3 class="text-sm font-bold text-slate-900">{{ $proj->name }}</h3>
                     <p class="text-xs text-slate-500 line-clamp-2">{{ $proj->location }}</p>
                 </div>
 
-                <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between gap-2">
-                    <a href="{{ route('projects.public', $proj->id) }}" target="_blank" class="text-xs font-bold text-slate-700 hover:text-indigo-600">
-                        Preview Showcase ↗
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                    <a href="{{ route('projects.public', $proj->id) }}" target="_blank" class="text-xs font-bold text-slate-700 hover:text-blue-600">
+                        Preview Showcase &rarr;
                     </a>
-                    <button onclick="copyBrokerShareUrl('{{ $shareUrl }}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-xs">
+                    <button onclick="copyBrokerShareUrl('{{ $shareUrl }}')" class="px-3 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg transition shadow-2xs">
                         Copy Link
                     </button>
                 </div>
@@ -188,10 +185,10 @@
 </div>
 
 <!-- Modal: Submit Customer Referral Lead -->
-<div id="submitLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-    <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
-            <h3 class="section-heading text-base">Submit Customer Referral Lead</h3>
+<div id="submitLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+    <div class="bg-white max-w-md w-full rounded-xl p-6 border border-slate-200 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+            <h3 class="text-sm font-bold text-[#0F172A]">Submit Customer Referral Lead</h3>
             <button onclick="document.getElementById('submitLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
         </div>
 
@@ -232,9 +229,9 @@
                 <textarea name="notes" rows="2" placeholder="Looking for 3BHK, budget ~85L..." class="form-input"></textarea>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-2 border-t border-[#E2E8F0]">
-                <button type="button" onclick="document.getElementById('submitLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-[#0F172A] btn-text rounded-xl">Cancel</button>
-                <button type="submit" class="px-5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text rounded-xl shadow-xs">Submit Lead Now</button>
+            <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
+                <button type="button" onclick="document.getElementById('submitLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Submit Lead Now</button>
             </div>
         </form>
     </div>
@@ -248,3 +245,4 @@
     }
 </script>
 @endsection
+

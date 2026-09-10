@@ -4,58 +4,72 @@
 
 @section('content')
 
-<div class="space-y-6" x-data="{ viewMode: 'table' }">
+<div class="space-y-6 pb-12" x-data="{ viewMode: 'table' }">
     
-    <!-- Breadcrumb & Top Action Header Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
+    <!-- Top Greeting Header & Page Title Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-blue-600">Home</a>
                 <span>›</span>
-                <span class="text-[#0F172A] font-bold">Leads & Sales Pipeline</span>
+                <span class="text-slate-900 font-bold">Leads & Sales Pipeline</span>
             </div>
             <div class="flex items-center space-x-3">
-                <h1 class="page-heading text-2xl">Leads & Sales Pipeline</h1>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-indigo-50 text-[#4F46E5] border border-indigo-200">
-                    {{ $leads->total() }} Total
+                <h1 class="text-xl font-bold text-[#0F172A] tracking-tight flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center font-bold text-base shadow-2xs">
+                        <i class="fa-solid fa-users-line"></i>
+                    </div>
+                    <span>CRM Sales Pipeline & Leads</span>
+                </h1>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    {{ $leads->total() }} Total Leads
                 </span>
             </div>
-            <p class="body-text text-xs mt-0.5">Drag-and-Drop cards between columns or use table view to update lead status instantly.</p>
+            <p class="text-xs text-slate-500 font-medium mt-1">
+                Manage, assign, and track customer lead conversions across your sales pipeline.
+            </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
-            <!-- View Mode Selector -->
-            <div class="bg-slate-100 p-1 rounded-xl border border-[#E2E8F0] flex items-center space-x-1">
-                <button type="button" @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-white text-[#0F172A] shadow-xs font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
-                    <i class="fa-solid fa-list mr-1"></i>Table View
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- View Mode Switcher -->
+            <div class="bg-slate-100 p-1 rounded-lg border border-slate-200 flex items-center space-x-1">
+                <button type="button" @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-[#0F172A] text-white shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-semibold'" class="px-3 py-1.5 rounded-md text-xs transition cursor-pointer flex items-center space-x-1.5">
+                    <i class="fa-solid fa-list text-xs"></i>
+                    <span>Table View</span>
                 </button>
-                <button type="button" @click="viewMode = 'kanban'" :class="viewMode === 'kanban' ? 'bg-white text-[#0F172A] shadow-xs font-bold' : 'text-slate-500 hover:text-slate-900 font-medium'" class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
-                    <i class="fa-solid fa-table-columns mr-1"></i>Interactive Board
+                <button type="button" @click="viewMode = 'kanban'" :class="viewMode === 'kanban' ? 'bg-[#0F172A] text-white shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 font-semibold'" class="px-3 py-1.5 rounded-md text-xs transition cursor-pointer flex items-center space-x-1.5">
+                    <i class="fa-solid fa-table-columns text-xs"></i>
+                    <span>Kanban Board</span>
                 </button>
             </div>
 
             @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
-            <a href="{{ route('leads.export', request()->all()) }}" class="px-3.5 py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] border border-[#E2E8F0] btn-text text-xs rounded-xl transition shadow-2xs">
-                <i class="fa-solid fa-download mr-1 text-slate-400"></i>Export CSV
+            <a href="{{ route('leads.export', request()->all()) }}" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs rounded-lg transition shadow-2xs flex items-center space-x-1.5">
+                <i class="fa-solid fa-download text-slate-400 text-xs"></i>
+                <span>Export CSV</span>
             </a>
 
-            <button onclick="document.getElementById('importCsvModal').classList.remove('hidden')" class="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-[#059669] border border-emerald-200 btn-text text-xs rounded-xl transition shadow-2xs cursor-pointer">
-                <i class="fa-solid fa-upload mr-1"></i>Import CSV
+            <button onclick="document.getElementById('importCsvModal').classList.remove('hidden')" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs rounded-lg transition shadow-2xs cursor-pointer flex items-center space-x-1.5">
+                <i class="fa-solid fa-file-import text-emerald-600 text-xs"></i>
+                <span>Import CSV</span>
             </button>
             @endif
 
-            <button onclick="document.getElementById('createLeadModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl transition shadow-xs flex items-center space-x-1.5 cursor-pointer">
+            <button onclick="document.getElementById('createLeadModal').classList.remove('hidden')" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg transition shadow-xs flex items-center space-x-1.5 cursor-pointer">
                 <i class="fa-solid fa-plus text-xs"></i>
-                <span>+ Add Lead</span>
+                <span>Add New Lead</span>
             </button>
         </div>
     </div>
 
-    <!-- CSV Bulk Import Modal -->
+    <!-- Bulk CSV Import Modal -->
     <div id="importCsvModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-5">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="font-black text-slate-900 text-lg">Bulk Import Leads (CSV)</h3>
+        <div class="bg-white max-w-md w-full rounded-2xl p-5 border border-slate-200 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-file-csv text-emerald-600 text-base"></i>
+                    <span>Bulk Import Leads (CSV)</span>
+                </h3>
                 <button onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
             </div>
 
@@ -64,22 +78,22 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Select CSV File</label>
                     <input type="file" name="csv_file" accept=".csv, .txt" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-700">
-                    <span class="block text-[10px] text-slate-500 mt-1">Columns expected: Name, Phone, Email, Budget</span>
+                    <span class="block text-[10px] text-slate-500 mt-1">Expected column headers: Name, Phone, Email, Budget</span>
                 </div>
 
-                <div class="bg-indigo-50/60 p-3.5 rounded-2xl border border-indigo-100 space-y-2">
-                    <label class="flex items-center space-x-2.5 cursor-pointer">
-                        <input type="checkbox" name="auto_assign" value="1" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600">
-                        <span class="font-bold text-indigo-950">Auto Round-Robin Distribution</span>
+                <div class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-200 space-y-1.5">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="auto_assign" value="1" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-600">
+                        <span class="font-bold text-blue-950">Auto Round-Robin Distribution</span>
                     </label>
-                    <p class="text-[11px] text-indigo-800 leading-normal">
+                    <p class="text-[11px] text-blue-800 leading-normal">
                         Automatically rotates and assigns imported leads equally across all active company Sales Executives.
                     </p>
                 </div>
 
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-xs">Start CSV Import →</button>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
+                    <button type="button" onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-xs">Start Import →</button>
                 </div>
             </form>
         </div>
@@ -87,58 +101,67 @@
 
     <!-- DYNAMIC AJAX LEADS CONTAINER -->
     <div id="leadsDynamicContainer" class="space-y-6 transition-opacity duration-200">
-        <!-- Minimalist Summary Cards Strip -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+        
+        <!-- Summary KPI Cards Strip -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-medium text-slate-500">All Leads</span>
-                    <div class="text-xl font-bold text-slate-900 font-mono mt-0.5">{{ $leads->total() }}</div>
+                    <span class="text-xs font-semibold text-slate-500">Total Pipeline</span>
+                    <div class="text-2xl font-bold text-slate-900 font-mono mt-0.5">{{ $leads->total() }}</div>
                 </div>
-                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-simple text-indigo-600"></i></span>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-base font-bold shadow-2xs">
+                    <i class="fa-solid fa-users"></i>
+                </div>
             </div>
 
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-medium text-slate-500">Negotiations</span>
-                    <div class="text-xl font-bold text-amber-600 font-mono mt-0.5">{{ $leads->where('status', 'negotiation')->count() }}</div>
+                    <span class="text-xs font-semibold text-slate-500">Active Negotiations</span>
+                    <div class="text-2xl font-bold text-amber-600 font-mono mt-0.5">{{ $leads->where('status', 'negotiation')->count() }}</div>
                 </div>
-                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-comments text-amber-600"></i></span>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-base font-bold shadow-2xs">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
             </div>
 
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-medium text-slate-500">Site Visits</span>
-                    <div class="text-xl font-bold text-purple-600 font-mono mt-0.5">{{ $leads->where('status', 'site_visit')->count() }}</div>
+                    <span class="text-xs font-semibold text-slate-500">Site Visits Scheduled</span>
+                    <div class="text-2xl font-bold text-purple-600 font-mono mt-0.5">{{ $leads->where('status', 'site_visit')->count() }}</div>
                 </div>
-                <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm"><i class="fa-solid fa-building text-purple-600"></i></span>
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center text-base font-bold shadow-2xs">
+                    <i class="fa-solid fa-building-user"></i>
+                </div>
             </div>
 
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-medium text-slate-500">Converted</span>
-                    <div class="text-xl font-bold text-emerald-600 font-mono mt-0.5">{{ $leads->whereIn('status', ['converted', 'booked'])->count() }}</div>
+                    <span class="text-xs font-semibold text-slate-500">Converted Bookings</span>
+                    <div class="text-2xl font-bold text-emerald-600 font-mono mt-0.5">{{ $leads->whereIn('status', ['converted', 'booked'])->count() }}</div>
                 </div>
-                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-trophy text-emerald-600"></i></span>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-base font-bold shadow-2xs">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
             </div>
         </div>
 
-        <!-- Search & Filter Controls with Clickable Status Buttons -->
-        <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-3 text-xs">
+        <!-- Search & Filter Bar -->
+        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-3.5 text-xs">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                 <!-- Search Keyword & Employee Filter Form -->
-                <form method="GET" action="{{ route('leads.index') }}" onsubmit="filterLeadsAjaxForm(this, event)" class="flex flex-wrap items-center gap-2 w-full md:w-auto flex-1">
+                <form method="GET" action="{{ route('leads.index') }}" onsubmit="filterLeadsAjaxForm(this, event)" class="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-1">
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
 
                     <div class="relative w-full md:w-72">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or code..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-500 transition">
-                        <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or code..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 transition text-xs font-medium">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     </div>
 
                     @if(!auth()->user()->isSales())
                     <div class="relative w-full md:w-64">
-                        <select name="assigned_to_user_id" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-500 font-semibold text-xs transition cursor-pointer">
+                        <select name="assigned_to_user_id" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold text-xs transition cursor-pointer">
                             <option value="">👤 Filter by Employee / Staff</option>
                             <option value="unassigned" {{ request('assigned_to_user_id') === 'unassigned' ? 'selected' : '' }}>⚠️ Unassigned Leads</option>
                             @foreach($employees as $emp)
@@ -150,13 +173,13 @@
                     </div>
                     @endif
 
-                    <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                    <button type="submit" class="px-4 py-2 bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         <span>Search</span>
                     </button>
 
                     @if(request('status') || request('search') || request('assigned_to_user_id'))
-                        <a href="{{ route('leads.index') }}" onclick="filterLeadsAjax('{{ route('leads.index') }}', event)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer flex items-center space-x-1">
+                        <a href="{{ route('leads.index') }}" onclick="filterLeadsAjax('{{ route('leads.index') }}', event)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer flex items-center space-x-1">
                             <i class="fa-solid fa-xmark text-slate-400"></i>
                             <span>Clear Filters</span>
                         </a>
@@ -174,15 +197,15 @@
                     'site_visit' => 'Site Visit',
                     'interested' => 'Interested',
                     'negotiation' => 'Negotiation',
-                    'converted' => 'Converted (Booked)',
+                    'converted' => 'Converted',
                     'lost' => 'Lost',
                 ];
                 $currentStatus = request('status', '');
             @endphp
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-2 border-t border-slate-100">
-                <span class="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider shrink-0 mr-1 flex items-center space-x-1">
-                    <i class="fa-solid fa-filter text-emerald-600 text-xs"></i>
-                    <span>Filter Status:</span>
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-2.5 border-t border-slate-100">
+                <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider shrink-0 mr-1 flex items-center space-x-1">
+                    <i class="fa-solid fa-filter text-blue-600 text-xs"></i>
+                    <span>Pipeline Status:</span>
                 </span>
                 @foreach($statusOptions as $key => $label)
                     @php
@@ -195,7 +218,7 @@
                     @endphp
                     <a href="{{ $ajaxUrl }}" 
                        onclick="filterLeadsAjax('{{ $ajaxUrl }}', event)"
-                       class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition border cursor-pointer whitespace-nowrap flex items-center space-x-1.5 {{ $isActive ? 'bg-[#059669] text-white border-[#059669] shadow-2xs' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' }}">
+                       class="px-3.5 py-1.5 rounded-lg font-bold text-xs transition border cursor-pointer whitespace-nowrap flex items-center space-x-1.5 {{ $isActive ? 'bg-[#0F172A] text-white border-[#0F172A] shadow-2xs' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' }}">
                         <span>{{ $label }}</span>
                         @if($isActive)
                             <i class="fa-solid fa-check text-[10px]"></i>
@@ -205,8 +228,8 @@
             </div>
         </div>
 
-    <!-- VIEW 1: DRAG & DROP INTERACTIVE PIPELINE KANBAN BOARD -->
-    <div x-show="viewMode === 'kanban'" x-transition class="overflow-x-auto pb-6">
+    <!-- VIEW 1: INTERACTIVE KANBAN BOARD -->
+    <div x-show="viewMode === 'kanban'" x-transition class="overflow-x-auto pb-6" x-cloak>
         @php
             $statuses = [
                 'new' => ['name' => 'New Leads', 'badge' => 'bg-indigo-50 text-indigo-700 border-indigo-200'],
@@ -218,18 +241,21 @@
             ];
         @endphp
 
-        <div class="flex space-x-3.5 min-w-[1150px]">
+        <div class="flex space-x-4 min-w-[1150px]">
             @foreach($statuses as $stKey => $stMeta)
             @php
                 $colLeads = $leads->where('status', $stKey);
             @endphp
-            <div class="w-72 shrink-0 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/70 space-y-2.5 kanban-column"
+            <div class="w-72 shrink-0 bg-slate-50/70 p-3 rounded-xl border border-slate-200 space-y-3 kanban-column"
                  ondragover="allowDrop(event)" 
                  ondrop="drop(event, '{{ $stKey }}')">
                  
-                <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs font-bold text-xs text-slate-800">
-                    <span>{{ $stMeta['name'] }}</span>
-                    <span class="px-2 py-0.5 rounded-md font-mono text-[11px] {{ $stMeta['badge'] }}">
+                <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-white border border-slate-200 shadow-2xs font-bold text-xs text-slate-800">
+                    <span class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        <span>{{ $stMeta['name'] }}</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded font-mono text-[11px] font-bold border {{ $stMeta['badge'] }}">
                         {{ $colLeads->count() }}
                     </span>
                 </div>
@@ -239,10 +265,10 @@
                     <div id="lead-card-{{ $lead->id }}" 
                          draggable="true" 
                          ondragstart="drag(event, {{ $lead->id }})"
-                         class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:border-indigo-400 hover:shadow-md transition space-y-2 text-xs cursor-grab active:cursor-grabbing">
+                         class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:border-blue-300 hover:shadow-md transition space-y-2.5 text-xs cursor-grab active:cursor-grabbing">
                         
                         <div class="flex justify-between items-center text-[11px]">
-                            <span class="font-mono font-semibold text-slate-500">{{ $lead->lead_code }}</span>
+                            <span class="font-mono font-bold text-slate-500">{{ $lead->lead_code }}</span>
                             @if($lead->is_duplicate)
                                 <span class="px-1.5 py-0.5 rounded text-[9px] bg-rose-50 text-rose-700 border border-rose-200 font-bold">DUP</span>
                             @endif
@@ -255,25 +281,27 @@
 
                         <div class="text-[11px] text-slate-500 flex flex-col gap-1 pt-2 border-t border-slate-100">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-purple-800 text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center space-x-1" title="Assigned Manager">
+                                <span class="font-bold text-purple-800 text-[10px] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200 inline-flex items-center space-x-1" title="Assigned Manager">
                                     <i class="fa-solid fa-user-tie text-purple-600 text-[10px]"></i>
                                     <span>Mgr: {{ $lead->assignedManager->name ?? 'None' }}</span>
                                 </span>
                                 @if($lead->broker || $lead->brokerLead?->broker)
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">Broker</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-semibold">Broker</span>
                                 @endif
                             </div>
-                            <div class="font-medium text-slate-700">
+                            <div class="font-medium text-slate-700 text-[11px]">
                                 <i class="fa-solid fa-user text-slate-400 mr-1"></i>Exec: {{ $lead->assignedTo->name ?? 'Unassigned' }}
                             </div>
                         </div>
 
                         <div class="flex items-center justify-between pt-1 gap-1.5">
-                            <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $lead->phone) }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold hover:bg-emerald-100 transition flex items-center space-x-1">
-                                <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>WhatsApp
+                            <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $lead->phone) }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold hover:bg-emerald-100 transition flex items-center space-x-1">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                                <span>WhatsApp</span>
                             </a>
-                            <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-semibold rounded-lg border border-slate-200 hover:bg-slate-100 transition flex items-center space-x-1">
-                                <i class="fa-solid fa-phone text-indigo-600 mr-1"></i>Call
+                            <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 hover:bg-slate-100 transition flex items-center space-x-1">
+                                <i class="fa-solid fa-phone text-blue-600"></i>
+                                <span>Call Log</span>
                             </button>
                             @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
                             <form method="POST" action="{{ route('leads.destroy', $lead->id) }}" onsubmit="return confirm('Delete lead {{ $lead->lead_code }}?');">
@@ -288,7 +316,7 @@
                     </div>
                     @empty
                     <div class="p-4 text-center text-xs text-slate-400 font-medium bg-white/50 rounded-xl border border-dashed border-slate-200">
-                        No leads
+                        No leads in this stage
                     </div>
                     @endforelse
                 </div>
@@ -297,25 +325,25 @@
         </div>
     </div>
 
-    <!-- VIEW 2: SIMPLE & CLEAN TABLE VIEW -->
-    <div x-show="viewMode === 'table'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+    <!-- VIEW 2: TABLE VIEW -->
+    <div x-show="viewMode === 'table'" x-transition class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-700">
-                <thead class="bg-slate-50/80 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
                     <tr>
-                        <th class="py-3 px-4">Code</th>
-                        <th class="py-3 px-4">Customer Name</th>
-                        <th class="py-3 px-4">Contact Information</th>
-                        <th class="py-3 px-4">Assigned Manager</th>
-                        <th class="py-3 px-4">Assigned Exec</th>
-                        <th class="py-3 px-4">Pipeline Status</th>
-                        <th class="py-3 px-4 text-right">Actions</th>
+                        <th class="py-3.5 px-4">Code</th>
+                        <th class="py-3.5 px-4">Customer Name</th>
+                        <th class="py-3.5 px-4">Contact Information</th>
+                        <th class="py-3.5 px-4">Assigned Manager</th>
+                        <th class="py-3.5 px-4">Assigned Exec</th>
+                        <th class="py-3.5 px-4">Pipeline Status</th>
+                        <th class="py-3.5 px-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach($leads as $lead)
                     <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-4 font-mono font-semibold text-slate-600">
+                        <td class="py-3.5 px-4 font-mono font-bold text-slate-600">
                             <span>{{ $lead->lead_code }}</span>
                             @if($lead->is_duplicate)
                                 <span class="ml-1 px-1.5 py-0.5 text-[9px] bg-rose-50 text-rose-700 border border-rose-200 rounded font-bold">DUP</span>
@@ -327,11 +355,11 @@
                                     $np = explode(' ', trim($lead->first_name . ' ' . $lead->last_name));
                                     $in = count($np) >= 2 ? strtoupper(substr($np[0], 0, 1) . substr($np[count($np) - 1], 0, 1)) : strtoupper(substr($lead->first_name, 0, 2));
                                 @endphp
-                                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center border border-indigo-100 shrink-0">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs flex items-center justify-center border border-blue-200 shrink-0 shadow-2xs">
                                     {{ $in }}
                                 </div>
                                 <div>
-                                    <span class="font-bold text-slate-900">{{ $lead->first_name }} {{ $lead->last_name }}</span>
+                                    <span class="font-bold text-slate-900 text-xs">{{ $lead->first_name }} {{ $lead->last_name }}</span>
                                     @if($lead->broker || $lead->brokerLead?->broker)
                                         @php
                                             $bObj = $lead->broker ?? $lead->brokerLead->broker;
@@ -354,19 +382,19 @@
                         </td>
                         <td class="py-3.5 px-4">
                             @if($lead->assignedManager)
-                                <span class="inline-flex items-center space-x-1 font-bold text-purple-800 bg-purple-50 border border-purple-200/80 px-2.5 py-1 rounded-xl text-xs">
+                                <span class="inline-flex items-center space-x-1 font-bold text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-lg text-xs">
                                     <i class="fa-solid fa-user-tie text-purple-600 text-[11px]"></i>
                                     <span>{{ $lead->assignedManager->name }}</span>
                                 </span>
                             @else
-                                <span class="text-slate-400 font-medium italic text-xs bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200">Not Assigned</span>
+                                <span class="text-slate-400 font-medium italic text-xs bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">Not Assigned</span>
                             @endif
                         </td>
                         <td class="py-3.5 px-4">
                             @can('assign-leads')
                             <form method="POST" action="{{ route('leads.assign', $lead->id) }}">
                                 @csrf
-                                <select name="assigned_to_user_id" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-900 font-medium text-xs focus:outline-none focus:border-indigo-500">
+                                <select name="assigned_to_user_id" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-900 font-medium text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
                                     <option value="">Unassigned</option>
                                     @foreach($salesExecutives as $exec)
                                         <option value="{{ $exec->id }}" {{ $lead->assigned_to_user_id == $exec->id ? 'selected' : '' }}>{{ $exec->name }}</option>
@@ -403,7 +431,7 @@
                                 @endphp
                                 <form method="POST" action="{{ route('leads.update-status', $lead->id) }}">
                                     @csrf
-                                    <select name="status" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 font-semibold focus:outline-none focus:border-indigo-500">
+                                    <select name="status" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 font-semibold focus:outline-none focus:border-blue-500 cursor-pointer">
                                         @foreach($allowedForUser as $st)
                                             <option value="{{ $st }}" {{ $lead->status == $st ? 'selected' : '' }}>{{ strtoupper(str_replace('_', ' ', $st)) }}</option>
                                         @endforeach
@@ -413,17 +441,17 @@
                         </td>
                         <td class="py-3.5 px-4 text-right">
                             <div class="flex items-center justify-end space-x-1.5">
-                                <a href="{{ route('leads.show', $lead->id) }}" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] font-bold rounded-lg border border-indigo-200 transition flex items-center space-x-1">
-                                    <i class="fa-solid fa-eye text-[#4F46E5]"></i>
-                                    <span>View Details</span>
+                                <a href="{{ route('leads.show', $lead->id) }}" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg border border-blue-200 transition flex items-center space-x-1">
+                                    <i class="fa-solid fa-eye text-blue-600"></i>
+                                    <span>Details</span>
                                 </a>
 
-                                <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1">
-                                    <i class="fa-solid fa-phone text-indigo-600"></i>
+                                <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
+                                    <i class="fa-solid fa-phone text-blue-600"></i>
                                     <span>Call Log</span>
                                 </button>
 
-                                <button onclick="openHistoryModal({{ json_encode($lead) }})" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1">
+                                <button onclick="openHistoryModal({{ json_encode($lead) }})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
                                     <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
                                     <span>History</span>
                                 </button>
@@ -432,7 +460,7 @@
                                 <form method="POST" action="{{ route('leads.destroy', $lead->id) }}" onsubmit="return confirm('Delete lead {{ $lead->lead_code }}?');" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 transition" title="Delete Lead">
+                                    <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 transition cursor-pointer" title="Delete Lead">
                                         <i class="fa-solid fa-trash-can text-rose-500"></i>
                                     </button>
                                 </form>
@@ -444,17 +472,20 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 border-t border-slate-100">
+        <div class="p-4 border-t border-slate-100">
             {{ $leads->links() }}
         </div>
     </div>
     </div> <!-- End #leadsDynamicContainer -->
 
     <!-- Create Lead Modal -->
-    <div id="createLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-2xs p-4">
-        <div class="bg-white w-full max-w-lg p-6 rounded-2xl space-y-4 border border-slate-200 shadow-xl">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="text-base font-bold text-slate-900">Add Customer Lead</h3>
+    <div id="createLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white w-full max-w-lg p-5 rounded-2xl space-y-4 border border-slate-200 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 class="text-sm font-bold text-[#0F172A] flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus text-blue-600"></i>
+                    <span>Add New Customer Lead</span>
+                </h3>
                 <button onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
             </div>
             <form method="POST" action="{{ route('leads.store') }}" class="space-y-3 text-xs">
@@ -462,29 +493,29 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">First Name *</label>
-                        <input type="text" name="first_name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <input type="text" name="first_name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
                     </div>
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">Last Name</label>
-                        <input type="text" name="last_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <input type="text" name="last_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">Phone Number *</label>
-                        <input type="text" name="phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <input type="text" name="phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
                     </div>
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">Email</label>
-                        <input type="email" name="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <input type="email" name="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">Project Interest</label>
-                        <select name="interested_project_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <select name="interested_project_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
                             <option value="">Select Project</option>
                             @foreach($projects as $proj)
                                 <option value="{{ $proj->id }}">{{ $proj->name }}</option>
@@ -493,7 +524,7 @@
                     </div>
                     <div>
                         <label class="block text-slate-700 mb-1 font-semibold">Lead Source</label>
-                        <select name="source_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500">
+                        <select name="source_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
                             <option value="">Select Source</option>
                             @foreach($sources as $src)
                                 <option value="{{ $src->id }}">{{ $src->name }}</option>
@@ -502,26 +533,26 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs">Save Lead</button>
+                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Save Lead</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Call Outcome Modal -->
-    <div id="callLogModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-2xs p-4">
-        <div class="bg-white w-full max-w-md p-6 rounded-2xl space-y-4 border border-slate-200 shadow-xl">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="text-sm font-bold text-slate-900">Log Call for <span id="callModalLeadName" class="text-indigo-600"></span></h3>
+    <div id="callLogModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-200 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 class="text-sm font-bold text-[#0F172A]">Log Call for <span id="callModalLeadName" class="text-blue-600"></span></h3>
                 <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-slate-400 font-bold">✕</button>
             </div>
             <form id="callLogForm" method="POST" action="" class="space-y-3 text-xs">
                 @csrf
                 <div>
                     <label class="block text-slate-700 mb-1 font-semibold">Call / Visit Outcome *</label>
-                    <select name="call_outcome" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500 font-semibold">
+                    <select name="call_outcome" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold">
                         <option value="connected">Connected & Spoke</option>
                         <option value="spoke_interested">Connected - High Interest</option>
                         <option value="site_visit_conducted">Site Visit Conducted</option>
@@ -535,27 +566,27 @@
 
                 <div>
                     <label class="block text-slate-700 mb-1 font-semibold">Next Follow-up Date & Time</label>
-                    <input type="datetime-local" name="next_followup_at" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500 font-mono">
+                    <input type="datetime-local" name="next_followup_at" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
                 </div>
 
                 <div>
-                    <label class="block text-slate-700 mb-1 font-semibold">Remarks & Plan</label>
-                    <textarea name="notes" rows="3" placeholder="Enter notes from call..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-900 focus:outline-none focus:border-indigo-500"></textarea>
+                    <label class="block text-slate-700 mb-1 font-semibold">Remarks & Notes</label>
+                    <textarea name="notes" rows="3" placeholder="Enter notes from call..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="document.getElementById('callLogModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs">Save & Send Alert</button>
+                    <button type="button" onclick="document.getElementById('callLogModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Save Call Log</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Activity History Modal -->
-    <div id="historyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-2xs p-4">
-        <div class="bg-white w-full max-w-xl max-h-[80vh] overflow-y-auto p-6 rounded-2xl space-y-4 border border-slate-200 shadow-xl">
+    <div id="historyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white w-full max-w-xl max-h-[80vh] overflow-y-auto p-6 rounded-3xl space-y-4 border border-slate-100 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="text-sm font-bold text-slate-900">History: <span id="historyCustomerName" class="text-indigo-600"></span></h3>
+                <h3 class="text-sm font-bold text-[#0F172A]">Activity History: <span id="historyCustomerName" class="text-blue-600"></span></h3>
                 <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="text-slate-400 font-bold">✕</button>
             </div>
             <div id="historyTimelineContent" class="space-y-2.5">
@@ -624,9 +655,9 @@
         } else {
             calls.forEach(function(c) {
                 timeline.innerHTML += `
-                    <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs space-y-1">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
                         <div class="flex justify-between items-center font-bold text-slate-900">
-                            <span><i class="fa-solid fa-phone text-indigo-600 mr-1"></i>Call Logged by ${c.user ? c.user.name : 'Executive'}</span>
+                            <span><i class="fa-solid fa-phone text-blue-600 mr-1"></i>Call Logged by ${c.user ? c.user.name : 'Executive'}</span>
                             <span class="text-[10px] font-mono text-slate-400">${c.called_at ? c.called_at.substring(0, 16) : ''}</span>
                         </div>
                         <p class="text-slate-600 font-medium">${c.notes || 'No remarks entered.'}</p>
@@ -636,7 +667,7 @@
 
             activities.forEach(function(a) {
                 timeline.innerHTML += `
-                    <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs space-y-1">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
                         <div class="flex justify-between items-center font-bold text-slate-800">
                             <span><i class="fa-solid fa-bolt text-amber-500 mr-1"></i>${a.activity_type ? a.activity_type.replace('_', ' ').toUpperCase() : 'ACTIVITY'}</span>
                             <span class="text-[10px] font-mono text-slate-400">${a.created_at ? a.created_at.substring(0, 16) : ''}</span>

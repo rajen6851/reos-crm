@@ -4,20 +4,21 @@
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
-    <!-- Breadcrumb & Top Action Header Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#E2E8F0]">
-        <div class="space-y-1">
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B]">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#4F46E5]">Home</a>
-                <span>›</span>
-                <span class="text-[#0F172A] font-bold">Companies</span>
+    <!-- Header Banner -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Tenant Companies</span>
             </div>
-            <h1 class="page-heading text-2xl flex items-center space-x-2">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
                 <span>Builder Tenant Companies</span>
-                <span class="px-2.5 py-0.5 text-xs font-mono font-bold rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                <span class="px-2.5 py-0.5 text-xs font-mono font-bold rounded-full bg-blue-50 text-[#2563EB] border border-blue-200/80">
                     {{ $companies->count() }} Accounts
                 </span>
             </h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Manage multi-tenant builder companies, subscriptions, staff limits, and system access</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -25,28 +26,28 @@
             <form method="GET" action="{{ route('admin.companies.index') }}" class="flex items-center space-x-2">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search company, domain, email..." class="bg-white border border-[#E2E8F0] text-xs rounded-xl pl-9 pr-4 py-2.5 text-[#0F172A] font-medium w-64 focus:outline-none focus:border-[#4F46E5] shadow-2xs">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search company, domain, email..." class="bg-[#F8FAFC] border border-slate-200 text-xs rounded-lg pl-9 pr-4 py-2 text-slate-900 font-medium w-64 focus:bg-white focus:outline-none focus:border-[#2563EB] transition shadow-2xs">
                 </div>
-                <button type="submit" class="px-3.5 py-2.5 bg-white hover:bg-slate-50 text-[#0F172A] border border-[#E2E8F0] text-xs font-bold rounded-xl transition shadow-2xs flex items-center space-x-1.5 cursor-pointer">
+                <button type="submit" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 text-xs font-bold rounded-lg transition shadow-2xs flex items-center space-x-1.5 cursor-pointer">
                     <i class="fa-solid fa-filter text-slate-400 text-xs"></i>
                     <span>Filter</span>
                 </button>
             </form>
 
-            <!-- View Mode Selector (Grid / Table) -->
-            <div class="bg-slate-100 p-1 rounded-xl border border-[#E2E8F0] flex items-center space-x-1">
-                <button type="button" id="btnCompanyGridView" onclick="switchCompanyView('grid')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-[#0F172A] shadow-xs transition cursor-pointer flex items-center space-x-1">
+            <!-- View Mode Selector -->
+            <div class="bg-slate-100 p-1 rounded-lg border border-slate-200 flex items-center space-x-1">
+                <button type="button" id="btnCompanyGridView" onclick="switchCompanyView('grid')" class="px-3 py-1.5 rounded-md text-xs font-bold bg-white text-slate-900 shadow-xs transition cursor-pointer flex items-center space-x-1">
                     <i class="fa-solid fa-grip-vertical"></i>
                 </button>
-                <button type="button" id="btnCompanyTableView" onclick="switchCompanyView('table')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900 transition cursor-pointer flex items-center space-x-1">
+                <button type="button" id="btnCompanyTableView" onclick="switchCompanyView('table')" class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:text-slate-900 transition cursor-pointer flex items-center space-x-1">
                     <i class="fa-solid fa-list"></i>
                 </button>
             </div>
 
             <!-- Add Company Primary Button -->
-            <a href="{{ route('admin.companies.create') }}" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
+            <a href="{{ route('admin.companies.create') }}" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-plus text-xs"></i>
-                <span>+ Add Company</span>
+                <span>Add Company</span>
             </a>
         </div>
     </div>

@@ -5,10 +5,10 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '' }">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
                 <span>›</span>
                 <span class="text-[#0F172A] font-bold">Follow-ups & Tasks</span>
             </div>
@@ -17,7 +17,7 @@
         </div>
 
         <div class="flex items-center space-x-2 shrink-0">
-            <span class="px-4 py-2 bg-amber-50 text-amber-900 border border-amber-200 text-xs font-extrabold rounded-2xl flex items-center space-x-2">
+            <span class="px-3.5 py-1.5 bg-amber-50 text-amber-900 border border-amber-200 text-xs font-extrabold rounded-lg flex items-center space-x-2">
                 <i class="fa-solid fa-list-check text-amber-600"></i>
                 <span>{{ $pendingFollowUps->count() }} Active Follow-up Tasks</span>
             </span>
@@ -26,33 +26,33 @@
 
     <!-- Summary Metrics Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="reos-card p-4 flex justify-between items-center">
             <div>
                 <span class="label-text text-[#64748B]">Pending Follow-up Calls</span>
                 <div class="text-2xl font-extrabold text-amber-600 mt-1 font-mono">{{ $pendingFollowUps->count() }} Tasks</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg border border-amber-200"><i class="fa-solid fa-phone-volume text-amber-600"></i></span>
+            <span class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg border border-amber-200"><i class="fa-solid fa-phone-volume text-amber-600"></i></span>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="reos-card p-4 flex justify-between items-center">
             <div>
                 <span class="label-text text-[#64748B]">Active Sales Staff</span>
                 <div class="text-2xl font-extrabold text-[#059669] mt-1 font-mono">{{ $pendingFollowUps->pluck('assigned_to_user_id')->unique()->filter()->count() }} Staff</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-emerald-50 text-[#059669] flex items-center justify-center text-lg border border-emerald-200"><i class="fa-solid fa-user-tie text-[#059669]"></i></span>
+            <span class="w-10 h-10 rounded-lg bg-emerald-50 text-[#059669] flex items-center justify-center text-lg border border-emerald-200"><i class="fa-solid fa-user-tie text-[#059669]"></i></span>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-2xs flex justify-between items-center">
+        <div class="reos-card p-4 flex justify-between items-center">
             <div>
                 <span class="label-text text-[#64748B]">Total Call Activities Logged</span>
                 <div class="text-2xl font-extrabold text-[#4F46E5] mt-1 font-mono">{{ $pendingFollowUps->sum(fn($f) => $f->calls->count()) }} Logs</div>
             </div>
-            <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-lg border border-indigo-100"><i class="fa-solid fa-clock-rotate-left text-[#4F46E5]"></i></span>
+            <span class="w-10 h-10 rounded-lg bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-lg border border-indigo-100"><i class="fa-solid fa-clock-rotate-left text-[#4F46E5]"></i></span>
         </div>
     </div>
 
     <!-- Active Follow-up Tasks Directory Table -->
-    <div class="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-2xs space-y-4">
+    <div class="reos-card p-5 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <h2 class="text-base font-extrabold text-[#0F172A]">Pending Lead Follow-ups Directory</h2>
 

@@ -3,22 +3,34 @@
 @section('title', 'Customer Management Directory - REOS')
 
 @section('content')
-<div class="space-y-8">
-    <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="space-y-6">
+    <!-- Header Banner -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black text-slate-900">Converted Customers Directory</h1>
-            <p class="text-xs text-slate-600 mt-1 font-medium">All converted home buyers, booked units, and contact details</p>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Contacts Directory</span>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Converted Contacts & Buyers Directory</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Directory of all converted home buyers, booked property units, and buyer contact details</p>
         </div>
-        <div class="flex items-center space-x-2 text-xs font-bold text-slate-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-2xl">
-            <span class="text-emerald-900">Total Customers: {{ $customers->count() }}</span>
+        <div class="flex items-center space-x-3 bg-emerald-50/80 border border-emerald-200/80 px-4 py-2 rounded-xl">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Total Buyers</div>
+                <div class="text-base font-extrabold font-mono text-emerald-950">{{ $customers->count() }} Converted</div>
+            </div>
         </div>
     </div>
 
     <!-- Customers Table -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+    <div class="bg-white rounded-xl border border-slate-200/80 p-5 space-y-4 shadow-xs">
+        <div class="overflow-x-auto rounded-lg border border-slate-200/80">
             <table class="w-full text-left text-sm text-slate-700">
-                <thead class="text-xs uppercase bg-slate-50 text-slate-800 font-extrabold tracking-wider border-b border-slate-200">
+                <thead class="text-[11px] uppercase bg-[#F8FAFC] text-slate-500 font-extrabold tracking-wider border-b border-slate-200">
                     <tr>
                         <th class="p-4">Customer Name</th>
                         <th class="p-4">Phone / WhatsApp</th>

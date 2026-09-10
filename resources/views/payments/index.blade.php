@@ -4,44 +4,44 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="reos-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
                 <span>›</span>
                 <span class="text-[#0F172A] font-bold">Payments & Invoices</span>
             </div>
             <h1 class="page-heading text-2xl">Payments Ledger & GST Tax Receipts</h1>
             <p class="body-text text-xs mt-0.5">Recorded unit token payments, Razorpay gateways, and official tax invoice downloads</p>
         </div>
-        <div class="flex items-center space-x-2 text-xs font-bold text-[#059669] bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl shadow-2xs">
+        <div class="flex items-center space-x-2 text-xs font-bold text-[#059669] bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-lg shadow-2xs">
             <span>Total Collected: <strong class="font-mono text-sm">₹{{ number_format($totalCollected) }}</strong></span>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue Collected</div>
-            <div class="text-3xl font-black text-emerald-600 font-mono mt-2">₹{{ number_format($totalCollected) }}</div>
-            <div class="text-xs text-slate-600 font-bold mt-1">Confirmed Token Payments</div>
+            <div class="text-3xl font-bold text-emerald-600 font-mono mt-2">₹{{ number_format($totalCollected) }}</div>
+            <div class="text-xs text-slate-600 font-medium mt-1">Confirmed Token Payments</div>
         </div>
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
-            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Razorpay India Gateway</div>
-            <div class="text-3xl font-black text-indigo-600 font-mono mt-2">{{ $razorpayPaymentsCount }}</div>
-            <div class="text-xs text-indigo-700 font-bold mt-1">Online Direct Receipts</div>
+        <div class="reos-card p-5">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Razorpay Gateway</div>
+            <div class="text-3xl font-bold text-blue-600 font-mono mt-2">{{ $razorpayPaymentsCount }}</div>
+            <div class="text-xs text-blue-700 font-medium mt-1">Online Direct Receipts</div>
         </div>
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+        <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Manual / Cheque Payments</div>
-            <div class="text-3xl font-black text-purple-600 font-mono mt-2">{{ $manualPaymentsCount }}</div>
-            <div class="text-xs text-purple-700 font-bold mt-1">Bank Transfers & Cash</div>
+            <div class="text-3xl font-bold text-purple-600 font-mono mt-2">{{ $manualPaymentsCount }}</div>
+            <div class="text-xs text-purple-700 font-medium mt-1">Bank Transfers & Cash</div>
         </div>
     </div>
 
     <!-- Recorded Payments Ledger Table -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <h2 class="text-lg font-black text-slate-900">Recorded Unit Token Payments</h2>
-        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+    <div class="reos-card p-5 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900">Recorded Unit Token Payments</h2>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
             <table class="w-full text-left text-sm text-slate-700">
                 <thead class="text-xs uppercase bg-slate-50 text-slate-800 font-extrabold tracking-wider border-b border-slate-200">
                     <tr>

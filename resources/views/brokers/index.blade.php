@@ -5,33 +5,33 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>›</span>
-                <span class="text-[#0F172A] font-bold">Brokers</span>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Brokers Directory</span>
             </div>
-            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Brokers Directory</h1>
-            <p class="body-text text-xs text-[#64748B] mt-0.5">Manage external broker agencies, commission agreements, and track submitted lead conversions</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Brokers Directory</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Manage external broker agencies, commission agreements, and track submitted lead conversions</p>
         </div>
 
         <div class="flex items-center space-x-3">
-            <!-- View Mode Switcher (Pure Vanilla JS) -->
-            <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-[#E2E8F0]">
-                <button type="button" id="btnCardsView" onclick="switchBrokerView('cards')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-[#0F172A] shadow-2xs transition flex items-center space-x-1 cursor-pointer">
+            <!-- View Mode Switcher -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button type="button" id="btnCardsView" onclick="switchBrokerView('cards')" class="px-3 py-1.5 rounded-md text-xs font-bold bg-white text-slate-900 shadow-2xs transition flex items-center space-x-1 cursor-pointer">
                     <i class="fa-solid fa-table-cells"></i>
                     <span>Cards</span>
                 </button>
-                <button type="button" id="btnTableView" onclick="switchBrokerView('table')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#64748B] hover:text-slate-900 transition flex items-center space-x-1 cursor-pointer">
+                <button type="button" id="btnTableView" onclick="switchBrokerView('table')" class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-500 hover:text-slate-900 transition flex items-center space-x-1 cursor-pointer">
                     <i class="fa-solid fa-list"></i>
                     <span>Table</span>
                 </button>
             </div>
 
-            <button type="button" onclick="document.getElementById('addBrokerModal').classList.remove('hidden')" class="px-5 py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-white text-xs"></i>
-                <span>+ Register Partner Broker</span>
+            <button type="button" onclick="document.getElementById('addBrokerModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Register Partner Broker</span>
             </button>
         </div>
     </div>

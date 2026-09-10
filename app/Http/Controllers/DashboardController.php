@@ -38,9 +38,29 @@ class DashboardController extends Controller
             ])->latest()->get();
 
             $pendingApprovalsCount = \App\Models\SaasApprovalRequest::where('status', 'pending')->count();
+            $pendingApprovalRequests = \App\Models\SaasApprovalRequest::where('status', 'pending')
+                ->with(['requestedBy' => function($q) { $q->withoutGlobalScopes(); }])
+                ->latest()
+                ->get();
             $saasSubAdminsCount = User::where('is_saas_sub_admin', true)->count();
 
-            return view('dashboard.founder', compact('user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 'subscriptionPlans', 'companies', 'pendingApprovalsCount', 'saasSubAdminsCount'));
+            // Additional Platform-wide Analytics
+            $totalPlatformLeads = \App\Models\Lead::withoutGlobalScopes()->count();
+            $totalPlatformUnits = \App\Models\Unit::withoutGlobalScopes()->count();
+            $totalPlatformBookings = \App\Models\Booking::withoutGlobalScopes()->count();
+            $totalGrossBookingValue = \App\Models\Booking::withoutGlobalScopes()->sum('booking_amount');
+            $recentPlatformActivities = \App\Models\AuditLog::withoutGlobalScopes()
+                ->with(['user' => function($q){ $q->withoutGlobalScopes(); }])
+                ->latest()
+                ->take(8)
+                ->get();
+
+            return view('dashboard.founder', compact(
+                'user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 
+                'subscriptionPlans', 'companies', 'pendingApprovalsCount', 'pendingApprovalRequests',
+                'saasSubAdminsCount', 'totalPlatformLeads', 'totalPlatformUnits', 
+                'totalPlatformBookings', 'totalGrossBookingValue', 'recentPlatformActivities'
+            ));
         }
 
         // 2. Broker / Channel Partner Dashboard

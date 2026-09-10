@@ -30,23 +30,20 @@
 
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeCategory: 'all', activeConfidentiality: 'all', searchKeyword: '' }">
     <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 md:p-8 border border-slate-800 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div class="space-y-2 z-10">
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 uppercase tracking-wider border border-indigo-400/30">
-                <i class="fa-solid fa-hard-drive text-indigo-400"></i>
-                <span>Company Private Drive & Cloud Storage</span>
+    <div class="reos-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
+                <span>›</span>
+                <span class="text-[#0F172A] font-bold">Document Repository</span>
             </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Company Digital File Repository</h1>
-            <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                Secure internal Google Drive for your company's land title deeds, RERA approvals, GST & tax filings, audited balance sheets, corporate partnership agreements, and project marketing collaterals.
-            </p>
+            <h1 class="page-heading text-2xl font-extrabold text-slate-900">Company Digital File Repository</h1>
+            <p class="body-text text-xs text-slate-500 mt-0.5">Secure internal drive for land title deeds, RERA approvals, GST filings, balance sheets, and project collaterals.</p>
         </div>
 
-        <div class="flex items-center space-x-3 z-10 shrink-0">
-            <button onclick="document.getElementById('uploadCompanyDriveModal').classList.remove('hidden')" class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold rounded-2xl shadow-lg transition flex items-center space-x-2 cursor-pointer border border-indigo-400/30">
-                <i class="fa-solid fa-cloud-arrow-up text-white text-sm"></i>
+        <div class="flex items-center space-x-3 shrink-0">
+            <button onclick="document.getElementById('uploadCompanyDriveModal').classList.remove('hidden')" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white btn-text text-xs rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer font-semibold">
+                <i class="fa-solid fa-cloud-arrow-up text-white text-xs"></i>
                 <span>+ Upload Company File</span>
             </button>
         </div>
@@ -54,13 +51,13 @@
 
     <!-- Alert Status Messages -->
     @if(session('status'))
-        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center space-x-2">
+        <div class="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center space-x-2">
             <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
             <span>{{ session('status') }}</span>
         </div>
     @endif
     @if(session('error'))
-        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center space-x-2">
+        <div class="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center space-x-2">
             <i class="fa-solid fa-circle-xmark text-rose-600 text-base"></i>
             <span>{{ session('error') }}</span>
         </div>
@@ -68,15 +65,15 @@
 
     <!-- Drive Metric Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+        <div class="reos-card p-4 flex justify-between items-center">
             <div>
-                <span class="text-slate-500 font-medium">Total Company Storage Files</span>
+                <span class="text-slate-500 font-medium">Total Storage Files</span>
                 <div class="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{{ $totalFilesCount }} Files</div>
             </div>
-            <span class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl border border-indigo-100"><i class="fa-solid fa-folder-tree"></i></span>
+            <span class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg border border-indigo-100"><i class="fa-solid fa-folder-tree"></i></span>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex justify-between items-center">
+        <div class="reos-card p-4 flex justify-between items-center">
             <div>
                 <span class="text-slate-500 font-medium">Legal & RERA Documents</span>
                 <div class="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">{{ $legalFilesCount }} Files</div>

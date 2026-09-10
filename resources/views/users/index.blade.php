@@ -5,25 +5,25 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeRoleTab: 'all' }">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>›</span>
-                <span class="text-[#0F172A] font-bold">Team Users</span>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Teams Directory</span>
             </div>
             @if(auth()->user()->isManager())
-                <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Sales Executives Management</h1>
-                <p class="body-text text-xs text-[#64748B] mt-0.5">Add and manage internal Sales Executives for {{ auth()->user()->company->name ?? 'Company' }}</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Sales Executives Management</h1>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Add and manage internal Sales Executives for {{ auth()->user()->company->name ?? 'Company' }}</p>
             @else
-                <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Company Team & Staff Management</h1>
-                <p class="body-text text-xs text-[#64748B] mt-0.5">Add and manage internal Managers, Sales Executives, and Support Staff for {{ auth()->user()->company->name ?? 'Company' }}</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Company Team & Staff Management</h1>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Add and manage internal Managers, Sales Executives, and Support Staff for {{ auth()->user()->company->name ?? 'Company' }}</p>
             @endif
         </div>
         <div>
-            <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="px-5 py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-user-plus text-white text-xs"></i>
-                <span>{{ auth()->user()->isManager() ? '+ Add Sales Executive' : '+ Add Staff Member' }}</span>
+            <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-user-plus text-xs"></i>
+                <span>{{ auth()->user()->isManager() ? 'Add Sales Executive' : 'Add Staff Member' }}</span>
             </button>
         </div>
     </div>

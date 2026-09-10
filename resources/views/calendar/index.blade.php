@@ -11,7 +11,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#E2E8F0]">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
                 <span>›</span>
                 <span>Applications</span>
                 <span>›</span>
@@ -22,13 +22,13 @@
         </div>
 
         <div class="flex items-center space-x-3">
-            <button onclick="window.location.reload()" class="w-9 h-9 rounded-xl bg-white border border-[#E2E8F0] text-slate-500 hover:text-slate-900 shadow-2xs flex items-center justify-center text-xs transition" title="Refresh Calendar">
+            <button onclick="window.location.reload()" class="w-9 h-9 rounded-lg bg-white border border-[#E2E8F0] text-slate-500 hover:text-slate-900 shadow-2xs flex items-center justify-center text-xs transition cursor-pointer" title="Refresh Calendar">
                 <i class="fa-solid fa-rotate-right"></i>
             </button>
 
-            <!-- Red + New Event Primary Button (Matching Reference Screenshot) -->
-            <button onclick="document.getElementById('newEventModal').classList.remove('hidden')" class="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-[#DC2626] fa-plus text-xs"></i>
+            <!-- Royal Blue + New Event Primary Button -->
+            <button onclick="document.getElementById('newEventModal').classList.remove('hidden')" class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white btn-text text-xs rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer font-semibold">
+                <i class="fa-solid fa-plus text-xs"></i>
                 <span>+ New Event</span>
             </button>
         </div>

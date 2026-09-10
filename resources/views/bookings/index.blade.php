@@ -5,22 +5,22 @@
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '' }">
     <!-- Header Banner -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>›</span>
-                <span class="text-[#0F172A] font-bold">Bookings & Contracts</span>
+            <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB] transition">Home</a>
+                <span>&gt;</span>
+                <span class="text-slate-900 font-bold">Deals & Bookings</span>
             </div>
-            <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Bookings & Property Unit Locks</h1>
-            <p class="body-text text-xs text-[#64748B] mt-0.5">Manage customer unit bookings, agreement status, payment schedules, and sales approvals</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Bookings & Property Unit Locks</h1>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Manage customer unit bookings, agreement status, payment schedules, and sales approvals</p>
         </div>
 
         @can('approve-bookings')
         <div>
-            <button onclick="document.getElementById('createBookingModal').classList.remove('hidden')" class="px-5 py-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white btn-text text-xs rounded-xl shadow-2xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-white text-xs"></i>
-                <span>+ New Booking Entry</span>
+            <button onclick="document.getElementById('createBookingModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>New Booking Entry</span>
             </button>
         </div>
         @endcan

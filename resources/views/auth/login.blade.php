@@ -73,36 +73,82 @@
 
             <!-- Quick Demo Login Presets -->
             <div class="border-t border-slate-100 pt-5 space-y-3">
-                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center"><i class="fa-solid fa-bolt text-emerald-600 mr-1"></i>1-Click Role-Specific Dashboards</div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button type="button" onclick="quickLogin('founder@reos.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-indigo-700 font-bold rounded-xl text-left transition col-span-2">
-                        <i class="fa-solid fa-crown text-amber-500 mr-1"></i>SaaS Super Admin
-                        <span class="block text-[10px] text-slate-500 font-normal">Platform Revenue, SaaS Plans & Tenant Companies</span>
+                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-bolt text-[#2563EB]"></i>
+                    <span>1-Click Role-Specific Demo Sign In</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <!-- 1. SaaS SuperAdmin / Founder -->
+                    <button type="button" onclick="quickLogin('founder@reos.com')" class="p-2.5 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-blue-300 text-[#0F172A] font-bold rounded-lg text-left transition col-span-1 sm:col-span-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5 text-blue-700 font-extrabold">
+                                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                                <span>SaaS Super Admin / Founder</span>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Platform Scope</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Full SaaS Control, Platform Revenue & Tenant Management</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('director@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-blue-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-building-columns text-blue-600 mr-1"></i>Founder / Director
-                        <span class="block text-[10px] text-slate-500 font-normal">Full Company & Strategic Control</span>
+                    <!-- 2. SaaS Sub-Admin -->
+                    <button type="button" onclick="quickLogin('subadmin@reos.com')" class="p-2.5 bg-slate-50 hover:bg-purple-50/60 border border-slate-200 hover:border-purple-300 text-[#0F172A] font-bold rounded-lg text-left transition col-span-1 sm:col-span-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5 text-purple-700 font-extrabold">
+                                <i class="fa-solid fa-user-shield text-purple-600"></i>
+                                <span>SaaS Sub-Admin</span>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded">Platform Delegate</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Assigned SaaS Tenant Monitoring & Approvals</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('admin@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-purple-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-building text-purple-600 mr-1"></i>Admin
-                        <span class="block text-[10px] text-slate-500 font-normal">Team & Projects Control</span>
+                    <!-- 3. Company Director / Founder -->
+                    <button type="button" onclick="quickLogin('director@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-indigo-50/60 border border-slate-200 hover:border-indigo-300 text-[#0F172A] font-bold rounded-lg text-left transition">
+                        <div class="flex items-center space-x-1.5 text-indigo-700 font-bold">
+                            <i class="fa-solid fa-building-columns text-indigo-600"></i>
+                            <span>Company Director</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Full Builder Operations Control</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('manager@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-emerald-700 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-user-tie text-emerald-600 mr-1"></i>Manager
-                        <span class="block text-[10px] text-slate-500 font-normal">CRM & Live Inventory</span>
+                    <!-- 4. Company Admin -->
+                    <button type="button" onclick="quickLogin('admin@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-[#0F172A] font-bold rounded-lg text-left transition">
+                        <div class="flex items-center space-x-1.5 text-slate-800 font-bold">
+                            <i class="fa-solid fa-building text-slate-700"></i>
+                            <span>Company Admin</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Team & Inventory Admin</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('sales@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-amber-800 font-bold rounded-xl text-left transition">
-                        <i class="fa-solid fa-briefcase text-amber-700 mr-1"></i>Sales Executive
-                        <span class="block text-[10px] text-slate-500 font-normal">Assigned Leads & Calls</span>
+                    <!-- 5. Sales Manager -->
+                    <button type="button" onclick="quickLogin('manager@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-emerald-50/60 border border-slate-200 hover:border-emerald-300 text-[#0F172A] font-bold rounded-lg text-left transition">
+                        <div class="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                            <i class="fa-solid fa-user-tie text-emerald-600"></i>
+                            <span>Sales Manager</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Team Lead Pipeline & Units</span>
                     </button>
 
-                    <button type="button" onclick="quickLogin('broker@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-sky-700 font-bold rounded-xl text-left transition col-span-2 sm:col-span-1">
-                        <i class="fa-solid fa-handshake text-sky-600 mr-1"></i>Broker
-                        <span class="block text-[10px] text-slate-500 font-normal">Submit Leads & Track Status</span>
+                    <!-- 6. Sales Executive -->
+                    <button type="button" onclick="quickLogin('sales@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300 text-[#0F172A] font-bold rounded-lg text-left transition">
+                        <div class="flex items-center space-x-1.5 text-amber-800 font-bold">
+                            <i class="fa-solid fa-briefcase text-amber-700"></i>
+                            <span>Sales Executive</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Assigned Leads & Calls</span>
+                    </button>
+
+                    <!-- 7. Partner Broker -->
+                    <button type="button" onclick="quickLogin('broker@apexrealty.com')" class="p-2.5 bg-slate-50 hover:bg-sky-50/60 border border-slate-200 hover:border-sky-300 text-[#0F172A] font-bold rounded-lg text-left transition col-span-1 sm:col-span-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5 text-sky-700 font-bold">
+                                <i class="fa-solid fa-handshake text-sky-600"></i>
+                                <span>External Partner Broker</span>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">Channel Partner</span>
+                        </div>
+                        <span class="block text-[10px] text-slate-500 font-normal mt-0.5">Submit Leads & Track Commission Status</span>
                     </button>
                 </div>
             </div>

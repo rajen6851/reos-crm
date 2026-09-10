@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#F8FAFC]">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,13 +8,17 @@
 
     <title>@yield('title', 'REOS – Real Estate Operating System SaaS')</title>
 
-    <!-- Google Fonts Manrope & JetBrains Mono -->
+    <!-- Google Fonts Plus Jakarta Sans, Manrope & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Font Awesome Icons & TailwindCSS CDN & Alpine.js & Chart.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +27,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Manrope', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', 'Manrope', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
@@ -42,24 +47,69 @@
             }
         }
     </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Manrope', -apple-system, sans-serif;
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+        .reos-card {
+            background-color: #FFFFFF;
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            border-radius: 0.75rem; /* 12px / rounded-xl */
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+        }
+        .reos-stat-card {
+            background-color: #FFFFFF;
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease-in-out;
+        }
+        .reos-stat-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+            border-color: rgba(203, 213, 225, 0.9);
+        }
+        .page-heading {
+            font-size: 1.375rem; /* 22px */
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0F172A;
+        }
+        .body-text {
+            font-size: 0.75rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+        .reos-table-header {
+            background-color: #F8FAFC;
+            color: #64748B;
+            font-size: 0.6875rem; /* 11px */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #E2E8F0;
+        }
+    </style>
 
     <!-- REOS CRM Global Frontend Console Logger & Interceptors -->
     <script>
         window.ReosLogger = {
             prefix: '[REOS CRM]',
-            info: function(msg, data = '') {
+            info: function (msg, data = '') {
                 console.log(`%c${this.prefix} [INFO] ℹ️ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
             },
-            success: function(msg, data = '') {
+            success: function (msg, data = '') {
                 console.log(`%c${this.prefix} [SUCCESS] ✅ ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
             },
-            warn: function(msg, data = '') {
+            warn: function (msg, data = '') {
                 console.warn(`%c${this.prefix} [WARN] ⚠️ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
             },
-            error: function(msg, err = '') {
+            error: function (msg, err = '') {
                 console.error(`%c${this.prefix} [ERROR] ❌ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
             },
-            ajax: function(method, url, status, duration, data = '') {
+            ajax: function (method, url, status, duration, data = '') {
                 const color = status >= 200 && status < 300 ? '#059669' : '#DC2626';
                 console.log(`%c${this.prefix} [AJAX] 🌐 ${method} ${url} → ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
             }
@@ -69,9 +119,9 @@
         window.ReosLogger.info('Browser Console Logging Engine Online', { app: 'REOS SaaS CRM', timestamp: new Date().toISOString() });
 
         // Global Fetch Interceptor for AJAX Logging
-        (function() {
+        (function () {
             const originalFetch = window.fetch;
-            window.fetch = async function(...args) {
+            window.fetch = async function (...args) {
                 const startTime = performance.now();
                 const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || 'URL');
                 const method = args[1]?.method || 'GET';
@@ -90,16 +140,16 @@
         })();
 
         // Global Window Error Listener
-        window.addEventListener('error', function(event) {
+        window.addEventListener('error', function (event) {
             window.ReosLogger.error(`Uncaught Error: ${event.message} at ${event.filename}:${event.lineno}`, event.error);
         });
 
-        window.addEventListener('unhandledrejection', function(event) {
+        window.addEventListener('unhandledrejection', function (event) {
             window.ReosLogger.error(`Unhandled Promise Rejection: ${event.reason}`, event.reason);
         });
 
         // Form Submit Listener
-        document.addEventListener('submit', function(event) {
+        document.addEventListener('submit', function (event) {
             const form = event.target;
             const formId = form.id ? `#${form.id}` : (form.name ? `[name="${form.name}"]` : 'form');
             const action = form.action || window.location.href;
@@ -120,28 +170,66 @@
             border-bottom: 1px solid #E2E8F0;
         }
 
-        /* Premium Real Estate Operations CRM Card Base */
+        /* Enterprise CRM Card Base */
         .reos-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
-            border-radius: 1.25rem;
-            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+            transition: all 0.15s ease-in-out;
         }
 
         .reos-card:hover {
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
-            border-color: #A7F3D0;
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06);
+            border-color: #CBD5E1;
         }
 
         /* Typography Specs */
-        .page-heading { font-weight: 700; font-size: 28px; color: #0F172A; letter-spacing: -0.02em; }
-        .section-heading { font-weight: 700; font-size: 20px; color: #0F172A; letter-spacing: -0.01em; }
-        .kpi-number { font-weight: 700; font-size: 30px; color: #0F172A; font-family: 'JetBrains Mono', monospace; }
-        .body-text { font-weight: 400; font-size: 14px; color: #64748B; }
-        .table-text { font-weight: 500; font-size: 13px; color: #0F172A; }
-        .label-text { font-weight: 600; font-size: 12px; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
-        .btn-text { font-weight: 600; font-size: 14px; }
+        .page-heading {
+            font-weight: 700;
+            font-size: 28px;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+        }
+
+        .section-heading {
+            font-weight: 700;
+            font-size: 20px;
+            color: #0F172A;
+            letter-spacing: -0.01em;
+        }
+
+        .kpi-number {
+            font-weight: 700;
+            font-size: 30px;
+            color: #0F172A;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .body-text {
+            font-weight: 400;
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        .table-text {
+            font-weight: 500;
+            font-size: 13px;
+            color: #0F172A;
+        }
+
+        .label-text {
+            font-weight: 600;
+            font-size: 12px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-text {
+            font-weight: 600;
+            font-size: 14px;
+        }
 
         /* Standardized Form Controls & Validation Focus States */
         .form-label {
@@ -175,16 +263,27 @@
             outline: none !important;
         }
 
-        input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], select, textarea {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
             font-family: 'Manrope', sans-serif;
             transition: all 0.15s ease-in-out;
         }
-        input:focus, select:focus, textarea:focus {
+
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none !important;
             border-color: #059669 !important;
             box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
         }
-        input.is-invalid, select.is-invalid {
+
+        input.is-invalid,
+        select.is-invalid {
             border-color: #DC2626 !important;
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
         }
@@ -194,117 +293,103 @@
             width: 5px;
             height: 5px;
         }
+
         ::-webkit-scrollbar-track {
-            background: #F8FAFC;
+            background: #111936;
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #A7F3D0;
+            background: #253154;
             border-radius: 9999px;
         }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans bg-[#F8FAFC] text-[#0F172A] antialiased selection:bg-[#059669] selection:text-white" x-data="{ sidebarOpen: false }">
-    <!-- Top Navigation Bar -->
-    <header class="bg-white border-b border-[#E2E8F0] sticky top-0 z-50 px-4 md:px-6 py-2.5 flex items-center justify-between shadow-2xs">
-        <!-- Left: Brand Logo & Company Scope -->
-        <div class="flex items-center space-x-4">
+
+<body
+    class="h-full flex flex-col font-sans bg-[#F8FAFC] text-[#0F172A] antialiased selection:bg-[#2563EB] selection:text-white"
+    x-data="{ 
+        sidebarOpen: false, 
+        sidebarCollapsed: localStorage.getItem('reos_sidebar_collapsed') === 'true',
+        toggleSidebarCollapsed() {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+            localStorage.setItem('reos_sidebar_collapsed', this.sidebarCollapsed);
+        },
+        activeCat: {
+            sales: true,
+            ops: true,
+            system: true,
+            saas: true
+        },
+        toggleCat(cat) {
+            this.activeCat[cat] = !this.activeCat[cat];
+        }
+    }">
+
+    <!-- Enterprise Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 px-4 md:px-6 h-14 flex items-center justify-between shadow-2xs select-none">
+        <!-- Left: Mobile Toggle & Topbar Breadcrumb Path -->
+        <div class="flex items-center space-x-3">
             <!-- Mobile Sidebar Toggle Button -->
-            <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition">
+            <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-1.5 text-slate-600 hover:bg-slate-100 rounded border border-slate-200 transition">
                 <i class="fa-solid fa-bars text-sm"></i>
             </button>
 
-            <!-- Brand Logo -->
-            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group cursor-pointer">
-                <div class="w-9 h-9 rounded-xl overflow-hidden shadow-xs border border-emerald-200 bg-white flex items-center justify-center p-0.5">
-                    <img src="{{ asset('images/logo.jpg') }}" alt="REOS Logo" class="w-full h-full object-cover rounded-lg">
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-extrabold text-xl md:text-2xl tracking-tight text-[#0F172A]">REOS <span class="text-[#059669]">CRM</span></span>
-                </div>
-            </a>
+            <!-- Desktop Mini Sidebar Collapse Button -->
+            <button @click="toggleSidebarCollapsed()" class="hidden md:flex items-center justify-center p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded border border-slate-200 transition shadow-2xs" :title="sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+                <i class="fa-solid text-xs" :class="sidebarCollapsed ? 'fa-indent' : 'fa-outdent'"></i>
+            </button>
 
-            <!-- Scope / Company Indicator -->
-            <div class="hidden md:flex items-center space-x-2 pl-4 border-l border-slate-200">
-                @if(auth()->user()->isBroker())
-                    <span class="text-xs font-bold text-emerald-900 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-globe text-emerald-600"></i>
-                        <span>Broker Network</span>
-                    </span>
-                @elseif(auth()->user()->is_super_admin)
-                    <span class="text-xs font-bold text-purple-900 bg-purple-50 px-3 py-1 rounded-lg border border-purple-200 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-crown text-purple-600"></i>
-                        <span>SaaS Founder Scope</span>
-                    </span>
-                @else
-                    <span class="text-xs font-bold text-[#0F172A] bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-building text-emerald-600"></i>
-                        <span>{{ auth()->user()->company->name ?? 'Enterprise' }}</span>
-                    </span>
-                @endif
-            </div>
+            <!-- Breadcrumbs in Topbar (Matching Screenshot) -->
+            <nav class="hidden sm:flex items-center space-x-1.5 text-xs text-slate-500 font-medium">
+                <a href="{{ route('dashboard') }}" class="hover:text-slate-800 transition">Home</a>
+                <span class="text-slate-300">&gt;</span>
+                <span>Central Operations</span>
+                <span class="text-slate-300">&gt;</span>
+                <span class="text-slate-900 font-bold">@yield('title', 'Dashboard')</span>
+            </nav>
         </div>
 
-        <!-- Center: Search Keyword Input Bar -->
-        <div class="hidden sm:flex items-center flex-1 max-w-md mx-6">
+        <!-- Center: Enterprise Global Search Input Bar (Matching Screenshot Ctrl+K) -->
+        <div class="flex items-center flex-1 max-w-xl mx-4 sm:mx-8">
             <div class="relative w-full">
-                <input type="text" placeholder="Search Keyword..." class="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl pl-4 pr-10 py-2 text-xs text-[#0F172A] font-medium placeholder-slate-400 focus:bg-white transition shadow-2xs">
-                <div class="absolute right-2.5 top-1.5 px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-mono font-bold text-slate-400">
-                    ⌘K
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-xs text-slate-400"></i>
+                <input type="text" placeholder="Search leads, units, agents (Ctrl+K)..." class="w-full bg-[#F8FAFC] border border-slate-200 rounded-lg pl-9 pr-16 py-1.5 text-xs text-[#0F172A] font-medium placeholder-slate-400 focus:bg-white focus:border-[#2563EB] transition shadow-2xs">
+                <div class="absolute right-2.5 top-1.5 px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-mono font-bold text-slate-400 select-none">
+                    Ctrl+K
                 </div>
             </div>
         </div>
 
-        <!-- Right: Dynamic User Profile & LOGOUT Button -->
+        <!-- Right: Notification Bell & Royal Blue + Quick Add Button -->
         <div class="flex items-center space-x-3">
-            <a href="{{ route('notifications.index') }}" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition flex items-center justify-center text-xs relative" title="Notifications">
+            <!-- Notifications Bell -->
+            <a href="{{ route('notifications.index') }}" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 transition flex items-center justify-center text-sm relative" title="Notifications">
                 <i class="fa-regular fa-bell"></i>
-                <span class="w-2 h-2 rounded-full bg-[#059669] absolute top-1.5 right-1.5 ring-2 ring-white"></span>
+                <span class="w-4 h-4 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center absolute -top-0.5 -right-0.5 ring-2 ring-white">1</span>
             </a>
 
-            <!-- Dynamic User Profile Info -->
-            @php
-                $nameParts = explode(' ', auth()->user()->name);
-                $initials = count($nameParts) >= 2 
-                    ? strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[count($nameParts) - 1], 0, 1))
-                    : strtoupper(substr(auth()->user()->name, 0, 2));
-            @endphp
-            <div class="pl-2 border-l border-slate-200 flex items-center space-x-3">
-                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-2 group">
-                    <div class="w-8 h-8 rounded-full bg-[#047857] text-white font-bold text-xs flex items-center justify-center shadow-2xs group-hover:bg-[#059669] transition">
-                        {{ $initials }}
-                    </div>
-                    <div class="hidden lg:block text-left">
-                        <div class="text-xs font-bold text-[#0F172A] leading-tight group-hover:text-[#059669] transition">{{ auth()->user()->name }}</div>
-                        @php
-                            $headerRoleTitle = match(auth()->user()->role?->slug) {
-                                'founder' => 'Founder / Director',
-                                'director' => 'Director',
-                                'admin' => 'Admin',
-                                'manager', 'sales_manager' => 'Manager',
-                                'sales_executive', 'executive' => 'Sales Executive',
-                                'broker' => 'Broker',
-                                default => (auth()->user()->role->name ?? 'User'),
-                            };
-                            if (auth()->user()->is_super_admin) {
-                                $headerRoleTitle = 'SaaS Founder';
-                            } elseif (auth()->user()->is_saas_sub_admin) {
-                                $headerRoleTitle = 'SaaS Sub-Admin';
-                            }
-                        @endphp
-                        <div class="text-[10px] font-medium text-slate-400 leading-tight">
-                            {{ $headerRoleTitle }}
-                        </div>
-                    </div>
-                </a>
-
-                <!-- DYNAMIC LOGOUT BUTTON FORM -->
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-[#047857] font-bold text-xs rounded-xl border border-emerald-200 transition flex items-center space-x-1.5 cursor-pointer" title="Sign Out of Session">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span class="hidden sm:inline">Logout</span>
-                    </button>
-                </form>
+            <!-- + Quick Add ▾ Button (Royal Blue with Chevron) -->
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" @click.outside="open = false" class="px-4 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg transition flex items-center space-x-1.5 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Quick Add</span>
+                    <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
+                </button>
+                
+                <div x-show="open" x-transition class="absolute right-0 mt-1.5 w-48 bg-white rounded-lg border border-slate-200 shadow-lg py-1 z-50 text-xs">
+                    <a href="{{ route('leads.index') }}" class="flex items-center space-x-2 px-3 py-2 text-slate-700 hover:bg-slate-50 font-semibold">
+                        <i class="fa-solid fa-user-plus text-emerald-600 text-xs w-4"></i>
+                        <span>Create New Lead</span>
+                    </a>
+                    <a href="{{ route('site-visits.index') }}" class="flex items-center space-x-2 px-3 py-2 text-slate-700 hover:bg-slate-50 font-semibold">
+                        <i class="fa-solid fa-calendar-check text-amber-600 text-xs w-4"></i>
+                        <span>Schedule Site Visit</span>
+                    </a>
+                    <a href="{{ route('bookings.index') }}" class="flex items-center space-x-2 px-3 py-2 text-slate-700 hover:bg-slate-50 font-semibold">
+                        <i class="fa-solid fa-file-contract text-indigo-600 text-xs w-4"></i>
+                        <span>New Unit Booking</span>
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -324,248 +409,297 @@
                 : 0;
         @endphp
 
-        <!-- Clean Off-White Sidebar Navigation -->
-        <aside class="w-64 bg-white text-[#0F172A] hidden md:flex flex-col py-5 px-3 space-y-4 border-r border-[#E2E8F0] overflow-y-auto shrink-0">
+        <!-- Enterprise Dark Navy Sidebar Navigation (#111936 / #0F172A) -->
+        <aside :class="sidebarCollapsed ? 'w-16 px-1.5' : 'w-60 px-3'" class="bg-[#111936] text-white hidden md:flex flex-col py-4 space-y-2 border-r border-[#1E294A] overflow-y-auto shrink-0 transition-all duration-200 ease-in-out select-none">
             
-            <!-- CATEGORY 1: CRM & SAAS NAVIGATION -->
-            <div class="space-y-1">
-                <div class="px-3 pt-1 pb-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
-                    {{ $isSaasAdmin ? ($isFounder ? 'SaaS Platform Founder Scope' : 'SaaS Sub-Admin Scope') : 'CRM Navigation' }}
+            <!-- Brand Logo at top of sidebar (Matching Screenshot) -->
+            <div class="px-2 pb-3 mb-2 border-b border-[#1E294A] flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 p-0.5 shrink-0 flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-house-chimney text-white text-sm"></i>
+                </div>
+                <div x-show="!sidebarCollapsed" class="flex items-center space-x-1.5 truncate">
+                    <span class="font-extrabold text-lg tracking-tight text-white">REOS <span class="text-blue-400">CRM</span></span>
+                </div>
+            </div>
+
+            <!-- Navigation Links List (Organized Categorized Sections with Role Access Control) -->
+            <nav class="space-y-4">
+                
+                <!-- SECTION 1: OVERVIEW -->
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-1 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none">
+                        Overview
+                    </div>
+                    
+                    <!-- Dashboard (All Roles) -->
+                    <a href="{{ route('dashboard') }}" :title="sidebarCollapsed ? 'Dashboard' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('dashboard') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-table-cells-large text-sm w-4 text-center {{ request()->routeIs('dashboard') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Dashboard</span>
+                    </a>
                 </div>
 
-                <!-- 1. Dashboard -->
-                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('dashboard') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
-                    <i class="fa-solid fa-house text-xs w-4 text-center {{ request()->routeIs('dashboard') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Dashboard</span>
-                </a>
-
-                @if($u->isDirectorOrFounder() && !$isSaasAdmin)
-                <!-- 1.1 Critical Approvals (Director / Main Owner Scope) -->
-                <a href="{{ route('company.approvals') }}" class="flex items-center justify-between px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('company.approvals') ? 'bg-[#FEF3C7] text-[#92400E] font-extrabold border border-[#FDE68A]' : 'text-[#475569] hover:bg-amber-50/50 hover:text-[#92400E] font-semibold' }}">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-shield-halved text-xs w-4 text-center {{ request()->routeIs('company.approvals') ? 'text-[#D97706]' : 'text-amber-600' }}"></i>
-                        <span>Critical Approvals</span>
+                <!-- SECTION 2: SALES & PIPELINE -->
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        Sales & Pipeline
                     </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <!-- Leads (All Roles) -->
+                    <a href="{{ route('leads.index') }}" :title="sidebarCollapsed ? 'Leads' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('leads.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-user-plus text-sm w-4 text-center {{ request()->routeIs('leads.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Leads</span>
+                    </a>
+
+                    <!-- Contacts (Internal Staff) -->
+                    @if(!$isBroker)
+                    <a href="{{ route('customers.index') }}" :title="sidebarCollapsed ? 'Contacts' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('customers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-regular fa-address-book text-sm w-4 text-center {{ request()->routeIs('customers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Contacts</span>
+                    </a>
+                    @endif
+
+                    <!-- Properties (All Roles) -->
+                    <a href="{{ route('projects.index') }}" :title="sidebarCollapsed ? 'Properties' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('projects.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-building text-sm w-4 text-center {{ request()->routeIs('projects.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Properties</span>
+                    </a>
+
+                    <!-- Site Visits (All Roles) -->
+                    <a href="{{ route('site-visits.index') }}" :title="sidebarCollapsed ? 'Site Visits' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('site-visits.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-location-dot text-sm w-4 text-center {{ request()->routeIs('site-visits.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Site Visits</span>
+                    </a>
+
+                    <!-- Deals / Bookings (All Roles) -->
+                    <a href="{{ route('bookings.index') }}" :title="sidebarCollapsed ? 'Deals' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('bookings.*', 'agreements.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-sack-dollar text-sm w-4 text-center {{ request()->routeIs('bookings.*', 'agreements.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Deals</span>
+                    </a>
+                </div>
+
+                <!-- SECTION 3: OPERATIONS -->
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        Operations
+                    </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <!-- Tasks / Calendar (Internal Staff) -->
+                    @if(!$isBroker)
+                    <a href="{{ route('calendar.index') }}" :title="sidebarCollapsed ? 'Tasks' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('calendar.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-list-check text-sm w-4 text-center {{ request()->routeIs('calendar.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Tasks</span>
+                    </a>
+                    @endif
+
+                    <!-- Follow-ups (Internal Staff) -->
+                    @if(!$isBroker)
+                    <a href="{{ route('follow-ups.index') }}" :title="sidebarCollapsed ? 'Follow-ups' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('follow-ups.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-rocket text-sm w-4 text-center {{ request()->routeIs('follow-ups.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Follow-ups</span>
+                    </a>
+                    @endif
+
+                    <!-- Documents (Internal Staff) -->
+                    @if(!$isBroker)
+                    <a href="{{ route('documents.index') }}" :title="sidebarCollapsed ? 'Documents' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('documents.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-regular fa-file-lines text-sm w-4 text-center {{ request()->routeIs('documents.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Documents</span>
+                    </a>
+                    @endif
+
+                    <!-- HRMS & Attendance (Internal Staff - Gated by Route Existence) -->
+                    @if(Route::has('hrms.index') && !$isBroker)
+                    <a href="{{ route('hrms.index') }}" :title="sidebarCollapsed ? 'HRMS' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">HRMS</span>
+                    </a>
+                    @endif
+
+                    <!-- Support Desk (Internal Staff - Gated by Route Existence) -->
+                    @if(Route::has('support-tickets.index') && !$isBroker)
+                    <a href="{{ route('support-tickets.index') }}" :title="sidebarCollapsed ? 'Support Desk' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('support-tickets.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-headset text-sm w-4 text-center {{ request()->routeIs('support-tickets.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Support Desk</span>
+                    </a>
+                    @endif
+
+                    <!-- Team Chat (All Roles - Gated by Route Existence) -->
+                    @if(Route::has('chat.index'))
+                    <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
+                    </a>
+                    @endif
+                </div>
+
+                <!-- SECTION 4: MANAGEMENT -->
+                @if($isSaasAdmin || $isAdmin || $isManager || $companyPendingApprovalsCount > 0)
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        Management
+                    </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <!-- Teams (Admins, Managers, SaaS Admins) -->
+                    @if($isSaasAdmin || $isAdmin || $isManager)
+                    <a href="{{ route('users.index') }}" :title="sidebarCollapsed ? 'Teams' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('users.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-users-gear text-sm w-4 text-center {{ request()->routeIs('users.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Teams</span>
+                    </a>
+                    @endif
+
+                    <!-- Brokers Directory (Admins, Managers, SaaS Admins) -->
+                    @if($isSaasAdmin || $isAdmin || $isManager)
+                    <a href="{{ route('brokers.index') }}" :title="sidebarCollapsed ? 'Brokers' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('brokers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-handshake text-sm w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Brokers</span>
+                    </a>
+                    @endif
+
+                    <!-- Reports (Admins, Managers, SaaS Admins) -->
+                    @if($isSaasAdmin || $isAdmin || $isManager)
+                    <a href="{{ route('reports.index') }}" :title="sidebarCollapsed ? 'Reports' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('reports.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-chart-column text-sm w-4 text-center {{ request()->routeIs('reports.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Reports</span>
+                    </a>
+                    @endif
+
+                    <!-- Payments (Admins, Managers, SaaS Admins) -->
+                    @if($isSaasAdmin || $isAdmin || $isManager)
+                    <a href="{{ route('payments.index') }}" :title="sidebarCollapsed ? 'Payments' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('payments.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-credit-card text-sm w-4 text-center {{ request()->routeIs('payments.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Payments</span>
+                    </a>
+                    @endif
+
+                    <!-- Settings (Company Admins & SaaS Admins) -->
+                    @if($isSaasAdmin || $isAdmin || $u->isDirectorOrFounder())
+                    <a href="{{ route('company-settings.index') }}" :title="sidebarCollapsed ? 'Settings' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('company-settings.*', 'profile.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-gear text-sm w-4 text-center {{ request()->routeIs('company-settings.*', 'profile.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Settings</span>
+                    </a>
+                    @endif
+
+                    <!-- Permissions & Access Control Matrix -->
+                    @if($isSaasAdmin || $isAdmin || $u->isDirectorOrFounder())
+                    <a href="{{ route('permissions.index') }}" :title="sidebarCollapsed ? 'Permissions' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('permissions.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-shield-halved text-sm w-4 text-center {{ request()->routeIs('permissions.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Permissions</span>
+                    </a>
+                    @endif
+
+                    <!-- COMPANY DIRECTOR / ADMIN APPROVALS BADGE -->
                     @if($companyPendingApprovalsCount > 0)
-                        <span class="px-2 py-0.5 text-[10px] font-extrabold bg-[#DC2626] text-white rounded-full shadow-xs animate-pulse">{{ $companyPendingApprovalsCount }}</span>
-                    @endif
-                </a>
-                @endif
-
-                {{-- 
-                <!-- 1.1 Team & Broker Chat (Disabled for now) -->
-                <a href="{{ route('chat.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
-                    <i class="fa-solid fa-comments text-xs w-4 text-center {{ request()->routeIs('chat.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Team Chat</span>
-                </a>
-                --}}
-
-                @if($isSaasAdmin)
-                    @if($u->hasSaaSPermission('view_companies') || $u->hasSaaSPermission('onboard_companies'))
-                    <!-- 2. Builder Tenant Companies (SaaS Admin) -->
-                    <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.companies.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                        <i class="fa-solid fa-building-user text-xs w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                        <span>Builder Companies</span>
-                    </a>
-                    @endif
-
-                    @if($u->hasSaaSPermission('manage_subscriptions'))
-                    <!-- 3. SaaS Subscriptions (SaaS Admin) -->
-                    <a href="{{ route('admin.saas-subscriptions') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.saas-subscriptions') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                        <i class="fa-solid fa-gem text-xs w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                        <span>SaaS Subscriptions</span>
-                    </a>
-                    @endif
-
-                    @if($u->hasSaaSPermission('manage_subadmins'))
-                    <!-- 3.1 SaaS Sub-Admins -->
-                    <a href="{{ route('admin.sub-admins.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.sub-admins.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                        <i class="fa-solid fa-user-shield text-xs w-4 text-center {{ request()->routeIs('admin.sub-admins.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                        <span>SaaS Sub-Admins</span>
-                    </a>
-                    @endif
-
-                    <!-- 3.2 Pending Approvals Queue -->
-                    <a href="{{ route('admin.saas-approvals') }}" class="flex items-center justify-between px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('admin.saas-approvals') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-clock-rotate-left text-xs w-4 text-center {{ request()->routeIs('admin.saas-approvals') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                            <span>Pending Approvals</span>
+                    <a href="{{ route('company.approvals') }}" :title="sidebarCollapsed ? 'Company Approvals' : ''" 
+                       class="flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('company.approvals') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <div class="flex items-center space-x-3 truncate">
+                            <i class="fa-solid fa-shield-cat text-sm w-4 text-center text-rose-400"></i>
+                            <span x-show="!sidebarCollapsed" class="truncate">Action Approvals</span>
                         </div>
-                        @if($pendingApprovalsCount > 0)
-                            <span class="px-2 py-0.5 text-[10px] font-extrabold bg-amber-500 text-white rounded-full">{{ $pendingApprovalsCount }}</span>
-                        @endif
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-600 text-white">{{ $companyPendingApprovalsCount }}</span>
                     </a>
-                @endif
-
-                @if(!$isSaasAdmin)
-                @if(!$isBroker)
-                <!-- 1.5 Interactive Calendar Schedule -->
-                <a href="{{ route('calendar.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs font-semibold {{ request()->routeIs('calendar.*') ? 'bg-[#ECFDF5] text-[#047857] font-bold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857]' }}">
-                    <i class="fa-regular fa-calendar-days text-xs w-4 text-center {{ request()->routeIs('calendar.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Calendar Schedule</span>
-                </a>
-
-                <!-- 4. Leads & Sales Pipeline -->
-                <a href="{{ route('leads.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('leads.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-chart-line text-xs w-4 text-center {{ request()->routeIs('leads.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                        <span>Leads & Pipeline</span>
-                    </div>
-                </a>
-
-                <!-- 5. Follow-ups -->
-                <a href="{{ route('follow-ups.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('follow-ups.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-phone text-xs w-4 text-center {{ request()->routeIs('follow-ups.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Follow-ups</span>
-                </a>
-
-                <!-- 6. Site Visits -->
-                <a href="{{ route('site-visits.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('site-visits.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-calendar-check text-xs w-4 text-center {{ request()->routeIs('site-visits.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Site Visits</span>
-                </a>
-
-                <!-- 7. Bookings & Contracts -->
-                <a href="{{ route('bookings.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('bookings.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-file-contract text-xs w-4 text-center {{ request()->routeIs('bookings.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Bookings & Contracts</span>
-                </a>
-
-                <!-- 8. Agreements -->
-                <a href="{{ route('agreements.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('agreements.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-signature text-xs w-4 text-center {{ request()->routeIs('agreements.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Agreements</span>
-                </a>
-
-                @can('view-financials')
-                <!-- 9. Payments & Invoices -->
-                <a href="{{ route('payments.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('payments.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-receipt text-xs w-4 text-center {{ request()->routeIs('payments.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Payments & Invoices</span>
-                </a>
-                @endcan
-
-                <!-- 10. Customers -->
-                <a href="{{ route('customers.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('customers.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-users text-xs w-4 text-center {{ request()->routeIs('customers.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Customers</span>
-                </a>
-                @endif
-                @endif
-            </div>
-
-            @if(!$isSaasAdmin)
-            <!-- CATEGORY 2: OPERATIONS & INVENTORY -->
-            <div class="space-y-1 border-t border-[#E2E8F0] pt-3">
-                <div class="px-3 pb-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Operations & Inventory</div>
-
-                <!-- Projects Inventory -->
-                <a href="{{ route('projects.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('projects.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-city text-xs w-4 text-center {{ request()->routeIs('projects.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Projects Inventory</span>
-                </a>
-
-                @if($isAdmin || $isManager)
-                <!-- Brokers -->
-                <a href="{{ route('brokers.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('brokers.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-handshake text-xs w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Brokers</span>
-                </a>
-                @endif
-
-                {{-- 
-                <!-- HRMS & Staff Attendance (Disabled for now) -->
-                @if(!$isBroker)
-                <a href="{{ route('hrms.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('hrms.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-clipboard-user text-xs w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>HRMS & Attendance</span>
-                </a>
-                @endif
-                --}}
-
-                @if($isAdmin || $isManager)
-                <!-- Team & Users -->
-                <a href="{{ route('users.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('users.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-user-tie text-xs w-4 text-center {{ request()->routeIs('users.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Team Users</span>
-                </a>
-                @endif
-
-                @can('view-executive-reports')
-                <!-- Reports & Analytics -->
-                <a href="{{ route('reports.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('reports.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-chart-pie text-xs w-4 text-center {{ request()->routeIs('reports.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Reports & Analytics</span>
-                </a>
-                @endcan
-            </div>
-            @endif
-
-            <!-- CATEGORY 3: SYSTEM VAULT & HELP -->
-            <div class="space-y-1 border-t border-[#E2E8F0] pt-3">
-                <div class="px-3 pb-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">System Vault & Help</div>
-
-                <!-- Notifications -->
-                <a href="{{ route('notifications.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('notifications.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-bell text-xs w-4 text-center {{ request()->routeIs('notifications.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Notifications</span>
-                </a>
-
-                @if(!$isSaasAdmin)
-                <!-- KYC & Document Vault -->
-                <a href="{{ route('documents.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('documents.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-folder-open text-xs w-4 text-center {{ request()->routeIs('documents.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>KYC & Document Vault</span>
-                </a>
-                @endif
-
-                <!-- Support Tickets Helpdesk -->
-                <a href="{{ route('support-tickets.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('support-tickets.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-headset text-xs w-4 text-center {{ request()->routeIs('support-tickets.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Support Tickets</span>
-                </a>
-
-                @can('view-activity-logs')
-                <!-- System Activity Logs -->
-                <a href="{{ route('activity-logs.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('activity-logs.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-clock-rotate-left text-xs w-4 text-center {{ request()->routeIs('activity-logs.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Activity Audit Logs</span>
-                </a>
-                @endcan
-
-                @can('manage-company-settings')
-                @if(!$isSaasAdmin)
-                <!-- Single Builder Company Settings (RERA License, GSTIN) -->
-                <a href="{{ route('company-settings.index') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('company-settings.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-gear text-xs w-4 text-center {{ request()->routeIs('company-settings.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Company Settings</span>
-                </a>
-                @endif
-                @endcan
-
-                <!-- Account Profile -->
-                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 px-3 py-2 rounded-xl transition text-xs {{ request()->routeIs('profile.*') ? 'bg-[#ECFDF5] text-[#047857] font-extrabold border border-[#A7F3D0]' : 'text-[#475569] hover:bg-emerald-50/50 hover:text-[#047857] font-semibold' }}">
-                    <i class="fa-solid fa-user-gear text-xs w-4 text-center {{ request()->routeIs('profile.*') ? 'text-[#059669]' : 'text-slate-400' }}"></i>
-                    <span>Account Profile</span>
-                </a>
-            </div>
-
-            <div class="pt-4 mt-auto border-t border-[#E2E8F0]">
-                <div class="p-3 rounded-xl bg-slate-50 border border-[#E2E8F0]">
-                    <div class="flex items-center space-x-1.5 text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-0.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>REOS CRMS Engine</span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 font-medium">Enterprise SaaS Edition</p>
+                    @endif
                 </div>
+                @endif
+
+                <!-- SECTION 5: SAAS SUPERADMIN / FOUNDER CONTROL TOWER -->
+                @if($isSaasAdmin)
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        SaaS Control Tower
+                    </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <a href="{{ route('admin.companies.index') }}" :title="sidebarCollapsed ? 'Tenant Companies' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.companies.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-city text-sm w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Tenant Companies</span>
+                    </a>
+
+                    <a href="{{ route('admin.saas-subscriptions') }}" :title="sidebarCollapsed ? 'SaaS Plans' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.saas-subscriptions') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-shield-halved text-sm w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">SaaS Plans</span>
+                    </a>
+
+                    @if($isFounder)
+                    <a href="{{ route('admin.sub-admins.index') }}" :title="sidebarCollapsed ? 'Sub-Admins' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.sub-admins.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-user-shield text-sm w-4 text-center {{ request()->routeIs('admin.sub-admins.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Sub-Admins</span>
+                    </a>
+                    @endif
+
+                    @if($pendingApprovalsCount > 0)
+                    <a href="{{ route('admin.saas-approvals') }}" :title="sidebarCollapsed ? 'SaaS Approvals' : ''" 
+                       class="flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.saas-approvals') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <div class="flex items-center space-x-3 truncate">
+                            <i class="fa-solid fa-bell text-sm w-4 text-center text-amber-400"></i>
+                            <span x-show="!sidebarCollapsed" class="truncate">SaaS Approvals</span>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white">{{ $pendingApprovalsCount }}</span>
+                    </a>
+                    @endif
+                </div>
+                @endif
+            </nav>
+
+            <!-- Bottom User Profile & Logout Section (Matching Screenshot) -->
+            <div class="pt-4 mt-auto border-t border-[#1E294A] space-y-2">
+                @php
+                    $nameParts = explode(' ', auth()->user()->name);
+                    $initials = count($nameParts) >= 2 
+                        ? strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[count($nameParts) - 1], 0, 1))
+                        : strtoupper(substr(auth()->user()->name, 0, 2));
+                @endphp
+
+                <div class="flex items-center space-x-3 px-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 border border-blue-400">
+                        {{ $initials }}
+                    </div>
+                    <div x-show="!sidebarCollapsed" class="truncate">
+                        <div class="text-xs font-bold text-white truncate">{{ auth()->user()->name }}</div>
+                        <div class="text-[10px] text-[#94A3B8] capitalize truncate">{{ auth()->user()->role->name ?? 'Admin User' }}</div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-[#94A3B8] hover:text-rose-400 hover:bg-[#1E294A] text-xs font-semibold transition cursor-pointer">
+                        <i class="fa-solid fa-arrow-right-from-bracket text-sm w-4 text-center"></i>
+                        <span x-show="!sidebarCollapsed">Logout</span>
+                    </button>
+                </form>
             </div>
         </aside>
+
 
         <!-- Main Content Area -->
         <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 bg-[#F8FAFC]">
             <!-- Flash Notification Alerts -->
             @if(session('success'))
-                <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-xs flex items-center justify-between shadow-xs">
+                <div
+                    class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-xs flex items-center justify-between shadow-xs">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
                         <span>{{ session('success') }}</span>
@@ -575,7 +709,8 @@
             @endif
 
             @if(session('error'))
-                <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-300 text-rose-950 font-bold text-xs flex items-center justify-between shadow-xs">
+                <div
+                    class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-300 text-rose-950 font-bold text-xs flex items-center justify-between shadow-xs">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-triangle-exclamation text-[#DC2626] text-sm"></i>
                         <span>{{ session('error') }}</span>
@@ -585,7 +720,8 @@
             @endif
 
             @if(session('warning'))
-                <div class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 font-bold text-xs flex items-center justify-between shadow-xs">
+                <div
+                    class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 font-bold text-xs flex items-center justify-between shadow-xs">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
                         <span>{{ session('warning') }}</span>
@@ -595,13 +731,15 @@
             @endif
 
             @if($errors->any())
-                <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-[#DC2626] font-semibold text-xs space-y-2 shadow-xs">
+                <div
+                    class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-[#DC2626] font-semibold text-xs space-y-2 shadow-xs">
                     <div class="flex items-center justify-between pb-1.5 border-b border-rose-200/60 font-bold text-sm">
                         <div class="flex items-center space-x-2 text-[#DC2626]">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                             <span>Please resolve the following validation errors:</span>
                         </div>
-                        <button onclick="this.closest('.mb-6').remove()" class="text-rose-400 hover:text-rose-700 font-bold">✕</button>
+                        <button onclick="this.closest('.mb-6').remove()"
+                            class="text-rose-400 hover:text-rose-700 font-bold">✕</button>
                     </div>
                     <ul class="list-disc list-inside space-y-1 text-slate-700 pl-1">
                         @foreach ($errors->all() as $error)
@@ -661,9 +799,9 @@
                                             },
                                             body: JSON.stringify({ fcm_token: currentToken })
                                         })
-                                        .then(res => res.json())
-                                        .then(data => window.ReosLogger.success('FCM Token Synced to Server', data))
-                                        .catch(err => window.ReosLogger.warn('FCM token background sync offline mode', err));
+                                            .then(res => res.json())
+                                            .then(data => window.ReosLogger.success('FCM Token Synced to Server', data))
+                                            .catch(err => window.ReosLogger.warn('FCM token background sync offline mode', err));
                                     } else {
                                         window.ReosLogger.warn('No FCM registration token available');
                                     }
@@ -698,4 +836,5 @@
         }
     </script>
 </body>
+
 </html>

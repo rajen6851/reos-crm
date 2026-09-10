@@ -5,23 +5,24 @@
 @section('content')
 <div class="space-y-8 max-w-7xl mx-auto">
     <!-- Top Hero Banner: Clean Light Header -->
-    <div class="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div class="space-y-2">
-                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-black bg-indigo-50 text-indigo-700 uppercase tracking-widest border border-indigo-200">
-                    <i class="fa-solid fa-crown text-purple-600"></i>
-                    <span>Dedicated SaaS Subscriptions & Tenant Control Tower</span>
+    <div class="reos-card p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
+                    <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
+                    <span>›</span>
+                    <span class="text-[#0F172A] font-bold">SaaS Subscriptions</span>
                 </div>
-                <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">SaaS Subscription Plans & Tenant Companies</h1>
-                <p class="text-xs text-slate-600 max-w-xl">SuperAdmin Management Center: Create/Delete SaaS plans, override company subscription packages, and activate or suspend builder tenant access.</p>
+                <h1 class="page-heading text-2xl font-extrabold text-slate-900 tracking-tight">SaaS Subscription Plans & Tenant Companies</h1>
+                <p class="body-text text-xs text-slate-500 max-w-xl">SuperAdmin Management Center: Create/Delete SaaS plans, override company subscription packages, and activate or suspend builder tenant access.</p>
             </div>
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-xl font-bold">
+            <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-center space-x-3 shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-lg font-bold">
                     ₹
                 </div>
                 <div>
-                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Monthly MRR</div>
-                    <div class="text-2xl font-black text-emerald-700 font-mono">₹{{ number_format($totalPlatformRevenue, 2) }}</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Monthly MRR</div>
+                    <div class="text-xl font-bold text-emerald-700 font-mono">₹{{ number_format($totalPlatformRevenue, 2) }}</div>
                 </div>
             </div>
         </div>
