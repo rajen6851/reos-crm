@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\LeadApiController;
 use App\Http\Controllers\Api\SalesExecutiveApiController;
 use App\Http\Controllers\Api\SiteVisitApiController;
 use App\Http\Controllers\Api\SubscriptionApiController;
+use App\Http\Controllers\Api\LeadSourceWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 | REOS Sanctum API Routes
 |--------------------------------------------------------------------------
 */
+
+// Public Inbound Lead Integration Webhook Endpoints
+Route::get('/webhooks/lead-sources/{type}/{token}', [LeadSourceWebhookController::class, 'verify']);
+Route::post('/webhooks/lead-sources/{type}/{token}', [LeadSourceWebhookController::class, 'handle']);
+
 
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:10,1');

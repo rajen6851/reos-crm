@@ -166,4 +166,77 @@ class TwoTierLeadDistributionTest extends TestCase
         $response->assertSee('LD-A2');
         $response->assertDontSee('LD-B1');
     }
+
+    public function test_leads_are_auto_distributed_equally_to_sales_executives_via_round_robin()
+    {
+        $company = Company::create(['name' => 'Apex Infra', 'slug' => 'apex-infra-3', 'code' => 'APEX03']);
+        $managerRole = Role::where('slug', 'manager')->first();
+        $salesRole = Role::where('slug', 'sales_executive')->first();
+
+        $manager = User::create([
+            'company_id' => $company->id,
+            'role_id' => $managerRole->id,
+            'name' => 'Manager Boss',
+            'email' => 'mboss@apex.com',
+            'phone' => '9000000021',
+            'password' => Hash::make('password'),
+        ]);
+
+        $exec1 = User::create([
+            'company_id' => $company->id,
+            'role_id' => $salesRole->id,
+            'reporting_manager_id' => $manager->id,
+            'name' => 'Exec One',
+            'email' => 'e1@apex.com',
+            'phone' => '9000000022',
+            'password' => Hash::make('password'),
+        ]);
+
+        $exec2 = User::create([
+            'company_id' => $company->id,
+            'role_id' => $salesRole->id,
+            'reporting_manager_id' => $manager->id,
+            'name' => 'Exec Two',
+            'email' => 'e2@apex.com',
+            'phone' => '9000000023',
+            'password' => Hash::make('password'),
+        ]);
+
+        $project = Project::create([
+            'company_id' => $company->id,
+            'name' => 'Skyline Towers',
+            'code' => 'ST-01',
+            'location_address' => 'City',
+            'city' => 'City',
+            'state' => 'State',
+            'pincode' => '400001',
+            'project_type' => 'residential',
+            'status' => 'active',
+        ]);
+
+        $service = new LeadDistributionService();
+
+        // Create 6 leads
+        for ($i = 1; $i <= 6; $i++) {
+            $lead = Lead::create([
+                'company_id' => $company->id,
+                'lead_code' => "LD-EXEC-{$i}",
+                'first_name' => "ExecCustomer",
+                'last_name' => "#{$i}",
+                'phone' => "970000000{$i}",
+                'interested_project_id' => $project->id,
+                'status' => 'new',
+            ]);
+
+            $service->distributeNewLead($lead);
+        }
+
+        // Verify Executive 1 got 3 leads and Executive 2 got 3 leads!
+        $e1Count = Lead::where('assigned_to_user_id', $exec1->id)->count();
+        $e2Count = Lead::where('assigned_to_user_id', $exec2->id)->count();
+
+        $this->assertEquals(3, $e1Count);
+        $this->assertEquals(3, $e2Count);
+    }
 }
+

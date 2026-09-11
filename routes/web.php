@@ -182,6 +182,11 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/company-settings', [CompanySettingsController::class, 'index'])->name('company-settings.index');
     Route::put('/company-settings', [CompanySettingsController::class, 'update'])->name('company-settings.update');
+
+    // Lead Sources Integration Engine
+    Route::resource('lead-sources', \App\Http\Controllers\LeadSourceController::class);
+    Route::post('lead-sources/{leadSource}/test', [\App\Http\Controllers\LeadSourceController::class, 'testConnection'])->name('lead-sources.test');
 });
 
 require __DIR__.'/auth.php';
+

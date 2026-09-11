@@ -597,7 +597,13 @@
                         <i class="fa-solid fa-gear text-sm w-4 text-center {{ request()->routeIs('company-settings.*', 'profile.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Settings</span>
                     </a>
+                    <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''" 
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
+                    </a>
                     @endif
+
 
                     <!-- Permissions & Access Control Matrix -->
                     @if($isSaasAdmin || $isAdmin || $u->isDirectorOrFounder())

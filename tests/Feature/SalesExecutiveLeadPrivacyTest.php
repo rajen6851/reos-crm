@@ -20,9 +20,10 @@ class SalesExecutiveLeadPrivacyTest extends TestCase
         $salesRole = Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
         $managerRole = Role::create(['name' => 'Manager', 'slug' => 'manager']);
 
-        $execA = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id, 'name' => 'Exec A']);
-        $execB = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id, 'name' => 'Exec B']);
         $manager = User::factory()->create(['company_id' => $company->id, 'role_id' => $managerRole->id, 'name' => 'Manager M']);
+        $execA = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id, 'reporting_manager_id' => $manager->id, 'name' => 'Exec A']);
+        $execB = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id, 'reporting_manager_id' => $manager->id, 'name' => 'Exec B']);
+
 
         $project = Project::create(['company_id' => $company->id, 'name' => 'Apex Residency', 'code' => 'AR']);
 
@@ -32,6 +33,7 @@ class SalesExecutiveLeadPrivacyTest extends TestCase
             'first_name' => 'Customer A',
             'phone' => '9000000001',
             'assigned_to_user_id' => $execA->id,
+            'assigned_to_manager_id' => $manager->id,
             'interested_project_id' => $project->id,
         ]);
 
@@ -41,8 +43,10 @@ class SalesExecutiveLeadPrivacyTest extends TestCase
             'first_name' => 'Customer B',
             'phone' => '9000000002',
             'assigned_to_user_id' => $execB->id,
+            'assigned_to_manager_id' => $manager->id,
             'interested_project_id' => $project->id,
         ]);
+
 
         // 1. Exec A logs in and visits CRM Leads -> Sees Lead A, DOES NOT see Lead B
         $responseA = $this->actingAs($execA)->get('/leads');
