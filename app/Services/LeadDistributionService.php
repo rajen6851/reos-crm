@@ -92,11 +92,8 @@ class LeadDistributionService
 
                 if ($selectedExecutive) {
                     $lead->assigned_to_user_id = $selectedExecutive->id;
-                    if ($lead->status === 'new') {
-                        $lead->status = 'contacted';
-                    }
-
                     Log::info("[LEAD DISTRIBUTION - L2 EXECUTIVE] Lead #{$lead->id} ('{$lead->name}') auto-assigned to Executive #{$selectedExecutive->id} ({$selectedExecutive->name})");
+
 
                     // Create assignment history record
                     LeadAssignment::create([

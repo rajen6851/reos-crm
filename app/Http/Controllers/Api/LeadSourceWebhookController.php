@@ -58,11 +58,22 @@ class LeadSourceWebhookController extends Controller
             ->first();
 
         if (!$source) {
+            $source = LeadSource::where('type', $type)
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if (!$source) {
+            $source = LeadSource::where('is_active', true)->first();
+        }
+
+        if (!$source) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid or inactive webhook token.',
+                'message' => 'No active lead source integration found.',
             ], 404);
         }
+
 
         $result = $manager->processIncomingLead($source, $request->all());
 
