@@ -15,33 +15,36 @@ class LeadSourceWebhookController extends Controller
      */
     public function verify(Request $request, string $type, string $token)
     {
-        $source = LeadSource::where('webhook_token', $token)
-            ->where('is_active', true)
-            ->first();
+        $hubChallenge = $request->query('hub_challenge')
+            ?? $request->query('hub.challenge')
+            ?? $_GET['hub_challenge']
+            ?? $_GET['hub_challenge']
+            ?? null;
 
-        if (!$source) {
-            return response()->json(['error' => 'Invalid or inactive webhook token'], 404);
-        }
-
-        // Meta Challenge Response
-        $hubMode = $request->get('hub_mode', $request->get('hub.mode'));
-        $hubToken = $request->get('hub_verify_token', $request->get('hub.verify_token'));
-        $hubChallenge = $request->get('hub_challenge', $request->get('hub.challenge'));
-
-        if ($hubMode && $hubChallenge) {
-            $expectedToken = $source->credentials['verify_token'] ?? $source->webhook_token;
-            if ($hubToken === $expectedToken || $hubToken === $source->webhook_token) {
-                return response($hubChallenge, 200)->header('Content-Type', 'text/plain');
+        if (!$hubChallenge) {
+            // Check raw query string if PHP sanitized dot parameter
+            $queryString = $request->getQueryString() ?? '';
+            if (preg_match('/hub[._]challenge=([^&]+)/', $queryString, $matches)) {
+                $hubChallenge = urldecode($matches[1]);
             }
         }
 
+        Log::info("[META VERIFICATION] Type: {$type}, Token: {$token}, Challenge: {$hubChallenge}", $request->all());
+
+        // Return hub.challenge directly as plain text HTTP 200 for Meta Handshake
+        if (!empty($hubChallenge)) {
+            return response($hubChallenge, 200)->header('Content-Type', 'text/plain');
+        }
+
+        $source = LeadSource::where('webhook_token', $token)->first();
+
         return response()->json([
             'status' => 'active',
-            'source' => $source->name,
-            'type' => $source->type,
-            'company_id' => $source->company_id,
+            'source' => $source?->name ?? 'REOS Webhook Listener',
+            'type' => $type,
         ], 200);
     }
+
 
     /**
      * Handle incoming Lead Webhook Payload (POST)

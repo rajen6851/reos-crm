@@ -43,6 +43,13 @@ class LeadSource extends Model
                 $model->webhook_token = Str::random(32);
             }
         });
+
+        static::retrieved(function ($model) {
+            if (empty($model->webhook_token)) {
+                $model->webhook_token = Str::random(32);
+                $model->saveQuietly();
+            }
+        });
     }
 
     public function getWebhookUrlAttribute(): string
@@ -52,4 +59,5 @@ class LeadSource extends Model
         }
         return url("/api/webhooks/lead-sources/{$this->type}/{$this->webhook_token}");
     }
+
 }

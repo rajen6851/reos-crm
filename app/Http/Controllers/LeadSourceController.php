@@ -11,8 +11,21 @@ use Illuminate\Support\Str;
 
 class LeadSourceController extends Controller
 {
+    protected function ensureSchemaMigrated(): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('lead_sources', 'type')) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Auto-migrate lead_sources failed: " . $e->getMessage());
+            }
+        }
+    }
+
     public function index(LeadSourceManager $manager)
     {
+        $this->ensureSchemaMigrated();
+
         $user = Auth::user();
         if (!$user->company_id && !$user->isSaaSFounder()) {
             return redirect()->route('dashboard')->with('error', 'No company associated with your account.');
@@ -30,7 +43,10 @@ class LeadSourceController extends Controller
 
     public function store(Request $request, LeadSourceManager $manager)
     {
+        $this->ensureSchemaMigrated();
+
         $user = Auth::user();
+
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',

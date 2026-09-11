@@ -186,7 +186,14 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     // Lead Sources Integration Engine
     Route::resource('lead-sources', \App\Http\Controllers\LeadSourceController::class);
     Route::post('lead-sources/{leadSource}/test', [\App\Http\Controllers\LeadSourceController::class, 'testConnection'])->name('lead-sources.test');
+
+    // Admin Production Migration Trigger
+    Route::get('/run-migrations', function () {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Database Migrations Executed Successfully! <br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    });
 });
 
 require __DIR__.'/auth.php';
+
 
