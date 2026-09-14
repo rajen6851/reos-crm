@@ -397,15 +397,17 @@
     <div class="flex flex-1 overflow-hidden">
         @php
             $u = auth()->user();
-            $isBroker = $u->isBroker();
-            $isSales = $u->isSales();
-            $isManager = $u->isManager();
-            $isAdmin = $u->isCompanyAdmin();
-            $isFounder = $u->isSaaSFounder();
-            $isSaasAdmin = $u->isSaaSAdmin();
+            $isBroker    = $u->isBroker();
+            $isSales     = $u->isSales();
+            $isManager   = $u->isManager();
+            $isAdmin     = $u->isCompanyAdmin();
+            $isDirector  = $u->isDirector();
+            $isFounder   = $u->isSaaSFounder();
+            $isSubAdmin  = $u->isSaaSSubAdmin();
+            $isSaasAdmin = $u->isSaaSAdmin(); // true for both founder + sub-admin
             $pendingApprovalsCount = $isSaasAdmin ? \App\Models\SaasApprovalRequest::where('status', 'pending')->count() : 0;
-            $companyPendingApprovalsCount = ($u->isDirectorOrFounder() && $u->company_id) 
-                ? \App\Models\SaasApprovalRequest::where('company_id', $u->company_id)->where('status', 'pending')->count() 
+            $companyPendingApprovalsCount = ($u->isDirectorOrFounder() && $u->company_id)
+                ? \App\Models\SaasApprovalRequest::where('company_id', $u->company_id)->where('status', 'pending')->count()
                 : 0;
         @endphp
 
@@ -440,183 +442,225 @@
                 </div>
 
                 <!-- SECTION 2: SALES & PIPELINE -->
+                {{-- Brokers: show only their own referral-related items --}}
+                @if($isBroker)
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        Channel Partner
+                    </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <!-- Broker: My Referral Leads -->
+                    <a href="{{ route('leads.index') }}" :title="sidebarCollapsed ? 'My Referral Leads' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('leads.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-user-plus text-sm w-4 text-center {{ request()->routeIs('leads.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">My Referral Leads</span>
+                    </a>
+
+                    <!-- Broker: Commission Tracker -->
+                    @if(Route::has('brokers.index'))
+                    <a href="{{ route('brokers.index') }}" :title="sidebarCollapsed ? 'Commission Tracker' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('brokers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-money-bill-wave text-sm w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Commission Tracker</span>
+                    </a>
+                    @endif
+
+                    <!-- Broker: Available Properties -->
+                    <a href="{{ route('projects.index') }}" :title="sidebarCollapsed ? 'Available Projects' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('projects.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-building text-sm w-4 text-center {{ request()->routeIs('projects.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Available Projects</span>
+                    </a>
+
+                    <!-- Broker: Site Visits -->
+                    <a href="{{ route('site-visits.index') }}" :title="sidebarCollapsed ? 'Site Visits' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('site-visits.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-location-dot text-sm w-4 text-center {{ request()->routeIs('site-visits.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Site Visits</span>
+                    </a>
+                </div>
+                @endif
+
+                {{-- Internal Staff: Full Sales & Pipeline section --}}
+                @if(!$isBroker)
                 <div class="space-y-1">
                     <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
                         Sales & Pipeline
                     </div>
                     <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
 
-                    <!-- Leads (All Roles) -->
-                    <a href="{{ route('leads.index') }}" :title="sidebarCollapsed ? 'Leads' : ''" 
+                    <!-- Leads (All Internal) -->
+                    <a href="{{ route('leads.index') }}" :title="sidebarCollapsed ? 'Leads' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('leads.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-user-plus text-sm w-4 text-center {{ request()->routeIs('leads.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Leads</span>
                     </a>
 
-                    <!-- Contacts (Internal Staff) -->
-                    @if(!$isBroker)
-                    <a href="{{ route('customers.index') }}" :title="sidebarCollapsed ? 'Contacts' : ''" 
+                    <!-- Contacts (Manager, Admin, Director — not Sales Exec) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('customers.index') }}" :title="sidebarCollapsed ? 'Contacts' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('customers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-regular fa-address-book text-sm w-4 text-center {{ request()->routeIs('customers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Contacts</span>
                     </a>
                     @endif
 
-                    <!-- Properties (All Roles) -->
-                    <a href="{{ route('projects.index') }}" :title="sidebarCollapsed ? 'Properties' : ''" 
+                    <!-- Properties (All Internal) -->
+                    <a href="{{ route('projects.index') }}" :title="sidebarCollapsed ? 'Properties' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('projects.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-building text-sm w-4 text-center {{ request()->routeIs('projects.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Properties</span>
                     </a>
 
-                    <!-- Site Visits (All Roles) -->
-                    <a href="{{ route('site-visits.index') }}" :title="sidebarCollapsed ? 'Site Visits' : ''" 
+                    <!-- Site Visits (All Internal) -->
+                    <a href="{{ route('site-visits.index') }}" :title="sidebarCollapsed ? 'Site Visits' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('site-visits.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-location-dot text-sm w-4 text-center {{ request()->routeIs('site-visits.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Site Visits</span>
                     </a>
 
-                    <!-- Deals / Bookings (All Roles) -->
-                    <a href="{{ route('bookings.index') }}" :title="sidebarCollapsed ? 'Deals' : ''" 
+                    <!-- Deals / Bookings (NOT for Sales Exec — they work from leads only) -->
+                    @if($isAdmin || $isDirector || $isManager || $isSaasAdmin)
+                    <a href="{{ route('bookings.index') }}" :title="sidebarCollapsed ? 'Deals' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('bookings.*', 'agreements.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-sack-dollar text-sm w-4 text-center {{ request()->routeIs('bookings.*', 'agreements.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Deals</span>
                     </a>
+                    @endif
                 </div>
+                @endif
 
-                <!-- SECTION 3: OPERATIONS -->
+                <!-- SECTION 3: OPERATIONS (Internal Staff Only — not Broker, not SaaS-only admins) -->
+                @if(!$isBroker && !($isSaasAdmin && !$isAdmin && !$isDirector && !$isManager && !$isSales))
                 <div class="space-y-1">
                     <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
                         Operations
                     </div>
                     <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
 
-                    <!-- Tasks / Calendar (Internal Staff) -->
-                    @if(!$isBroker)
-                    <a href="{{ route('calendar.index') }}" :title="sidebarCollapsed ? 'Tasks' : ''" 
+                    <!-- Tasks / Calendar (All internal staff) -->
+                    <a href="{{ route('calendar.index') }}" :title="sidebarCollapsed ? 'Tasks' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('calendar.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-list-check text-sm w-4 text-center {{ request()->routeIs('calendar.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Tasks</span>
                     </a>
-                    @endif
 
-                    <!-- Follow-ups (Internal Staff) -->
-                    @if(!$isBroker)
-                    <a href="{{ route('follow-ups.index') }}" :title="sidebarCollapsed ? 'Follow-ups' : ''" 
+                    <!-- Follow-ups (All internal staff) -->
+                    <a href="{{ route('follow-ups.index') }}" :title="sidebarCollapsed ? 'Follow-ups' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('follow-ups.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-rocket text-sm w-4 text-center {{ request()->routeIs('follow-ups.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Follow-ups</span>
                     </a>
-                    @endif
 
-                    <!-- Documents (Internal Staff) -->
-                    @if(!$isBroker)
-                    <a href="{{ route('documents.index') }}" :title="sidebarCollapsed ? 'Documents' : ''" 
+                    <!-- Documents (Admin, Director, Manager — Sales Exec has limited docs via lead pages) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('documents.index') }}" :title="sidebarCollapsed ? 'Documents' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('documents.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-regular fa-file-lines text-sm w-4 text-center {{ request()->routeIs('documents.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Documents</span>
                     </a>
                     @endif
 
-                    <!-- HRMS & Attendance (Internal Staff - Gated by Route Existence) -->
-                    @if(Route::has('hrms.index') && !$isBroker)
-                    <a href="{{ route('hrms.index') }}" :title="sidebarCollapsed ? 'HRMS' : ''" 
+                    <!-- HRMS (Admin & Director only — not Manager, not Sales Exec) -->
+                    @if(Route::has('hrms.index') && ($isAdmin || $isDirector))
+                    <a href="{{ route('hrms.index') }}" :title="sidebarCollapsed ? 'HRMS' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">HRMS</span>
                     </a>
                     @endif
 
-                    <!-- Support Desk (Internal Staff - Gated by Route Existence) -->
-                    @if(Route::has('support-tickets.index') && !$isBroker)
-                    <a href="{{ route('support-tickets.index') }}" :title="sidebarCollapsed ? 'Support Desk' : ''" 
+                    <!-- Support Desk (All internal staff) -->
+                    @if(Route::has('support-tickets.index'))
+                    <a href="{{ route('support-tickets.index') }}" :title="sidebarCollapsed ? 'Support Desk' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('support-tickets.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-headset text-sm w-4 text-center {{ request()->routeIs('support-tickets.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Support Desk</span>
                     </a>
                     @endif
 
-                    <!-- Team Chat (All Roles - Gated by Route Existence) -->
+                    <!-- Team Chat (All internal staff) -->
                     @if(Route::has('chat.index'))
-                    <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''" 
+                    <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
                     </a>
                     @endif
                 </div>
+                @endif
 
-                <!-- SECTION 4: MANAGEMENT -->
-                @if($isSaasAdmin || $isAdmin || $isManager || $companyPendingApprovalsCount > 0)
+                <!-- SECTION 4: MANAGEMENT (Company-level roles: Director, Admin, Manager) -->
+                @if($isAdmin || $isDirector || $isManager || $companyPendingApprovalsCount > 0)
                 <div class="space-y-1">
                     <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
                         Management
                     </div>
                     <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
 
-                    <!-- Teams (Admins, Managers, SaaS Admins) -->
-                    @if($isSaasAdmin || $isAdmin || $isManager)
-                    <a href="{{ route('users.index') }}" :title="sidebarCollapsed ? 'Teams' : ''" 
+                    <!-- Teams (Director, Admin, Manager) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('users.index') }}" :title="sidebarCollapsed ? 'Teams' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('users.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-users-gear text-sm w-4 text-center {{ request()->routeIs('users.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Teams</span>
                     </a>
                     @endif
 
-                    <!-- Brokers Directory (Admins, Managers, SaaS Admins) -->
-                    @if($isSaasAdmin || $isAdmin || $isManager)
-                    <a href="{{ route('brokers.index') }}" :title="sidebarCollapsed ? 'Brokers' : ''" 
+                    <!-- Brokers Directory (Director, Admin, Manager) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('brokers.index') }}" :title="sidebarCollapsed ? 'Brokers' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('brokers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-handshake text-sm w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Brokers</span>
                     </a>
                     @endif
 
-                    <!-- Reports (Admins, Managers, SaaS Admins) -->
-                    @if($isSaasAdmin || $isAdmin || $isManager)
-                    <a href="{{ route('reports.index') }}" :title="sidebarCollapsed ? 'Reports' : ''" 
+                    <!-- Reports (Director, Admin, Manager) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('reports.index') }}" :title="sidebarCollapsed ? 'Reports' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('reports.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-chart-column text-sm w-4 text-center {{ request()->routeIs('reports.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Reports</span>
                     </a>
                     @endif
 
-                    <!-- Payments (Admins, Managers, SaaS Admins) -->
-                    @if($isSaasAdmin || $isAdmin || $isManager)
-                    <a href="{{ route('payments.index') }}" :title="sidebarCollapsed ? 'Payments' : ''" 
+                    <!-- Payments (Director, Admin, Manager) -->
+                    @if($isAdmin || $isDirector || $isManager)
+                    <a href="{{ route('payments.index') }}" :title="sidebarCollapsed ? 'Payments' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('payments.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-credit-card text-sm w-4 text-center {{ request()->routeIs('payments.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Payments</span>
                     </a>
                     @endif
 
-                    <!-- Settings (Company Admins & SaaS Admins) -->
-                    @if($isSaasAdmin || $isAdmin || $u->isDirectorOrFounder())
-                    <a href="{{ route('company-settings.index') }}" :title="sidebarCollapsed ? 'Settings' : ''" 
+                    <!-- Settings & Lead Sources (Director, Admin only — not Manager) -->
+                    @if($isAdmin || $isDirector)
+                    <a href="{{ route('company-settings.index') }}" :title="sidebarCollapsed ? 'Settings' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('company-settings.*', 'profile.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-gear text-sm w-4 text-center {{ request()->routeIs('company-settings.*', 'profile.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Settings</span>
                     </a>
-                    <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''" 
+                    <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
                     </a>
                     @endif
 
-
-                    <!-- Permissions & Access Control Matrix -->
-                    @if($isSaasAdmin || $isAdmin || $u->isDirectorOrFounder())
-                    <a href="{{ route('permissions.index') }}" :title="sidebarCollapsed ? 'Permissions' : ''" 
+                    <!-- Permissions Matrix (Director ONLY — not Admin, not Manager) -->
+                    @if($isDirector)
+                    <a href="{{ route('permissions.index') }}" :title="sidebarCollapsed ? 'Permissions' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('permissions.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-shield-halved text-sm w-4 text-center {{ request()->routeIs('permissions.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Permissions</span>
                     </a>
                     @endif
 
-                    <!-- COMPANY DIRECTOR / ADMIN APPROVALS BADGE -->
-                    @if($companyPendingApprovalsCount > 0)
-                    <a href="{{ route('company.approvals') }}" :title="sidebarCollapsed ? 'Company Approvals' : ''" 
+                    <!-- Company Approvals Badge (Director, Admin) -->
+                    @if($companyPendingApprovalsCount > 0 && ($isAdmin || $isDirector))
+                    <a href="{{ route('company.approvals') }}" :title="sidebarCollapsed ? 'Company Approvals' : ''"
                        class="flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('company.approvals') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <div class="flex items-center space-x-3 truncate">
                             <i class="fa-solid fa-shield-cat text-sm w-4 text-center text-rose-400"></i>
@@ -628,36 +672,54 @@
                 </div>
                 @endif
 
-                <!-- SECTION 5: SAAS SUPERADMIN / FOUNDER CONTROL TOWER -->
-                @if($isSaasAdmin)
+                <!-- SECTION 5: SAAS FOUNDER CONTROL TOWER (Full SaaS Control) -->
+                @if($isFounder)
                 <div class="space-y-1">
                     <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
                         SaaS Control Tower
                     </div>
                     <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
 
-                    <a href="{{ route('admin.companies.index') }}" :title="sidebarCollapsed ? 'Tenant Companies' : ''" 
+                    <!-- Tenant Companies -->
+                    <a href="{{ route('admin.companies.index') }}" :title="sidebarCollapsed ? 'Tenant Companies' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.companies.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-city text-sm w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Tenant Companies</span>
                     </a>
 
-                    <a href="{{ route('admin.saas-subscriptions') }}" :title="sidebarCollapsed ? 'SaaS Plans' : ''" 
+                    <!-- SaaS Plans (Founder full management) -->
+                    <a href="{{ route('admin.saas-subscriptions') }}" :title="sidebarCollapsed ? 'SaaS Plans' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.saas-subscriptions') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                        <i class="fa-solid fa-shield-halved text-sm w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <i class="fa-solid fa-bolt text-sm w-4 text-center {{ request()->routeIs('admin.saas-subscriptions') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">SaaS Plans</span>
                     </a>
 
-                    @if($isFounder)
-                    <a href="{{ route('admin.sub-admins.index') }}" :title="sidebarCollapsed ? 'Sub-Admins' : ''" 
+                    <!-- Sub-Admins Management (Founder ONLY) -->
+                    <a href="{{ route('admin.sub-admins.index') }}" :title="sidebarCollapsed ? 'Sub-Admins' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.sub-admins.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-solid fa-user-shield text-sm w-4 text-center {{ request()->routeIs('admin.sub-admins.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Sub-Admins</span>
                     </a>
+
+                    <!-- Platform Permissions Matrix -->
+                    <a href="{{ route('permissions.index') }}" :title="sidebarCollapsed ? 'Permissions' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('permissions.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-shield-halved text-sm w-4 text-center {{ request()->routeIs('permissions.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Permissions</span>
+                    </a>
+
+                    <!-- Audit Logs -->
+                    @if(Route::has('admin.audit-logs'))
+                    <a href="{{ route('admin.audit-logs') }}" :title="sidebarCollapsed ? 'Audit Logs' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.audit-logs') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-scroll text-sm w-4 text-center {{ request()->routeIs('admin.audit-logs') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Audit Logs</span>
+                    </a>
                     @endif
 
+                    <!-- SaaS Approvals Badge -->
                     @if($pendingApprovalsCount > 0)
-                    <a href="{{ route('admin.saas-approvals') }}" :title="sidebarCollapsed ? 'SaaS Approvals' : ''" 
+                    <a href="{{ route('admin.saas-approvals') }}" :title="sidebarCollapsed ? 'SaaS Approvals' : ''"
                        class="flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.saas-approvals') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <div class="flex items-center space-x-3 truncate">
                             <i class="fa-solid fa-bell text-sm w-4 text-center text-amber-400"></i>
@@ -666,6 +728,44 @@
                         <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white">{{ $pendingApprovalsCount }}</span>
                     </a>
                     @endif
+                </div>
+                @endif
+
+                <!-- SECTION 5b: SAAS SUB-ADMIN DELEGATED PANEL -->
+                @if($isSubAdmin)
+                <div class="space-y-1">
+                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
+                        SaaS Delegate Panel
+                    </div>
+                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
+
+                    <!-- Tenant Companies (if permitted) -->
+                    @if(auth()->user()->hasSaaSPermission('view_companies'))
+                    <a href="{{ route('admin.companies.index') }}" :title="sidebarCollapsed ? 'Tenant Companies' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.companies.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-city text-sm w-4 text-center {{ request()->routeIs('admin.companies.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Tenant Companies</span>
+                    </a>
+                    @endif
+
+                    <!-- My Permissions (read-only info) -->
+                    <a href="{{ route('dashboard') }}" :title="sidebarCollapsed ? 'My Permissions' : ''"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('dashboard') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <i class="fa-solid fa-id-badge text-sm w-4 text-center {{ request()->routeIs('dashboard') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">My Permissions</span>
+                    </a>
+
+                    <!-- SaaS Approvals Badge (Sub-Admin can view) -->
+                    <a href="{{ route('admin.saas-approvals') }}" :title="sidebarCollapsed ? 'SaaS Approvals' : ''"
+                       class="flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('admin.saas-approvals') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                        <div class="flex items-center space-x-3 truncate">
+                            <i class="fa-solid fa-bell text-sm w-4 text-center {{ $pendingApprovalsCount > 0 ? 'text-amber-400' : 'text-[#94A3B8]' }}"></i>
+                            <span x-show="!sidebarCollapsed" class="truncate">SaaS Approvals</span>
+                        </div>
+                        @if($pendingApprovalsCount > 0)
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white">{{ $pendingApprovalsCount }}</span>
+                        @endif
+                    </a>
                 </div>
                 @endif
             </nav>

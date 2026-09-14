@@ -33,13 +33,19 @@ class Lead extends Model
         'is_duplicate',
         'duplicate_of_lead_id',
         'notes',
+        'last_activity_at',
+        'transfer_count',
+        'transfer_eligible_at',
     ];
 
     protected $casts = [
-        'is_duplicate' => 'boolean',
-        'budget_min' => 'decimal:2',
-        'budget_max' => 'decimal:2',
+        'is_duplicate'         => 'boolean',
+        'budget_min'           => 'decimal:2',
+        'budget_max'           => 'decimal:2',
+        'last_activity_at'     => 'datetime',
+        'transfer_eligible_at' => 'datetime',
     ];
+
 
     public function getNameAttribute(): string
     {

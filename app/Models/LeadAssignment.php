@@ -18,6 +18,7 @@ class LeadAssignment extends Model
         'assignment_type',
         'previous_assignee_id',
         'assignment_reason',
+        'transfer_note',
         'assigned_at',
     ];
 

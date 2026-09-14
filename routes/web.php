@@ -95,10 +95,12 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
     Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
     Route::post('/leads/{lead}/assign', [LeadController::class, 'assign'])->name('leads.assign');
+    Route::post('/leads/{lead}/transfer', [LeadController::class, 'transfer'])->name('leads.transfer');
     Route::post('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.update-status');
     Route::post('/leads/{lead}/call', [LeadController::class, 'logCall'])->name('leads.log-call');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/site-visits', [SiteVisitController::class, 'index'])->name('site-visits.index');
+    Route::post('/site-visits/{lead}/feedback', [SiteVisitController::class, 'storeFeedback'])->name('site-visits.feedback');
 
     // Projects & Inventory
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');

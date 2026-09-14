@@ -346,12 +346,77 @@ class LeadController extends Controller
         return back()->with('success', "Lead {$lead->lead_code} assigned to {$salesUser->name} with full history preserved.");
     }
 
-    public function logCall(Request $request, Lead $lead)
+    /**
+     * Manually transfer a lead to a different executive.
+     * Available to: Manager, Admin, Director.
+     * Reason is mandatory. Full history is preserved in lead_assignments.
+     */
+    public function transfer(Request $request, Lead $lead, LeadAssignmentService $assignmentService)
+    {
+        Gate::authorize('assign-leads');
+
+        $request->validate([
+            'new_assignee_id'   => 'required|exists:users,id|different:lead.assigned_to_user_id',
+            'transfer_reason'   => 'required|string|max:100',
+            'transfer_note'     => 'nullable|string|max:500',
+        ]);
+
+        $newAssignee     = User::findOrFail($request->new_assignee_id);
+        $previousAssignee = $lead->assignedTo;
+        $user             = Auth::user();
+
+        // Max transfer guard — prevent infinite bouncing
+        if ($lead->transfer_count >= 5) {
+            return back()->with('error', "Lead {$lead->lead_code} has already been transferred {$lead->transfer_count} times. Please escalate manually to your manager.");
+        }
+
+        $assignmentService->transferLead(
+            $lead,
+            $newAssignee,
+            $user,
+            $request->transfer_reason,
+            $request->transfer_note,
+            'manual'
+        );
+
+        \App\Services\AuditLogService::log(
+            'lead_transferred',
+            "Manually transferred Lead {$lead->lead_code} from " . ($previousAssignee->name ?? 'Unassigned') . " to {$newAssignee->name}. Reason: {$request->transfer_reason}",
+            $lead,
+            ['from' => $previousAssignee?->name],
+            ['to' => $newAssignee->name, 'reason' => $request->transfer_reason]
+        );
+
+        // Notify NEW executive
+        app(\App\Services\NotificationService::class)->notify(
+            $newAssignee,
+            'lead_transferred',
+            "🔄 Lead Transferred to You: {$lead->first_name} {$lead->last_name} ({$lead->lead_code})",
+            "Hello {$newAssignee->name}, Lead '{$lead->first_name} {$lead->last_name}' ({$lead->phone}) has been transferred to you by {$user->name}. Reason: {$request->transfer_reason}. Please follow up immediately on REOS.",
+            url("/leads/{$lead->id}")
+        );
+
+        // Notify PREVIOUS executive (if any)
+        if ($previousAssignee && $previousAssignee->id !== $user->id) {
+            app(\App\Services\NotificationService::class)->notify(
+                $previousAssignee,
+                'lead_removed',
+                "📋 Lead Reassigned Away: {$lead->first_name} {$lead->last_name} ({$lead->lead_code})",
+                "Hello {$previousAssignee->name}, Lead '{$lead->first_name} {$lead->last_name}' has been transferred to {$newAssignee->name} by {$user->name}. Reason: {$request->transfer_reason}.",
+                url("/leads/{$lead->id}")
+            );
+        }
+
+        return back()->with('success', "Lead {$lead->lead_code} successfully transferred to {$newAssignee->name}. Transfer #{$lead->transfer_count} recorded.");
+    }
+
+    public function logCall(Request $request, Lead $lead, LeadAssignmentService $assignmentService)
     {
         $validated = $request->validate([
-            'call_outcome' => 'required|string',
-            'notes' => 'nullable|string',
-            'next_followup_at' => 'nullable|date',
+            'call_outcome'      => 'required|string',
+            'notes'            => 'nullable|string',
+            'next_followup_at'  => 'nullable|date',
+            'audio_recording'   => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,aac,flac|max:51200', // max 50MB
         ]);
 
         $outcomeText = ucwords(str_replace('_', ' ', $validated['call_outcome']));
@@ -366,24 +431,39 @@ class LeadController extends Controller
 
         $notesContent = $validated['notes'] ? "[{$outcomeText}] " . $validated['notes'] : "[{$outcomeText}] Outcome logged.";
 
+        // Handle audio recording upload
+        $audioPath = null;
+        $audioName = null;
+        if ($request->hasFile('audio_recording') && $request->file('audio_recording')->isValid()) {
+            $file      = $request->file('audio_recording');
+            $audioName = $file->getClientOriginalName();
+            $filename  = 'call_' . $lead->id . '_' . Auth::id() . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $audioPath = $file->storeAs('call-recordings', $filename, 'public');
+        }
+
         Call::create([
-            'company_id' => Auth::user()->company_id,
-            'lead_id' => $lead->id,
-            'user_id' => Auth::id(),
-            'call_outcome' => $dbOutcome,
-            'notes' => $notesContent,
-            'called_at' => now(),
-            'next_followup_at' => $validated['next_followup_at'] ?? null,
+            'company_id'           => Auth::user()->company_id,
+            'lead_id'              => $lead->id,
+            'user_id'              => Auth::id(),
+            'call_outcome'         => $dbOutcome,
+            'notes'                => $notesContent,
+            'audio_recording_path' => $audioPath,
+            'audio_recording_name' => $audioName,
+            'called_at'            => now(),
+            'next_followup_at'     => $validated['next_followup_at'] ?? null,
         ]);
+
+        // Update last_activity_at — resets auto-transfer eligibility
+        $assignmentService->updateLastActivity($lead);
 
         if (!empty($validated['next_followup_at'])) {
             FollowUp::create([
-                'company_id' => Auth::user()->company_id,
-                'lead_id' => $lead->id,
-                'user_id' => Auth::id(),
+                'company_id'   => Auth::user()->company_id,
+                'lead_id'      => $lead->id,
+                'user_id'      => Auth::id(),
                 'scheduled_at' => $validated['next_followup_at'],
-                'status' => 'pending',
-                'notes' => "Follow-up scheduled from call/visit outcome: {$outcomeText}",
+                'status'       => 'pending',
+                'notes'        => "Follow-up scheduled from call/visit outcome: {$outcomeText}",
             ]);
         }
 
@@ -395,20 +475,26 @@ class LeadController extends Controller
             ->where('id', '!=', Auth::id())
             ->get();
 
-        $execName = Auth::user()->name;
+        $execName     = Auth::user()->name;
         $customerName = trim($lead->first_name . ' ' . $lead->last_name);
+        $audioNote    = $audioPath ? " 🎙️ Audio recording attached." : "";
 
         foreach ($managers as $manager) {
             app(\App\Services\NotificationService::class)->notify(
                 $manager,
                 'sales_activity_logged',
                 "📞 Activity Update from {$execName} on {$customerName}",
-                "Sales Executive {$execName} logged work on lead '{$customerName}' ({$lead->lead_code}). Outcome: {$outcomeText}. Remarks: " . ($validated['notes'] ?? 'None') . ". Please review on REOS to direct next steps.",
+                "Sales Executive {$execName} logged work on lead '{$customerName}' ({$lead->lead_code}). Outcome: {$outcomeText}. Remarks: " . ($validated['notes'] ?? 'None') . ".{$audioNote} Please review on REOS to direct next steps.",
                 url("/leads/{$lead->id}")
             );
         }
 
-        return back()->with('success', 'Call / Visit outcome logged and follow-up scheduled successfully!');
+        $successMsg = 'Call / Visit outcome logged and follow-up scheduled successfully!';
+        if ($audioPath) {
+            $successMsg .= ' 🎙️ Audio recording uploaded.';
+        }
+
+        return back()->with('success', $successMsg);
     }
 
     public function show($id, \App\Services\AiIntelligenceService $aiService)

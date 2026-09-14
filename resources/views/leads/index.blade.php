@@ -541,20 +541,32 @@
         </div>
     </div>
 
-    <!-- Call Outcome Modal -->
+    <!-- Call Outcome Modal — with Audio Recording Upload -->
     <div id="callLogModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-        <div class="bg-white w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-200 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 class="text-sm font-bold text-[#0F172A]">Log Call for <span id="callModalLeadName" class="text-blue-600"></span></h3>
-                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-slate-400 font-bold">✕</button>
+        <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-blue-50">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                        <i class="fa-solid fa-phone text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#0F172A]">Log Call for <span id="callModalLeadName" class="text-blue-600"></span></h3>
+                        <p class="text-[10px] text-slate-500 font-medium">Record outcome, notes &amp; attach call audio</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
             </div>
-            <form id="callLogForm" method="POST" action="" class="space-y-3 text-xs">
+
+            <form id="callLogForm" method="POST" action="" enctype="multipart/form-data" class="p-5 space-y-4 text-xs">
                 @csrf
-                <div>
-                    <label class="block text-slate-700 mb-1 font-semibold">Call / Visit Outcome *</label>
-                    <select name="call_outcome" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold">
-                        <option value="connected">Connected & Spoke</option>
-                        <option value="spoke_interested">Connected - High Interest</option>
+
+                <!-- Call Outcome -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-700 font-bold">Call / Visit Outcome <span class="text-rose-500">*</span></label>
+                    <select name="call_outcome" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold text-xs">
+                        <option value="connected">Connected &amp; Spoke</option>
+                        <option value="spoke_interested">Connected — High Interest</option>
                         <option value="site_visit_conducted">Site Visit Conducted</option>
                         <option value="interested_after_visit">Interested After Site Visit</option>
                         <option value="scheduled_site_visit">Site Visit Scheduled</option>
@@ -564,19 +576,67 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-slate-700 mb-1 font-semibold">Next Follow-up Date & Time</label>
-                    <input type="datetime-local" name="next_followup_at" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
+                <!-- Next Follow-up -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-700 font-bold">Next Follow-up Date &amp; Time</label>
+                    <input type="datetime-local" name="next_followup_at" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-xs">
                 </div>
 
-                <div>
-                    <label class="block text-slate-700 mb-1 font-semibold">Remarks & Notes</label>
-                    <textarea name="notes" rows="3" placeholder="Enter notes from call..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium"></textarea>
+                <!-- Remarks -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-700 font-bold">Remarks &amp; Notes</label>
+                    <textarea name="notes" rows="2" placeholder="Enter notes from call..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium resize-none"></textarea>
                 </div>
 
-                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="document.getElementById('callLogModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Save Call Log</button>
+                <!-- Audio Recording Upload -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-700 font-bold">
+                        <i class="fa-solid fa-microphone text-blue-500 mr-1"></i>
+                        Call Recording <span class="text-slate-400 font-normal">(optional)</span>
+                    </label>
+
+                    <!-- Drop Zone -->
+                    <div id="audioDropZone"
+                         onclick="document.getElementById('audioFileInput').click()"
+                         ondragover="event.preventDefault(); this.classList.add('border-blue-400','bg-blue-50')"
+                         ondragleave="this.classList.remove('border-blue-400','bg-blue-50')"
+                         ondrop="handleAudioDrop(event)"
+                         class="cursor-pointer border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-150">
+                        <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-lg mb-1"></i>
+                        <p class="text-slate-500 font-medium text-[11px]">Click or drag &amp; drop audio file here</p>
+                        <p class="text-slate-400 text-[10px] mt-0.5">MP3, WAV, OGG, M4A, WebM, AAC — Max 50 MB</p>
+                    </div>
+
+                    <input type="file" id="audioFileInput" name="audio_recording"
+                           accept=".mp3,.wav,.ogg,.m4a,.webm,.aac,.flac"
+                           class="hidden"
+                           onchange="handleAudioSelect(this)">
+
+                    <!-- Audio Preview (hidden by default) -->
+                    <div id="audioPreviewBox" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-music text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <div id="audioFileName" class="font-bold text-emerald-800 text-[11px] truncate max-w-[180px]"></div>
+                                    <div id="audioFileSize" class="text-[10px] text-emerald-600"></div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="clearAudioFile()" class="text-rose-400 hover:text-rose-600 font-bold text-sm">&times;</button>
+                        </div>
+                        <audio id="audioPreviewPlayer" controls class="w-full rounded-lg" style="height:32px"></audio>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="document.getElementById('callLogModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200 text-xs">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs text-xs flex items-center space-x-1.5">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i>
+                        <span>Save Call Log</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -639,8 +699,59 @@
     function openCallModal(leadId, leadName) {
         document.getElementById('callLogForm').action = "/leads/" + leadId + "/call";
         document.getElementById('callModalLeadName').innerText = leadName;
+        clearAudioFile(); // reset audio state on open
         document.getElementById('callLogModal').classList.remove('hidden');
     }
+
+    function handleAudioSelect(input) {
+        if (input.files && input.files[0]) {
+            showAudioPreview(input.files[0]);
+        }
+    }
+
+    function handleAudioDrop(event) {
+        event.preventDefault();
+        var dropZone = document.getElementById('audioDropZone');
+        dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+        var file = event.dataTransfer.files[0];
+        if (!file) return;
+        var allowed = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm', 'audio/aac', 'audio/flac', 'audio/x-m4a'];
+        if (!allowed.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|m4a|webm|aac|flac)$/i)) {
+            alert('Invalid file type. Please upload MP3, WAV, OGG, M4A, WebM, AAC or FLAC.');
+            return;
+        }
+        // Transfer to file input
+        var dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('audioFileInput').files = dataTransfer.files;
+        showAudioPreview(file);
+    }
+
+    function showAudioPreview(file) {
+        var maxSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxSize) {
+            alert('File too large. Maximum allowed size is 50 MB.');
+            clearAudioFile();
+            return;
+        }
+        document.getElementById('audioFileName').textContent = file.name;
+        document.getElementById('audioFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+        var url = URL.createObjectURL(file);
+        var player = document.getElementById('audioPreviewPlayer');
+        player.src = url;
+        document.getElementById('audioPreviewBox').classList.remove('hidden');
+        document.getElementById('audioDropZone').classList.add('hidden');
+    }
+
+    function clearAudioFile() {
+        document.getElementById('audioFileInput').value = '';
+        document.getElementById('audioPreviewPlayer').src = '';
+        document.getElementById('audioFileName').textContent = '';
+        document.getElementById('audioFileSize').textContent = '';
+        document.getElementById('audioPreviewBox').classList.add('hidden');
+        document.getElementById('audioDropZone').classList.remove('hidden');
+    }
+
 
     function openHistoryModal(lead) {
         document.getElementById('historyCustomerName').innerText = (lead.first_name || '') + ' ' + (lead.last_name || '') + ' (' + lead.lead_code + ')';

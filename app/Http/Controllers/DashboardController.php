@@ -19,8 +19,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. SaaS Platform SuperAdmin / Sub-Admin Dashboard
-        if ($user->isSaaSAdmin()) {
+        // 1a. SaaS Platform SuperAdmin / Founder Dashboard (Full Control)
+        if ($user->isSaaSFounder()) {
             $totalCompanies = Company::count();
             $activeSubscriptions = Company::where('status', 'active')->count();
             $totalPlatformRevenue = 4999.00 + 14999.00;
@@ -56,10 +56,54 @@ class DashboardController extends Controller
                 ->get();
 
             return view('dashboard.founder', compact(
-                'user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 
+                'user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue',
                 'subscriptionPlans', 'companies', 'pendingApprovalsCount', 'pendingApprovalRequests',
-                'saasSubAdminsCount', 'totalPlatformLeads', 'totalPlatformUnits', 
+                'saasSubAdminsCount', 'totalPlatformLeads', 'totalPlatformUnits',
                 'totalPlatformBookings', 'totalGrossBookingValue', 'recentPlatformActivities'
+            ));
+        }
+
+        // 1b. SaaS Sub-Admin Dashboard (Delegated Monitoring — permission-scoped)
+        if ($user->isSaaSSubAdmin()) {
+            $myPermissions = $user->saas_permissions ?? [];
+
+            // Companies this sub-admin can view (all for now, scoped by permission)
+            $companies = Company::with(['subscriptionPlan', 'users' => function ($uq) {
+                $uq->withoutGlobalScopes()->with('role');
+            }])->latest()->get();
+
+            $totalCompanies = $companies->count();
+            $activeCompanies = $companies->where('status', 'active')->count();
+            $subscriptionPlans = SubscriptionPlan::all();
+
+            // Pending approval requests submitted by this sub-admin
+            $myPendingRequests = \App\Models\SaasApprovalRequest::where('requested_by_user_id', $user->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->get();
+
+            // All pending approvals (for review badge)
+            $pendingApprovalsCount = \App\Models\SaasApprovalRequest::where('status', 'pending')->count();
+            $pendingApprovalRequests = \App\Models\SaasApprovalRequest::where('status', 'pending')
+                ->with(['requestedBy' => function($q) { $q->withoutGlobalScopes(); }])
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $totalPlatformLeads = \App\Models\Lead::withoutGlobalScopes()->count();
+            $totalPlatformBookings = \App\Models\Booking::withoutGlobalScopes()->count();
+
+            $recentPlatformActivities = \App\Models\AuditLog::withoutGlobalScopes()
+                ->with(['user' => function($q){ $q->withoutGlobalScopes(); }])
+                ->latest()
+                ->take(6)
+                ->get();
+
+            return view('dashboard.sub_admin', compact(
+                'user', 'myPermissions', 'companies', 'totalCompanies', 'activeCompanies',
+                'subscriptionPlans', 'myPendingRequests', 'pendingApprovalsCount',
+                'pendingApprovalRequests', 'totalPlatformLeads', 'totalPlatformBookings',
+                'recentPlatformActivities'
             ));
         }
 

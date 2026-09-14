@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -137,3 +138,13 @@ Artisan::command('reos:seed-rich-data', function () {
 
     $this->info('Subh Angan (Gyansheela Township Indore) and rich sample data seeded successfully!');
 })->purpose('Seed Gyansheela Subh Angan and Rich Sample Data');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCHEDULED TASK: Auto-Transfer Stale Leads (No Response Detection)
+// Runs every 2 hours — checks leads with no activity in last 48h
+// ─────────────────────────────────────────────────────────────────────────────
+Schedule::command('leads:auto-transfer --hours=48')
+    ->everyTwoHours()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/auto-transfer.log'));

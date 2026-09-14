@@ -17,6 +17,8 @@ class Call extends Model
         'call_type',
         'call_outcome',
         'notes',
+        'audio_recording_path',
+        'audio_recording_name',
         'call_duration_seconds',
         'called_at',
         'next_followup_at',
