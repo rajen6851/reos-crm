@@ -452,45 +452,8 @@
                 </div>
 
                 <!-- SECTION 2: SALES & PIPELINE -->
-                {{-- Brokers: show only their own referral-related items --}}
-                @if($isBroker)
-                <div class="space-y-1">
-                    <div x-show="!sidebarCollapsed" class="px-3 pt-2 pb-1 text-[10px] font-extrabold text-[#38BDF8] tracking-wider uppercase select-none border-t border-[#1E294A]/60">
-                        Channel Partner
-                    </div>
-                    <div x-show="sidebarCollapsed" class="border-t border-[#1E294A]/60 my-1"></div>
-
-                    <!-- Broker: My Referral Leads -->
-                    <a href="{{ route('leads.index') }}" :title="sidebarCollapsed ? 'My Referral Leads' : ''"
-                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('leads.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                        <i class="fa-solid fa-user-plus text-sm w-4 text-center {{ request()->routeIs('leads.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                        <span x-show="!sidebarCollapsed" class="truncate">My Referral Leads</span>
-                    </a>
-
-                    <!-- Broker: Commission Tracker -->
-                    @if(Route::has('brokers.index'))
-                    <a href="{{ route('brokers.index') }}" :title="sidebarCollapsed ? 'Commission Tracker' : ''"
-                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('brokers.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                        <i class="fa-solid fa-money-bill-wave text-sm w-4 text-center {{ request()->routeIs('brokers.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                        <span x-show="!sidebarCollapsed" class="truncate">Commission Tracker</span>
-                    </a>
-                    @endif
-
-                    <!-- Broker: Available Properties -->
-                    <a href="{{ route('projects.index') }}" :title="sidebarCollapsed ? 'Available Projects' : ''"
-                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('projects.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                        <i class="fa-solid fa-building text-sm w-4 text-center {{ request()->routeIs('projects.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                        <span x-show="!sidebarCollapsed" class="truncate">Available Projects</span>
-                    </a>
-
-                    <!-- Broker: Site Visits -->
-                    <a href="{{ route('site-visits.index') }}" :title="sidebarCollapsed ? 'Site Visits' : ''"
-                       class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('site-visits.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                        <i class="fa-solid fa-location-dot text-sm w-4 text-center {{ request()->routeIs('site-visits.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                        <span x-show="!sidebarCollapsed" class="truncate">Site Visits</span>
-                    </a>
-                </div>
-                @endif
+                {{-- Brokers: show only their own referral-related items (Removed redundant links as broker portal is a single-page dashboard) --}}
+                
 
                 {{-- Internal Staff: Full Sales & Pipeline section --}}
                 @if(!$isBroker && !$isSaasPlatformOnly)
