@@ -14,7 +14,30 @@ class SiteVisitService
      */
     public function scheduleVisit(array $data, User $user): SiteVisit
     {
-        $lead = Lead::findOrFail($data['lead_id']);
+        $lead = Lead::where('company_id', $user->company_id)
+            ->whereKey($data['lead_id'])
+            ->firstOrFail();
+
+        if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {
+            abort(403, 'You can only schedule visits for your assigned leads.');
+        }
+
+        if ($user->isManager()) {
+            $isTeamLead = $lead->assigned_to_manager_id === $user->id
+                || User::whereKey($lead->assigned_to_user_id)
+                    ->where('reporting_manager_id', $user->id)
+                    ->exists();
+            if (!$isTeamLead) {
+                abort(403, 'You can only schedule visits for your team leads.');
+            }
+        }
+
+        if (!empty($data['assigned_to_user_id'])) {
+            User::where('company_id', $user->company_id)
+                ->whereKey($data['assigned_to_user_id'])
+                ->whereHas('role', fn ($query) => $query->whereIn('slug', ['sales_executive', 'executive']))
+                ->firstOrFail();
+        }
 
         $siteVisit = SiteVisit::create([
             'company_id' => $user->company_id,

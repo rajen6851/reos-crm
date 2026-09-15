@@ -16,10 +16,12 @@ class LeadActivity extends Model
         'activity_type',
         'description',
         'metadata',
+        'read_at',
     ];
 
     protected $casts = [
         'metadata' => 'array',
+        'read_at' => 'datetime',
     ];
 
     public function lead()

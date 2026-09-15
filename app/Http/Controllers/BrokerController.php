@@ -10,6 +10,8 @@ use App\Models\Lead;
 use App\Models\Project;
 use App\Services\BrokerCommissionService;
 use App\Services\DuplicateLeadService;
+use App\Services\LeadDistributionService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -129,7 +131,7 @@ class BrokerController extends Controller
         return view('dashboard.broker', compact('user', 'broker', 'brokerLeads', 'commissions', 'totalCommissions', 'approvedCommissions', 'companies', 'projects'));
     }
 
-    public function storeLead(Request $request, DuplicateLeadService $duplicateService)
+    public function storeLead(Request $request, DuplicateLeadService $duplicateService, LeadDistributionService $distributionService, NotificationService $notificationService)
     {
         $user = Auth::user();
         $broker = Broker::withoutGlobalScopes()->where('user_id', $user->id)->first()
@@ -137,24 +139,24 @@ class BrokerController extends Controller
 
         if (!$broker) {
             $broker = Broker::withoutGlobalScopes()->create([
-                'company_id' => $user->company_id ?? 1,
-                'user_id' => $user->id,
-                'agency_name' => ($user->name ?? 'Channel Partner') . ' Agency',
-                'broker_code' => 'BRK-' . rand(1000, 9999),
-                'phone' => $user->phone ?? '9000000000',
-                'email' => $user->email,
+                'company_id'      => $user->company_id ?? 1,
+                'user_id'         => $user->id,
+                'agency_name'     => ($user->name ?? 'Channel Partner') . ' Agency',
+                'broker_code'     => 'BRK-' . rand(1000, 9999),
+                'phone'           => $user->phone ?? '9000000000',
+                'email'           => $user->email,
                 'commission_rate' => 2.50,
-                'status' => 'active',
+                'status'          => 'active',
             ]);
         }
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
-            'last_name' => 'nullable|string|max:100',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email',
+            'last_name'  => 'nullable|string|max:100',
+            'phone'      => 'required|string|max:20',
+            'email'      => 'nullable|email',
             'project_id' => 'required',
-            'notes' => 'nullable|string',
+            'notes'      => 'nullable|string',
         ]);
 
         $project = Project::withoutGlobalScopes()->findOrFail($validated['project_id']);
@@ -166,41 +168,45 @@ class BrokerController extends Controller
         $duplicate = $duplicateService->findDuplicate($project->company_id, $validated['phone'], $validated['email'] ?? null);
 
         $lead = Lead::withoutGlobalScopes()->create([
-            'company_id' => $project->company_id,
-            'lead_code' => 'LD-BRK' . rand(1000, 9999),
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'] ?? '',
-            'phone' => $validated['phone'],
-            'email' => $validated['email'] ?? null,
-            'broker_id' => $broker->id,
-            'interested_project_id' => $project->id,
-            'status' => 'new',
-            'is_duplicate' => $duplicate ? true : false,
-            'notes' => $validated['notes'] ?? 'Lead submitted via Independent Channel Partner / Broker Portal.',
+            'company_id'           => $project->company_id,
+            'lead_code'            => 'LD-BRK' . rand(1000, 9999),
+            'first_name'           => $validated['first_name'],
+            'last_name'            => $validated['last_name'] ?? '',
+            'phone'                => $validated['phone'],
+            'email'                => $validated['email'] ?? null,
+            'broker_id'            => $broker->id,
+            'interested_project_id'=> $project->id,
+            'status'               => 'new',
+            'is_duplicate'         => $duplicate ? true : false,
+            'notes'                => $validated['notes'] ?? 'Lead submitted via Independent Channel Partner / Broker Portal.',
         ]);
 
-        $brokerLead = BrokerLead::withoutGlobalScopes()->create([
-            'company_id' => $project->company_id,
-            'broker_id' => $broker->id,
-            'lead_id' => $lead->id,
-            'project_id' => $project->id,
-            'submitted_at' => now(),
+        BrokerLead::withoutGlobalScopes()->create([
+            'company_id'            => $project->company_id,
+            'broker_id'             => $broker->id,
+            'lead_id'               => $lead->id,
+            'project_id'            => $project->id,
+            'submitted_at'          => now(),
             'broker_visible_status' => 'Submitted',
         ]);
+
+        // ─── AUTO DISTRIBUTE: Assign to Manager (Round-Robin) + Sales Executive (Round-Robin) ───
+        // Broker-submitted leads enter the same distribution pipeline as regular leads.
+        $distributionService->distributeNewLead($lead, $notificationService);
 
         if ($duplicate) {
             return redirect()->route('dashboard')->with('warning', "Lead {$lead->lead_code} submitted! DUPLICATE ALERT: Matches existing lead {$duplicate->lead_code}.");
         }
 
-        return redirect()->route('dashboard')->with('success', "Lead {$lead->first_name} (Code: {$lead->lead_code}) submitted successfully!");
+        return redirect()->route('dashboard')->with('success', "Lead {$lead->first_name} (Code: {$lead->lead_code}) submitted successfully! Assigned to company team.");
     }
 
     public function brokersDirectory(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->isSales() || $user->isBroker()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Brokers Directory is reserved for Admins and Managers.');
+        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Brokers Directory is reserved for Company Admins and Directors.');
         }
 
         // Bypassing tenant scope for SuperAdmin Founder to view all global brokers
@@ -253,6 +259,10 @@ class BrokerController extends Controller
     public function storeBroker(Request $request)
     {
         $user = Auth::user();
+
+        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Broker management is reserved for Company Admins and Directors.');
+        }
 
         $validated = $request->validate([
             'agency_name' => 'required|string|max:150',
@@ -342,6 +352,10 @@ class BrokerController extends Controller
     public function destroy(Broker $broker, \App\Services\NotificationService $notificationService)
     {
         $currentUser = Auth::user();
+
+        if (!$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Broker management is reserved for Company Admins and Directors.');
+        }
 
         // CRITICAL APPROVAL FLOW: If non-Director tries to delete a Broker, send approval request
         if (!$currentUser->isDirectorOrFounder()) {

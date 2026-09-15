@@ -114,11 +114,11 @@ class User extends Authenticatable
             'manage-leads' => in_array($this->role->slug, ['manager', 'sales_executive']),
             'assign-leads' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
             'manage-projects' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
-            'approve-bookings' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
+            'approve-bookings' => in_array($this->role->slug, ['admin', 'director', 'founder']),
             'approve-agreement-skips' => in_array($this->role->slug, ['director', 'founder', 'admin']),
-            'manage-commissions' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
+            'manage-commissions' => in_array($this->role->slug, ['admin', 'director', 'founder']),
             'process-payouts' => in_array($this->role->slug, ['admin', 'director', 'founder']),
-            'manage-users' => in_array($this->role->slug, ['admin', 'director', 'founder', 'manager']),
+            'manage-users' => in_array($this->role->slug, ['admin', 'director', 'founder', 'manager', 'sales_manager']),
             'broker-access' => $this->role->slug === 'broker',
             default => false,
         };
@@ -158,9 +158,21 @@ class User extends Authenticatable
         return in_array($this->role?->slug, ['admin', 'director', 'founder']) && !$this->is_super_admin;
     }
 
+    public function isCompanySubAdmin(): bool
+    {
+        return $this->role?->slug === 'admin'
+            && !$this->is_super_admin
+            && !$this->is_saas_sub_admin;
+    }
+
+    public function isCompanyFounder(): bool
+    {
+        return $this->role?->slug === 'founder' && !$this->is_super_admin;
+    }
+
     public function isDirector(): bool
     {
-        return $this->role?->slug === 'director';
+        return $this->role?->slug === 'director' && !$this->is_super_admin;
     }
 
     public function isDirectorOrFounder(): bool

@@ -17,12 +17,40 @@ class NotificationController extends Controller
         $query = LeadActivity::with(['lead', 'user'])->latest();
 
         if ($user->isSales()) {
-            $assignedLeadIds = \App\Models\Lead::where('assigned_to_user_id', $user->id)->pluck('id')->toArray();
-            $query->whereIn('lead_id', $assignedLeadIds)->orWhere('user_id', $user->id);
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhereHas('lead', function ($leadQuery) use ($user) {
+                        $leadQuery->where('assigned_to_user_id', $user->id);
+                    });
+            });
+        } elseif ($user->isManager()) {
+            $teamUserIds = User::where('company_id', $user->company_id)
+                ->where(function ($q) use ($user) {
+                    $q->whereKey($user->id)
+                        ->orWhere('reporting_manager_id', $user->id);
+                })
+                ->pluck('id');
+
+            $query->where(function ($q) use ($user, $teamUserIds) {
+                $q->whereIn('user_id', $teamUserIds)
+                    ->orWhereHas('lead', function ($leadQuery) use ($user, $teamUserIds) {
+                        $leadQuery->where('assigned_to_manager_id', $user->id)
+                            ->orWhereIn('assigned_to_user_id', $teamUserIds);
+                    });
+            });
         } elseif ($user->isBroker()) {
             $broker = \App\Models\Broker::where('user_id', $user->id)->first();
-            $brokerLeadIds = $broker ? \App\Models\Lead::where('broker_id', $broker->id)->pluck('id')->toArray() : [];
-            $query->whereIn('lead_id', $brokerLeadIds);
+            if ($broker) {
+                $query->whereHas('lead', function ($leadQuery) use ($broker) {
+                    $leadQuery->where('broker_id', $broker->id);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } elseif (!$user->isSaaSFounder()) {
+            $query->whereHas('lead', function ($leadQuery) use ($user) {
+                $leadQuery->where('company_id', $user->company_id);
+            });
         }
 
         $notifications = $query->paginate(20);

@@ -269,6 +269,129 @@
         </div>
     </div>
 
+    {{-- ─── COMPANY STAFF CONTROL PANEL (Director / Admin / Founder) ─────────────── --}}
+    {{-- Mirrors the SaaS Sub-Admin Panel but for company-level staff management      --}}
+    @if(!auth()->user()->isSaaSAdmin() && (auth()->user()->isDirectorOrFounder() || auth()->user()->isCompanyAdmin()))
+    <div x-show="activeMainTab === 'company_roles'" class="space-y-0" x-cloak>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 space-y-5">
+
+            {{-- Panel Header --}}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-base font-bold text-[#0F172A] flex items-center space-x-2">
+                        <i class="fa-solid fa-users-gear text-blue-600"></i>
+                        <span>Company Staff Access Control</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">
+                        Manage individual staff members — reassign roles and toggle account access.
+                    </p>
+                </div>
+                <a href="{{ route('users.index') }}"
+                   class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-lg border border-slate-200 transition shadow-2xs flex items-center space-x-1.5 w-fit">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>Manage / Add Staff &rarr;</span>
+                </a>
+            </div>
+
+            {{-- Filter: only staff whose role is in Director's manageable scope --}}
+            @php
+                $assignableSlugs = $assignableRoles->pluck('slug')->toArray();
+                $managedUsers    = $companyUsers->filter(fn($u) => in_array($u->role?->slug, $assignableSlugs));
+            @endphp
+
+            @if($managedUsers->isEmpty())
+                <div class="py-10 text-center text-slate-400 text-sm font-semibold">
+                    <i class="fa-solid fa-users-slash text-3xl mb-3 block text-slate-300"></i>
+                    No staff members found under your management scope.
+                </div>
+            @else
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                @foreach($managedUsers as $staff)
+                @php
+                    $staffPerms = $staff->role?->permissions ?? collect();
+                    $isActive   = $staff->is_active;
+                @endphp
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4 flex flex-col justify-between hover:border-blue-200 transition">
+                    <div class="space-y-3">
+                        {{-- Card Header: User Info + Badges --}}
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-200/80">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-[#0F172A] text-white font-bold text-sm flex items-center justify-center shadow-2xs">
+                                    {{ strtoupper(substr($staff->name, 0, 2)) }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm">{{ $staff->name }}</div>
+                                    <div class="text-xs text-slate-500 font-mono">{{ $staff->email }}</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full {{ $isActive ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-rose-100 text-rose-800 border border-rose-200' }}">
+                                    {{ $isActive ? 'Active' : 'Disabled' }}
+                                </span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                                    {{ $staff->role?->name ?? 'No Role' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Active Permissions from Role --}}
+                        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Active Permissions via Role:
+                        </div>
+                        @if($staffPerms->isEmpty())
+                            <div class="text-xs text-slate-400 italic">No permissions assigned to this role yet.</div>
+                        @else
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach($staffPerms as $perm)
+                                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                                    {{ $perm->name }}
+                                </span>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Control Form: Change Role + Status --}}
+                    <form action="{{ route('permissions.users.update', $staff->id) }}" method="POST"
+                          class="pt-3 border-t border-slate-200 space-y-3">
+                        @csrf
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wide block mb-1">Assign Role</label>
+                                <select name="role_id" required
+                                        class="w-full bg-white border border-slate-200 text-xs font-bold rounded-lg px-2.5 py-1.5 text-slate-800 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+                                    @foreach($assignableRoles as $r)
+                                        <option value="{{ $r->id }}" {{ $staff->role_id == $r->id ? 'selected' : '' }}>
+                                            {{ $r->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wide block mb-1">Account Status</label>
+                                <select name="is_active" required
+                                        class="w-full bg-white border border-slate-200 text-xs font-bold rounded-lg px-2.5 py-1.5 text-slate-800 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+                                    <option value="1" {{ $isActive ? 'selected' : '' }}>✅ Active</option>
+                                    <option value="0" {{ !$isActive ? 'selected' : '' }}>🚫 Disabled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-lg transition shadow-2xs flex items-center space-x-1.5 cursor-pointer">
+                                <i class="fa-solid fa-floppy-disk text-xs"></i>
+                                <span>Update Access</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- TAB 3: STAFF ACCESS INSPECTOR (Only visible when activeMainTab === 'staff_inspector') -->
     <div x-show="activeMainTab === 'staff_inspector'" class="space-y-4" x-cloak>
         <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col justify-between">
@@ -348,7 +471,7 @@
                                             <div>
                                                 <label class="form-label">Assigned Role</label>
                                                 <select name="role_id" required class="form-input">
-                                                    @foreach($companyRoles as $r)
+                                                    @foreach($assignableRoles as $r)
                                                         <option value="{{ $r->id }}" {{ $staff->role_id == $r->id ? 'selected' : '' }}>{{ $r->name }} ({{ $r->slug }})</option>
                                                     @endforeach
                                                 </select>

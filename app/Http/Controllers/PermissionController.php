@@ -86,25 +86,49 @@ class PermissionController extends Controller
         $companies = Company::orderBy('name')->get();
         $companyRoles = collect();
         $companyUsers = collect();
+        $assignableRoles = collect();
         $allPermissionsGrouped = collect();
 
         $selectedCompanyId = $request->get('company_id');
 
+        // Role hierarchy: defines which role slugs each role level can see & manage in the matrix.
+        // Only Founder and Admin can configure the full matrix for all roles.
+        // Director and below can only see & configure their OWN role card.
+        $roleHierarchy = [
+            'founder'         => ['founder', 'director', 'admin', 'manager', 'sales_executive', 'support_team', 'broker'],
+            'admin'           => ['admin', 'manager', 'sales_executive', 'support_team', 'broker'],
+            'director'        => ['admin', 'manager', 'sales_executive'], // manages internal team roles only
+            'manager'         => ['manager'],         // sees only own role
+            'sales_executive' => ['sales_executive'], // sees only own role
+            'support_team'    => ['support_team'],    // sees only own role
+            'broker'          => ['broker'],          // sees only own role
+        ];
+
         if ($user->isSaaSAdmin()) {
-            // SaaS Admin: default to first company if not specified
+            // SaaS Admin sees all roles of selected company
             $targetCompanyId = $selectedCompanyId ?: ($companies->first()?->id ?? 1);
-            
-            $companyRoles = Role::where('company_id', $targetCompanyId)->with('permissions')->get();
-            $companyUsers = User::where('company_id', $targetCompanyId)
+
+            $companyRoles   = Role::where('company_id', $targetCompanyId)->with('permissions')->get();
+            $assignableRoles = $companyRoles;
+            $companyUsers   = User::where('company_id', $targetCompanyId)
                 ->where('is_super_admin', false)
                 ->with(['role.permissions'])
                 ->latest()
                 ->get();
         } else {
-            // Builder Company Admin / Director
+            // Builder company user: filter roles by the hierarchy map
             $targetCompanyId = $user->company_id;
-            
-            $companyRoles = Role::where('company_id', $targetCompanyId)->with('permissions')->get();
+            $userRoleSlug    = $user->role?->slug;
+
+            // Which slugs is this user allowed to see in the matrix?
+            $allowedSlugs = $roleHierarchy[$userRoleSlug] ?? [$userRoleSlug];
+
+            $companyRoles   = Role::where('company_id', $targetCompanyId)
+                ->whereIn('slug', $allowedSlugs)
+                ->with('permissions')
+                ->get();
+            $assignableRoles = $companyRoles; // modal dropdown uses same filtered set
+
             $companyUsers = User::where('company_id', $targetCompanyId)
                 ->where('is_super_admin', false)
                 ->with(['role.permissions'])
@@ -121,6 +145,7 @@ class PermissionController extends Controller
             'saasSubAdmins',
             'availableSaasPermissions',
             'companyRoles',
+            'assignableRoles',
             'companyUsers',
             'allPermissionsGrouped'
         ));

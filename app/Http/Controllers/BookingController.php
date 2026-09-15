@@ -37,7 +37,11 @@ class BookingController extends Controller
 
     public function store(Request $request, BookingService $bookingService, LeadService $leadService)
     {
-        Gate::authorize('approve-bookings');
+        $user = Auth::user();
+        abort_unless(
+            $user->isSales() || $user->isManager() || $user->isCompanyAdmin() || $user->isSaaSFounder(),
+            403
+        );
 
         $validated = $request->validate([
             'unit_id' => 'required|exists:units,id',
@@ -53,7 +57,9 @@ class BookingController extends Controller
             'payment_plan_type' => 'nullable|string',
         ]);
 
-        $lead = Lead::findOrFail($validated['lead_id']);
+        $lead = Lead::where('company_id', Auth::user()->company_id)
+            ->whereKey($validated['lead_id'])
+            ->firstOrFail();
 
         $data = array_merge([
             'customer_name' => trim($lead->first_name . ' ' . $lead->last_name),

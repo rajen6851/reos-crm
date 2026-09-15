@@ -13,7 +13,7 @@ class ActivityLogController extends Controller
     {
         $user = Auth::user();
 
-        // Security Guard: Only SaaS Founder and Company Admin can view Activity Audit Logs
+        // Activity logs are visible to platform admins, company admins, and managers.
         if (!Auth::user()->can('view-activity-logs')) {
             return redirect()->route('dashboard')->with('error', 'Unauthorized access. Activity Audit Logs are reserved for Admins.');
         }
@@ -23,7 +23,33 @@ class ActivityLogController extends Controller
             $teamUsers = User::withoutGlobalScopes()->with('role')->get();
         } else {
             $query = LeadActivity::with(['lead', 'user'])->latest();
-            $teamUsers = User::where('company_id', $user->company_id)->with('role')->get();
+            $teamUsers = User::where('company_id', $user->company_id)
+                ->when($user->isManager(), function ($q) use ($user) {
+                    $q->where(function ($q) use ($user) {
+                        $q->whereKey($user->id)
+                            ->orWhere('reporting_manager_id', $user->id);
+                    });
+                })
+                ->with('role')
+                ->get();
+
+            if ($user->isManager()) {
+                $teamUserIds = $teamUsers->pluck('id');
+                $query->where(function ($q) use ($user, $teamUserIds) {
+                    $q->whereIn('user_id', $teamUserIds)
+                        ->orWhereHas('lead', function ($leadQuery) use ($user, $teamUserIds) {
+                            $leadQuery->where('assigned_to_manager_id', $user->id)
+                                ->orWhereIn('assigned_to_user_id', $teamUserIds);
+                        });
+                });
+            } else {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                        ->orWhereHas('lead', function ($leadQuery) use ($user) {
+                            $leadQuery->where('company_id', $user->company_id);
+                        });
+                });
+            }
         }
 
         if ($request->filled('user_id')) {

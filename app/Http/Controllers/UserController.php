@@ -23,6 +23,7 @@ class UserController extends Controller
         
         $query = User::where('company_id', $user->company_id)
             ->where('is_super_admin', false)
+            ->where('is_saas_sub_admin', false)
             ->whereHas('role', function ($q) {
                 $q->where('slug', '!=', 'broker');
             });
@@ -31,7 +32,7 @@ class UserController extends Controller
         if ($user->isManager()) {
             $query->whereHas('role', function ($q) {
                 $q->whereIn('slug', ['sales_executive', 'executive']);
-            });
+            })->where('reporting_manager_id', $user->id);
         }
 
         $users = $query->with(['role', 'reportingManager'])
@@ -49,7 +50,11 @@ class UserController extends Controller
         })->whereNotIn('slug', ['broker', 'support_team', 'field_team']);
 
         if ($user->isManager()) {
+            // Managers can only assign Sales Executive roles
             $rolesQuery->whereIn('slug', ['sales_executive', 'executive']);
+        } elseif (!$user->isDirectorOrFounder()) {
+            // Company Admin and others cannot assign Founder / Director roles
+            $rolesQuery->whereNotIn('slug', ['founder', 'director']);
         }
 
         $roles = $rolesQuery->get();
@@ -57,6 +62,8 @@ class UserController extends Controller
         $managers = User::where('company_id', $user->company_id)
             ->whereHas('role', function ($q) {
                 $q->whereIn('slug', ['manager', 'sales_manager']);
+            })->when($user->isManager(), function ($q) use ($user) {
+                $q->whereKey($user->id);
             })->get();
 
         // Fetch Pending Critical Approval Requests for Director / Founder / Main Owner
@@ -91,44 +98,45 @@ class UserController extends Controller
         $currentUser = Auth::user();
         $role = Role::findOrFail($validated['role_id']);
 
+        if ($role->company_id !== null && $role->company_id !== $currentUser->company_id) {
+            return back()->withInput()->with('error', 'The selected role does not belong to your company.');
+        }
+
         if (in_array($role->slug, ['broker', 'support_team', 'field_team'])) {
             return back()->with('error', 'The selected role cannot be assigned to new staff members.');
+        }
+
+        $isExecutiveRole = in_array($role->slug, ['sales_executive', 'executive']);
+        if ($isExecutiveRole && empty($validated['reporting_manager_id'])) {
+            return back()->withInput()->with('error', 'Please select the Manager whose team this Executive will join.');
+        }
+
+        if (!empty($validated['reporting_manager_id'])) {
+            $reportingManager = User::where('company_id', $currentUser->company_id)
+                ->whereKey($validated['reporting_manager_id'])
+                ->where('is_active', true)
+                ->whereHas('role', function ($q) {
+                    $q->whereIn('slug', ['manager', 'sales_manager']);
+                })
+                ->first();
+
+            if (!$reportingManager) {
+                return back()->withInput()->with('error', 'Please select an active Manager from the same company.');
+            }
         }
 
         if ($currentUser->isManager() && !in_array($role->slug, ['sales_executive', 'executive'])) {
             return back()->with('error', 'Managers can only create Sales Executive accounts.');
         }
 
-        $isCriticalRole = in_array($role->slug, ['admin', 'director', 'founder']);
+        if ($currentUser->isManager() && isset($validated['reporting_manager_id'])
+            && (int) $validated['reporting_manager_id'] !== $currentUser->id) {
+            return back()->with('error', 'Managers can assign only themselves as the reporting manager.');
+        }
 
-        // CRITICAL APPROVAL FLOW: If non-Director tries to create Admin/Director role, request approval from Founder/Director
+        // Company Admin cannot create Admin/Director/Founder level accounts — only Director/Founder can do this directly
         if (!$currentUser->isDirectorOrFounder() && $isCriticalRole) {
-            $approval = SaasApprovalRequest::create([
-                'company_id' => $currentUser->company_id,
-                'requested_by_user_id' => $currentUser->id,
-                'action_type' => 'create_admin_user',
-                'target_name' => $validated['name'] . " (" . $validated['email'] . ")",
-                'payload' => array_merge($validated, ['role_slug' => $role->slug]),
-                'reason' => "Admin {$currentUser->name} requested to create new {$role->name} account.",
-                'status' => 'pending',
-            ]);
-
-            // Notify Directors / Founders in company
-            $directors = User::where('company_id', $currentUser->company_id)
-                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
-                ->get();
-
-            foreach ($directors as $director) {
-                $notificationService->notify(
-                    $director,
-                    'critical_approval_request',
-                    "🚨 Critical Approval Needed: Create {$role->name} Account",
-                    "Admin {$currentUser->name} requested to create a new {$role->name} account for '{$validated['name']}'. Please review and approve.",
-                    route('users.index')
-                );
-            }
-
-            return redirect()->route('users.index')->with('warning', "⚠️ Approval Request Submitted! Creating an Admin/Director user requires Company Director / Main Owner verification. Request sent to Director/Founder.");
+            return back()->withInput()->with('error', 'Only the Company Director or Main Owner can create Admin / Director level accounts.');
         }
 
         // Direct Execution for Directors/Founders or standard staff creation
@@ -161,6 +169,17 @@ class UserController extends Controller
         Gate::authorize('manage-users');
 
         $currentUser = Auth::user();
+        if ($user->is_super_admin || $user->isSaaSSubAdmin()) {
+            return back()->with('error', 'SaaS platform accounts must be managed from the SaaS administration panel.');
+        }
+
+        if ($currentUser->isManager()
+            && ($user->company_id !== $currentUser->company_id
+                || $user->reporting_manager_id !== $currentUser->id
+                || !in_array($user->role?->slug, ['sales_executive', 'executive']))) {
+            return back()->with('error', 'You can manage only your own Sales Executive team.');
+        }
+
         if ($currentUser->isManager() && !in_array($user->role?->slug, ['sales_executive', 'executive'])) {
             return back()->with('error', 'Managers can only edit Sales Executive accounts.');
         }
@@ -178,37 +197,42 @@ class UserController extends Controller
         ]);
 
         $targetRole = Role::findOrFail($validated['role_id']);
-        $isCriticalTargetRole = in_array($targetRole->slug, ['admin', 'director', 'founder']) || in_array($user->role?->slug, ['admin', 'director', 'founder']);
+        if ($targetRole->company_id !== null && $targetRole->company_id !== $currentUser->company_id) {
+            return back()->withInput()->with('error', 'The selected role does not belong to your company.');
+        }
 
-        // CRITICAL APPROVAL FLOW: If non-Director tries to edit Admin/Director role or user, send approval request
-        if (!$currentUser->isDirectorOrFounder() && $isCriticalTargetRole) {
-            SaasApprovalRequest::create([
-                'company_id' => $currentUser->company_id,
-                'requested_by_user_id' => $currentUser->id,
-                'action_type' => 'update_user_role',
-                'target_type' => User::class,
-                'target_id' => $user->id,
-                'target_name' => $user->name . " (" . $user->email . ")",
-                'payload' => array_merge($validated, ['user_id' => $user->id]),
-                'reason' => "Admin {$currentUser->name} requested to modify role/permissions of '{$user->name}'.",
-                'status' => 'pending',
-            ]);
+        $isExecutiveRole = in_array($targetRole->slug, ['sales_executive', 'executive']);
+        if ($isExecutiveRole && empty($validated['reporting_manager_id'])) {
+            return back()->withInput()->with('error', 'Please select the Manager whose team this Executive will join.');
+        }
 
-            $directors = User::where('company_id', $currentUser->company_id)
-                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
-                ->get();
+        if (!empty($validated['reporting_manager_id'])) {
+            $reportingManager = User::where('company_id', $currentUser->company_id)
+                ->whereKey($validated['reporting_manager_id'])
+                ->where('is_active', true)
+                ->whereHas('role', function ($q) {
+                    $q->whereIn('slug', ['manager', 'sales_manager']);
+                })
+                ->first();
 
-            foreach ($directors as $director) {
-                $notificationService->notify(
-                    $director,
-                    'critical_approval_request',
-                    "🚨 Critical Approval Needed: Update Staff Role/Permissions",
-                    "Admin {$currentUser->name} requested to update role/permissions for '{$user->name}'. Please review and approve.",
-                    route('users.index')
-                );
+            if (!$reportingManager) {
+                return back()->withInput()->with('error', 'Please select an active Manager from the same company.');
             }
+        }
 
-            return redirect()->route('users.index')->with('warning', "⚠️ Approval Request Submitted! Modifying Admin or Director permissions requires Company Director / Main Owner verification.");
+        if ($currentUser->isManager() && !in_array($targetRole->slug, ['sales_executive', 'executive'])) {
+            return back()->with('error', 'Managers can keep only Sales Executive accounts in their team.');
+        }
+
+        if ($currentUser->isManager()
+            && isset($validated['reporting_manager_id'])
+            && (int) $validated['reporting_manager_id'] !== $currentUser->id) {
+            return back()->with('error', 'Managers can assign only themselves as the reporting manager.');
+        }
+
+        // Company Admin cannot assign Admin/Director/Founder roles — only Director/Founder can do this directly
+        if (!$currentUser->isDirectorOrFounder() && $isCriticalTargetRole) {
+            return back()->withInput()->with('error', 'Only the Company Director or Main Owner can modify Admin / Director level user accounts.');
         }
 
         // Direct Execution
@@ -219,7 +243,9 @@ class UserController extends Controller
             'branch' => $validated['branch'],
             'department' => $validated['department'],
             'designation' => $validated['designation'],
-            'reporting_manager_id' => $validated['reporting_manager_id'] ?? null,
+            'reporting_manager_id' => $currentUser->isManager()
+                ? $currentUser->id
+                : ($validated['reporting_manager_id'] ?? null),
             'role_id' => $validated['role_id'],
         ];
 
@@ -237,6 +263,16 @@ class UserController extends Controller
         Gate::authorize('manage-users');
 
         $currentUser = Auth::user();
+        if ($user->is_super_admin || $user->isSaaSSubAdmin()) {
+            return back()->with('error', 'SaaS platform accounts must be managed from the SaaS administration panel.');
+        }
+
+        if ($currentUser->isManager()
+            && ($user->company_id !== $currentUser->company_id
+                || $user->reporting_manager_id !== $currentUser->id
+                || !in_array($user->role?->slug, ['sales_executive', 'executive']))) {
+            return back()->with('error', 'You can manage only your own Sales Executive team.');
+        }
 
         if (Auth::id() === $user->id) {
             return back()->with('error', 'You cannot delete your own logged-in account.');
@@ -355,6 +391,15 @@ class UserController extends Controller
                     $targetBooking = \App\Models\Booking::find($bookingId);
                     if ($targetBooking) {
                         $targetBooking->delete();
+                    }
+                    break;
+
+                case 'delete_lead':
+                    $leadId = $payload['lead_id'] ?? $approvalRequest->target_id;
+                    $targetLead = \App\Models\Lead::find($leadId);
+                    if ($targetLead) {
+                        \App\Services\AuditLogService::log('lead_deleted', "Lead {$targetLead->lead_code} deleted via Director approval #{$approvalRequest->id}.", null);
+                        $targetLead->delete();
                     }
                     break;
 

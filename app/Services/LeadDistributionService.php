@@ -26,7 +26,28 @@ class LeadDistributionService
         // ==========================================
         $selectedManager = null;
 
-        if (!$lead->assigned_to_manager_id) {
+        if ($lead->assigned_to_manager_id) {
+            $selectedManager = User::withoutGlobalScopes()
+                ->where('company_id', $lead->company_id)
+                ->whereKey($lead->assigned_to_manager_id)
+                ->where('is_active', true)
+                ->first();
+        } elseif ($lead->assigned_to_user_id) {
+            $assignedExecutive = User::withoutGlobalScopes()
+                ->where('company_id', $lead->company_id)
+                ->whereKey($lead->assigned_to_user_id)
+                ->where('is_active', true)
+                ->first();
+
+            $selectedManager = $assignedExecutive?->reportingManager()
+                ->withoutGlobalScopes()
+                ->where('company_id', $lead->company_id)
+                ->where('is_active', true)
+                ->whereHas('role', function ($q) {
+                    $q->whereIn('slug', ['manager', 'sales_manager']);
+                })
+                ->first();
+        } else {
             $managers = User::where('company_id', $lead->company_id)
                 ->where('is_active', true)
                 ->whereHas('role', function ($q) {
@@ -37,9 +58,15 @@ class LeadDistributionService
             if ($managers->isNotEmpty()) {
                 // Find Manager with minimum assigned leads (Round-Robin Balance)
                 $selectedManager = $managers->sortBy(function ($manager) {
-                    return Lead::where('company_id', $manager->company_id)
+                    $managerStats = Lead::where('company_id', $manager->company_id)
                         ->where('assigned_to_manager_id', $manager->id)
-                        ->count();
+                        ->selectRaw('COUNT(*) as assigned_count, MAX(id) as latest_assignment_id')
+                        ->first();
+
+                    return [
+                        (int) $managerStats->assigned_count,
+                        (int) ($managerStats->latest_assignment_id ?? 0),
+                    ];
                 })->first();
 
                 if ($selectedManager) {
@@ -57,8 +84,10 @@ class LeadDistributionService
                     }
                 }
             }
-        } else {
-            $selectedManager = User::find($lead->assigned_to_manager_id);
+        }
+
+        if ($selectedManager && !$lead->assigned_to_manager_id) {
+            $lead->assigned_to_manager_id = $selectedManager->id;
         }
 
         // ==========================================
@@ -77,7 +106,7 @@ class LeadDistributionService
                     ->where('reporting_manager_id', $selectedManager->id)
                     ->get();
 
-                $executives = $teamExecutives->isNotEmpty() ? $teamExecutives : $executivesQuery->get();
+                $executives = $teamExecutives;
             } else {
                 $executives = $executivesQuery->get();
             }
@@ -85,9 +114,15 @@ class LeadDistributionService
             if ($executives->isNotEmpty()) {
                 // Find Executive with minimum assigned leads (Round-Robin Balance)
                 $selectedExecutive = $executives->sortBy(function ($executive) {
-                    return Lead::where('company_id', $executive->company_id)
+                    $executiveStats = Lead::where('company_id', $executive->company_id)
                         ->where('assigned_to_user_id', $executive->id)
-                        ->count();
+                        ->selectRaw('COUNT(*) as assigned_count, MAX(id) as latest_assignment_id')
+                        ->first();
+
+                    return [
+                        (int) $executiveStats->assigned_count,
+                        (int) ($executiveStats->latest_assignment_id ?? 0),
+                    ];
                 })->first();
 
                 if ($selectedExecutive) {
@@ -137,4 +172,3 @@ class LeadDistributionService
         return $lead;
     }
 }
-

@@ -28,10 +28,17 @@
                 <span>Back to Directory</span>
             </a>
 
+            @if($canEditCompany)
             <button type="button" onclick="openEditCompanyModal({{ json_encode($company) }})" class="px-5 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white btn-text text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                 <span>Edit Specs</span>
             </button>
+            @else
+            <span class="px-4 py-2.5 bg-slate-100 text-slate-500 border border-slate-200 btn-text text-xs rounded-xl flex items-center space-x-2" title="Read-only tenant monitoring">
+                <i class="fa-solid fa-eye text-xs"></i>
+                <span>Read-only View</span>
+            </span>
+            @endif
         </div>
     </div>
 
@@ -434,6 +441,7 @@
         </div>
     </div>
 
+    @if($canEditCompany)
     <!-- RIGHT SLIDE-OVER DRAWER PANEL: Edit Company Specs -->
     <div id="editCompanyModal" class="hidden fixed inset-0 z-50 overflow-hidden">
         <div onclick="document.getElementById('editCompanyModal').classList.add('hidden')" class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
@@ -444,6 +452,7 @@
                     <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-[#4F46E5] flex items-center justify-center font-extrabold text-sm shrink-0">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </div>
+                    @endif
                     <div>
                         <h3 class="section-heading text-lg">Edit Builder Specs</h3>
                         <p class="body-text text-xs text-[#64748B]">Update profile & plan settings</p>

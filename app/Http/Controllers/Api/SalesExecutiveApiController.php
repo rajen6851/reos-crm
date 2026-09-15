@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Call;
 use App\Models\FollowUp;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\Project;
 use App\Models\SiteVisit;
 use App\Models\Unit;
+use App\Models\User;
 use App\Services\BookingService;
 use App\Services\DuplicateLeadService;
 use App\Services\LeadService;
@@ -18,6 +20,24 @@ use Illuminate\Http\Request;
 
 class SalesExecutiveApiController extends Controller
 {
+    protected function teamExecutiveIds($user)
+    {
+        return User::where('company_id', $user->company_id)
+            ->where('reporting_manager_id', $user->id)
+            ->whereHas('role', fn ($query) => $query->whereIn('slug', ['sales_executive', 'executive']))
+            ->pluck('id');
+    }
+
+    protected function managerLeadScope($query, $user): void
+    {
+        $teamExecutiveIds = $this->teamExecutiveIds($user);
+
+        $query->where(function ($leadQuery) use ($user, $teamExecutiveIds) {
+            $leadQuery->where('assigned_to_manager_id', $user->id)
+                ->orWhereIn('assigned_to_user_id', $teamExecutiveIds);
+        });
+    }
+
     /**
      * Executive Dashboard Overview Stats
      */
@@ -32,8 +52,17 @@ class SalesExecutiveApiController extends Controller
             return response()->json(['error' => 'Unauthorized access to sales dashboard.'], 403);
         }
 
+        $isManager = $user->isManager();
+        $teamExecutiveIds = $isManager
+            ? $this->teamExecutiveIds($user)
+            : collect([$user->id]);
+
         $assignedLeadsQuery = Lead::where('company_id', $user->company_id)
-            ->where('assigned_to_user_id', $user->id);
+            ->when($isManager, function ($query) use ($user) {
+                $this->managerLeadScope($query, $user);
+            }, function ($query) use ($teamExecutiveIds) {
+                $query->whereIn('assigned_to_user_id', $teamExecutiveIds);
+            });
 
         $totalAssignedLeads = (clone $assignedLeadsQuery)->count();
         $newLeads = (clone $assignedLeadsQuery)->where('status', 'new')->count();
@@ -46,23 +75,23 @@ class SalesExecutiveApiController extends Controller
         $lostLeads = (clone $assignedLeadsQuery)->where('status', 'lost')->count();
 
         $siteVisitsToday = SiteVisit::where('company_id', $user->company_id)
-            ->where('assigned_to_user_id', $user->id)
+            ->whereIn('assigned_to_user_id', $teamExecutiveIds)
             ->whereDate('scheduled_at', now()->toDateString())
             ->count();
 
         $siteVisitsUpcoming = SiteVisit::where('company_id', $user->company_id)
-            ->where('assigned_to_user_id', $user->id)
+            ->whereIn('assigned_to_user_id', $teamExecutiveIds)
             ->where('scheduled_at', '>', now())
             ->where('status', 'scheduled')
             ->count();
 
         $pendingFollowUps = FollowUp::where('company_id', $user->company_id)
-            ->where('user_id', $user->id)
+            ->whereIn('user_id', $teamExecutiveIds)
             ->where('status', 'pending')
             ->count();
 
         $myBookingsCount = Booking::where('company_id', $user->company_id)
-            ->where('sales_user_id', $user->id)
+            ->whereIn('sales_user_id', $teamExecutiveIds)
             ->count();
 
         return response()->json([
@@ -77,6 +106,8 @@ class SalesExecutiveApiController extends Controller
                 'site_visits_upcoming' => $siteVisitsUpcoming,
                 'pending_follow_ups' => $pendingFollowUps,
                 'total_bookings' => $myBookingsCount,
+                'scope' => $isManager ? 'team' : 'own',
+                'team_executives_count' => $isManager ? $teamExecutiveIds->count() : 0,
             ]
         ]);
     }
@@ -91,8 +122,16 @@ class SalesExecutiveApiController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
+        $assignedUserIds = $user->isManager()
+            ? $this->teamExecutiveIds($user)
+            : collect([$user->id]);
+
         $query = Lead::where('company_id', $user->company_id)
-            ->where('assigned_to_user_id', $user->id)
+            ->when($user->isManager(), function ($leadQuery) use ($user) {
+                $this->managerLeadScope($leadQuery, $user);
+            }, function ($leadQuery) use ($assignedUserIds) {
+                $leadQuery->whereIn('assigned_to_user_id', $assignedUserIds);
+            })
             ->with(['project', 'broker', 'source', 'brokerLead']);
 
         if ($request->filled('status')) {
@@ -107,6 +146,18 @@ class SalesExecutiveApiController extends Controller
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('lead_code', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->filled('assigned_to_user_id') && $user->isManager()) {
+            $query->where('assigned_to_user_id', $request->integer('assigned_to_user_id'));
+        }
+
+        if ($request->filled('created_from')) {
+            $query->whereDate('created_at', '>=', $request->date('created_from'));
+        }
+
+        if ($request->filled('created_to')) {
+            $query->whereDate('created_at', '<=', $request->date('created_to'));
         }
 
         $leads = $query->latest()->paginate($request->get('per_page', 15));
@@ -127,7 +178,12 @@ class SalesExecutiveApiController extends Controller
         $lead = Lead::where('company_id', $user->company_id)
             ->where(function ($q) use ($user) {
                 $q->where('assigned_to_user_id', $user->id)
-                    ->orWhereRaw('? = 1', [$user->isCompanyAdmin() || $user->isManager() ? 1 : 0]);
+                    ->when($user->isManager(), function ($managerQuery) use ($user) {
+                        $this->managerLeadScope($managerQuery, $user);
+                    })
+                    ->when($user->isCompanyAdmin(), function ($adminQuery) {
+                        $adminQuery->orWhereNotNull('id');
+                    });
             })
             ->where('id', $id)
             ->with(['project', 'broker', 'source', 'brokerLead', 'activities.user', 'siteVisits.project', 'followUps', 'calls'])
@@ -172,6 +228,11 @@ class SalesExecutiveApiController extends Controller
             'duplicate_of_lead_id' => $duplicate?->id,
         ]));
 
+        app(\App\Services\LeadDistributionService::class)->distributeNewLead(
+            $lead,
+            app(\App\Services\NotificationService::class)
+        );
+
         LeadActivity::create([
             'company_id' => $user->company_id,
             'lead_id' => $lead->id,
@@ -199,7 +260,11 @@ class SalesExecutiveApiController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        if ($lead->assigned_to_user_id !== $user->id && !$user->isManager() && !$user->isCompanyAdmin()) {
+        $managerCanAccess = $user->isManager()
+            && (($lead->assigned_to_manager_id === $user->id)
+                || $this->teamExecutiveIds($user)->contains($lead->assigned_to_user_id));
+
+        if ($lead->assigned_to_user_id !== $user->id && !$managerCanAccess && !$user->isCompanyAdmin()) {
             return response()->json(['error' => 'Not authorized to update this lead.'], 403);
         }
 
@@ -430,6 +495,9 @@ class SalesExecutiveApiController extends Controller
             'status' => 'required|in:scheduled,visited,completed,cancelled,no_show',
             'outcome' => 'nullable|string|max:100',
             'feedback_notes' => 'nullable|string',
+            'customer_rating' => 'nullable|integer|min:1|max:5',
+            'visit_images' => 'nullable|array|max:10',
+            'visit_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $dbStatus = in_array($validated['status'], ['visited', 'completed']) ? 'completed' : $validated['status'];
@@ -438,7 +506,16 @@ class SalesExecutiveApiController extends Controller
             'status' => $dbStatus,
             'outcome' => $validated['outcome'] ?? $siteVisit->outcome,
             'feedback_notes' => $validated['feedback_notes'] ?? $siteVisit->feedback_notes,
+            'customer_rating' => $validated['customer_rating'] ?? $siteVisit->customer_rating,
         ];
+
+        if ($request->hasFile('visit_images')) {
+            $imagePaths = $siteVisit->visit_images ?? [];
+            foreach ($request->file('visit_images') as $image) {
+                $imagePaths[] = $image->store('site-visit-images', 'public');
+            }
+            $updateData['visit_images'] = $imagePaths;
+        }
 
         if (in_array($validated['status'], ['visited', 'completed']) && !$siteVisit->visited_at) {
             $updateData['visited_at'] = now();
@@ -628,6 +705,7 @@ class SalesExecutiveApiController extends Controller
             'duration_seconds' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
             'next_followup_at' => 'nullable|date',
+            'audio_recording' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,aac,flac|max:51200',
         ]);
 
         $statusLabel = match ($validated['call_status']) {
@@ -637,6 +715,28 @@ class SalesExecutiveApiController extends Controller
             'callback_required' => 'Callback Requested',
             'missed_call' => 'Missed Call Alert',
         };
+
+        $audioPath = null;
+        $audioName = null;
+        if ($request->hasFile('audio_recording')) {
+            $audio = $request->file('audio_recording');
+            $audioPath = $audio->store('call-recordings', 'public');
+            $audioName = $audio->getClientOriginalName();
+        }
+
+        $call = Call::create([
+            'company_id' => $user->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'call_type' => 'outbound',
+            'call_outcome' => $validated['call_status'],
+            'notes' => $validated['notes'] ?? null,
+            'audio_recording_path' => $audioPath,
+            'audio_recording_name' => $audioName,
+            'call_duration_seconds' => $validated['duration_seconds'] ?? 0,
+            'called_at' => now(),
+            'next_followup_at' => $validated['next_followup_at'] ?? null,
+        ]);
 
         $activity = LeadActivity::create([
             'company_id' => $user->company_id,
@@ -664,7 +764,8 @@ class SalesExecutiveApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Call logged successfully.',
-            'data' => $activity,
+            'data' => $activity->load('lead'),
+            'call' => $call,
         ], 201);
     }
 
@@ -739,4 +840,3 @@ class SalesExecutiveApiController extends Controller
         ], 201);
     }
 }
-

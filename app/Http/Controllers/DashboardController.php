@@ -67,13 +67,10 @@ class DashboardController extends Controller
         if ($user->isSaaSSubAdmin()) {
             $myPermissions = $user->saas_permissions ?? [];
 
-            // Companies this sub-admin can view (all for now, scoped by permission)
-            $companies = Company::with(['subscriptionPlan', 'users' => function ($uq) {
-                $uq->withoutGlobalScopes()->with('role');
-            }])->latest()->get();
-
-            $totalCompanies = $companies->count();
-            $activeCompanies = $companies->where('status', 'active')->count();
+            // Keep dashboard metrics platform-level; individual tenant data is shown only
+            // in the permission-protected Tenant Companies area.
+            $totalCompanies = Company::count();
+            $activeCompanies = Company::where('status', 'active')->count();
             $subscriptionPlans = SubscriptionPlan::all();
 
             // Pending approval requests submitted by this sub-admin
@@ -100,7 +97,7 @@ class DashboardController extends Controller
                 ->get();
 
             return view('dashboard.sub_admin', compact(
-                'user', 'myPermissions', 'companies', 'totalCompanies', 'activeCompanies',
+                'user', 'myPermissions', 'totalCompanies', 'activeCompanies',
                 'subscriptionPlans', 'myPendingRequests', 'pendingApprovalsCount',
                 'pendingApprovalRequests', 'totalPlatformLeads', 'totalPlatformBookings',
                 'recentPlatformActivities'
@@ -380,7 +377,7 @@ class DashboardController extends Controller
     public function showCompanyByFounder($id)
     {
         $user = Auth::user();
-        if (!$user->isSaaSAdmin() || (!$user->hasSaaSPermission('view_companies') && !$user->hasSaaSPermission('onboard_companies'))) {
+        if (!$user->isSaaSAdmin() || !$user->hasSaaSPermission('view_companies')) {
             return redirect()->route('dashboard')->with('error', 'Unauthorized. Company viewing permission required.');
         }
 
@@ -388,7 +385,10 @@ class DashboardController extends Controller
             ->with([
                 'subscriptionPlan',
                 'users' => function ($q) {
-                    $q->withoutGlobalScopes()->with('role');
+                    $q->withoutGlobalScopes()
+                        ->where('is_super_admin', false)
+                        ->where('is_saas_sub_admin', false)
+                        ->with('role');
                 },
                 'projects' => function ($q) {
                     $q->withoutGlobalScopes()->with(['buildings', 'units']);
@@ -417,11 +417,12 @@ class DashboardController extends Controller
             ->get();
 
         $subscriptionPlans = SubscriptionPlan::all();
+        $canEditCompany = $user->isSaaSFounder();
 
         return view('admin.companies.show', compact(
             'user', 'company', 'usageSummary', 'totalLeads', 'convertedLeads', 'siteVisitsCount', 
             'totalBookings', 'totalRevenue', 'companyLeads', 'companyBookings', 'companyBrokers', 
-            'activities', 'subscriptionPlans'
+            'activities', 'subscriptionPlans', 'canEditCompany'
         ));
     }
 

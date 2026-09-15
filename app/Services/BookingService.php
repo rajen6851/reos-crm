@@ -30,7 +30,21 @@ class BookingService
                 throw new Exception("Unit {$unit->unit_number} is not available for booking. Current status: {$unit->status}");
             }
 
-            $lead = Lead::find($data['lead_id']);
+            $lead = Lead::where('company_id', $user->company_id)
+                ->whereKey($data['lead_id'])
+                ->firstOrFail();
+            if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {
+                throw new Exception('You can only create bookings for your assigned leads.');
+            }
+            if ($user->isManager()) {
+                $teamLead = $lead->assigned_to_manager_id === $user->id
+                    || User::whereKey($lead->assigned_to_user_id)
+                        ->where('reporting_manager_id', $user->id)
+                        ->exists();
+                if (!$teamLead) {
+                    throw new Exception('You can only create bookings for your team leads.');
+                }
+            }
             $brokerId = $data['broker_id'] ?? $lead?->broker_id;
 
             // 2. Create Cost Sheet if not already passed
@@ -53,7 +67,9 @@ class BookingService
                 $costSheetId = $costSheet->id;
                 $totalCost = $costSheet->total_cost;
             } else {
-                $costSheet = CostSheet::findOrFail($costSheetId);
+                $costSheet = CostSheet::where('company_id', $user->company_id)
+                    ->whereKey($costSheetId)
+                    ->firstOrFail();
                 $totalCost = $costSheet->total_cost;
             }
 

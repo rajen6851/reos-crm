@@ -9,11 +9,13 @@ use App\Models\FollowUp;
 use App\Models\Lead;
 use App\Models\LeadSource;
 use App\Models\Project;
+use App\Models\SaasApprovalRequest;
 use App\Models\User;
 use App\Services\BrokerLeadService;
 use App\Services\DuplicateLeadService;
 use App\Services\LeadAssignmentService;
 use App\Services\LeadService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -35,7 +37,17 @@ class LeadController extends Controller
         if ($user->isSales()) {
             $query->where('assigned_to_user_id', $user->id);
         } elseif ($user->isManager()) {
-            $query->where('assigned_to_manager_id', $user->id);
+            $teamExecutiveIds = User::where('company_id', $user->company_id)
+                ->where('reporting_manager_id', $user->id)
+                ->whereHas('role', function ($q) {
+                    $q->whereIn('slug', ['sales_executive', 'executive']);
+                })
+                ->pluck('id');
+
+            $query->where(function ($q) use ($user, $teamExecutiveIds) {
+                $q->where('assigned_to_manager_id', $user->id)
+                    ->orWhereIn('assigned_to_user_id', $teamExecutiveIds);
+            });
         }
 
         if ($request->filled('status')) {
@@ -113,7 +125,17 @@ class LeadController extends Controller
         if ($user->isSales()) {
             $query->where('assigned_to_user_id', $user->id);
         } elseif ($user->isManager()) {
-            $query->where('assigned_to_manager_id', $user->id);
+            $teamExecutiveIds = User::where('company_id', $user->company_id)
+                ->where('reporting_manager_id', $user->id)
+                ->whereHas('role', function ($q) {
+                    $q->whereIn('slug', ['sales_executive', 'executive']);
+                })
+                ->pluck('id');
+
+            $query->where(function ($q) use ($user, $teamExecutiveIds) {
+                $q->where('assigned_to_manager_id', $user->id)
+                    ->orWhereIn('assigned_to_user_id', $teamExecutiveIds);
+            });
         }
 
         if ($request->filled('status')) {
@@ -506,7 +528,14 @@ class LeadController extends Controller
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only access leads assigned to you.');
         }
 
-        if ($user->isManager() && $lead->assigned_to_manager_id !== $user->id) {
+        $isManagerTeamLead = $user->isManager()
+            && $lead->assignedTo
+            && $lead->assignedTo->company_id === $user->company_id
+            && $lead->assignedTo->reporting_manager_id === $user->id;
+
+        if ($user->isManager()
+            && $lead->assigned_to_manager_id !== $user->id
+            && !$isManagerTeamLead) {
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only access leads in your manager pool.');
         }
 
@@ -524,16 +553,52 @@ class LeadController extends Controller
         return view('leads.show', compact('lead', 'aiScore', 'recommendations', 'coaching', 'callAnalysis'));
     }
 
-    public function destroy(Lead $lead)
+    public function destroy(Lead $lead, NotificationService $notificationService)
     {
-        if (!Auth::user()->isCompanyAdmin() && !Auth::user()->isSaaSFounder()) {
+        $currentUser = Auth::user();
+
+        if (!$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
             return back()->with('error', 'Only Company Admins and SaaS Founders can delete leads.');
         }
 
-        $leadCode = $lead->lead_code;
+        $leadCode     = $lead->lead_code;
         $customerName = "{$lead->first_name} {$lead->last_name}";
-        $lead->delete();
 
+        // CRITICAL APPROVAL FLOW: If non-Director/Founder tries to delete a Lead, send approval request to Director
+        if (!$currentUser->isDirectorOrFounder()) {
+            SaasApprovalRequest::create([
+                'company_id'           => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type'          => 'delete_lead',
+                'target_type'          => Lead::class,
+                'target_id'            => $lead->id,
+                'target_name'          => "{$leadCode} — {$customerName}",
+                'payload'              => ['lead_id' => $lead->id],
+                'reason'               => "Admin {$currentUser->name} requested deletion of lead '{$leadCode}' ({$customerName}).",
+                'status'               => 'pending',
+            ]);
+
+            // Notify all Directors / Founders in this company
+            $directors = User::where('company_id', $currentUser->company_id)
+                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
+                ->get();
+
+            foreach ($directors as $director) {
+                $notificationService->notify(
+                    $director,
+                    'critical_approval_request',
+                    "🚨 Critical Approval Needed: Delete Customer Lead",
+                    "Admin {$currentUser->name} requested to DELETE lead '{$leadCode}' ({$customerName}). Please review and approve.",
+                    route('users.companyApprovals')
+                );
+            }
+
+            return redirect()->route('leads.index')
+                ->with('warning', "⚠️ Lead Deletion Request Submitted! Deleting a customer lead requires Company Director / Main Owner approval. Request sent for review.");
+        }
+
+        // Director / Founder: direct deletion
+        $lead->delete();
         \App\Services\AuditLogService::log('lead_deleted', "Deleted Lead {$leadCode} ({$customerName}).", null);
 
         return redirect()->route('leads.index')->with('success', "Lead {$leadCode} ({$customerName}) deleted successfully.");
@@ -547,7 +612,14 @@ class LeadController extends Controller
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only update leads assigned to you.');
         }
 
-        if ($user->isManager() && $lead->assigned_to_manager_id !== $user->id) {
+        $isManagerTeamLead = $user->isManager()
+            && $lead->assignedTo
+            && $lead->assignedTo->company_id === $user->company_id
+            && $lead->assignedTo->reporting_manager_id === $user->id;
+
+        if ($user->isManager()
+            && $lead->assigned_to_manager_id !== $user->id
+            && !$isManagerTeamLead) {
             return redirect()->route('leads.index')->with('error', 'Unauthorized. You can only update leads in your manager pool.');
         }
 

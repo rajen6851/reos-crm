@@ -105,12 +105,18 @@ class LeadAssignmentService
             ]);
 
             // Update the lead
-            $lead->update([
+            $transferPayload = [
                 'assigned_to_user_id'  => $newAssignee->id,
                 'transfer_count'       => $lead->transfer_count + 1,
                 'last_activity_at'     => now(),
                 'transfer_eligible_at' => null, // reset after transfer
-            ]);
+            ];
+
+            if ($transferredBy->isManager()) {
+                $transferPayload['assigned_to_manager_id'] = $transferredBy->id;
+            }
+
+            $lead->update($transferPayload);
 
             // Sync broker visible status
             $this->statusService->syncBrokerVisibleStatus(

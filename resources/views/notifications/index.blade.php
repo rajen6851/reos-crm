@@ -14,7 +14,7 @@
             <p class="text-xs text-slate-600 mt-1 font-medium">Real-time alerts, lead logs, and platform broadcast push notifications</p>
         </div>
         <div class="flex items-center space-x-3">
-            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isManager() || auth()->user()->isSaaSFounder())
+            @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
             <button @click="showBroadcastModal = true" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-bullhorn text-xs"></i>
                 <span>Broadcast Push Notification</span>

@@ -19,6 +19,7 @@ class Attendance extends Model
         'work_location',
         'status',
         'notes',
+        'selfie_path',
     ];
 
     public function company(): BelongsTo

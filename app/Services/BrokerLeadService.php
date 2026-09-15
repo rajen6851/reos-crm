@@ -75,6 +75,11 @@ class BrokerLeadService
                 'notes' => $data['requirement_notes'] ?? null,
             ]);
 
+            app(\App\Services\LeadDistributionService::class)->distributeNewLead(
+                $lead,
+                app(\App\Services\NotificationService::class)
+            );
+
             // Create BrokerLead authoritative visibility record
             $brokerLead = BrokerLead::create([
                 'company_id' => $user->company_id,

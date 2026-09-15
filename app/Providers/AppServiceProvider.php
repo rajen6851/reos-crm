@@ -34,8 +34,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-inventory', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
         Gate::define('manage-leads', fn (User $user) => !$user->isBroker());
         Gate::define('assign-leads', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
-        Gate::define('approve-bookings', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
-        Gate::define('approve-agreements', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('approve-bookings', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
+        Gate::define('approve-agreements', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
         Gate::define('manage-commissions', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
         Gate::define('broker-access', fn (User $user) => $user->isBroker());
 
@@ -47,9 +47,9 @@ class AppServiceProvider extends ServiceProvider
 
         // HRMS, Financials, Reports & Settings Security Gates
         Gate::define('manage-hrms', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
-        Gate::define('view-executive-reports', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
+        Gate::define('view-executive-reports', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
         Gate::define('view-financials', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
-        Gate::define('view-activity-logs', fn (User $user) => $user->isCompanyAdmin() || $user->isSaaSFounder());
+        Gate::define('view-activity-logs', fn (User $user) => $user->isCompanyAdmin() || $user->isManager() || $user->isSaaSFounder());
 
         // Register Morph Map for KYC Documentable Types
         \Illuminate\Database\Eloquent\Relations\Relation::morphMap([

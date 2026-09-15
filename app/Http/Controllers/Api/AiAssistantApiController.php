@@ -16,9 +16,9 @@ class AiAssistantApiController extends Controller
     /**
      * Get AI Score, Conversion Probability, and Key Drivers for a Lead
      */
-    public function leadScore(int $id)
+    public function leadScore(Request $request, int $id)
     {
-        $lead = Lead::withoutGlobalScopes()->findOrFail($id);
+        $lead = $this->authorizedLead($request, $id);
         $scoreData = $this->aiService->calculateLeadScore($lead);
 
         return response()->json([
@@ -32,9 +32,9 @@ class AiAssistantApiController extends Controller
     /**
      * Get Smart Property / Inventory Recommendations for a Lead
      */
-    public function recommendations(int $id)
+    public function recommendations(Request $request, int $id)
     {
-        $lead = Lead::withoutGlobalScopes()->findOrFail($id);
+        $lead = $this->authorizedLead($request, $id);
         $recommendations = $this->aiService->getSmartPropertyRecommendations($lead);
 
         return response()->json([
@@ -68,9 +68,9 @@ class AiAssistantApiController extends Controller
     /**
      * Get AI Sales Coaching & Pitch Strategies
      */
-    public function salesCoaching(int $id)
+    public function salesCoaching(Request $request, int $id)
     {
-        $lead = Lead::withoutGlobalScopes()->findOrFail($id);
+        $lead = $this->authorizedLead($request, $id);
         $coaching = $this->aiService->generateSalesExecutiveCoaching($lead);
 
         return response()->json([
@@ -92,5 +92,28 @@ class AiAssistantApiController extends Controller
             'status' => 'success',
             'predictive_analytics' => $analytics,
         ]);
+    }
+
+    protected function authorizedLead(Request $request, int $id): Lead
+    {
+        $user = $request->user();
+        $query = Lead::where('company_id', $user->company_id)->whereKey($id);
+
+        if ($user->isSales()) {
+            $query->where('assigned_to_user_id', $user->id);
+        } elseif ($user->isManager()) {
+            $teamIds = \App\Models\User::where('company_id', $user->company_id)
+                ->where('reporting_manager_id', $user->id)
+                ->pluck('id');
+            $query->where(function ($leadQuery) use ($user, $teamIds) {
+                $leadQuery->where('assigned_to_manager_id', $user->id)
+                    ->orWhereIn('assigned_to_user_id', $teamIds);
+            });
+        } elseif ($user->isBroker()) {
+            $brokerId = \App\Models\Broker::where('user_id', $user->id)->value('id');
+            $query->where('broker_id', $brokerId);
+        }
+
+        return $query->firstOrFail();
     }
 }

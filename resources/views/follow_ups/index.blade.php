@@ -184,7 +184,7 @@
 
 <script>
     function openCallModal(leadId, name) {
-        document.getElementById('callLogForm').action = "/leads/" + leadId + "/log-activity";
+        document.getElementById('callLogForm').action = "/leads/" + leadId + "/call";
         document.getElementById('callLogCustomerName').value = name;
         document.getElementById('callLogModal').classList.remove('hidden');
     }

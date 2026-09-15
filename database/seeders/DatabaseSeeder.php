@@ -120,9 +120,10 @@ class DatabaseSeeder extends Seeder
             'is_super_admin' => true,
         ]);
 
-        $saasSubAdmin = User::firstOrCreate(['email' => 'subadmin@reos.com'], [
-            'company_id' => $company1->id,
-            'role_id' => $roles1['admin']->id,
+        $saasSubAdmin = User::updateOrCreate(['email' => 'subadmin@reos.com'], [
+            // SaaS users are platform accounts, not members of a tenant company.
+            'company_id' => null,
+            'role_id' => null,
             'name' => 'Vikram Roy (SaaS Sub-Admin)',
             'email' => 'subadmin@reos.com',
             'phone' => '9800000099',

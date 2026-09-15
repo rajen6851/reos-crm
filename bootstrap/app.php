@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\RequestAndQueryLogger::class);
         $middleware->alias([
             'subscription' => CheckCompanySubscription::class,
+            'mobile.role' => \App\Http\Middleware\EnsureMobileAppRole::class,
+            'mobile.manager' => \App\Http\Middleware\EnsureManagerRole::class,
+            'mobile.sales' => \App\Http\Middleware\EnsureSalesAppRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

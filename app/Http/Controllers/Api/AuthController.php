@@ -22,6 +22,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        if (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker'], true)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This mobile app is available only for managers, executives, and brokers.',
+            ], 403);
+        }
+
         $token = $user->createToken('mobile_app_token')->plainTextToken;
 
         return response()->json([
@@ -47,6 +54,13 @@ class AuthController extends Controller
         $user = User::where('phone', $request->phone)->first();
         if (!$user) {
             return response()->json(['message' => 'User not found for this mobile number.'], 404);
+        }
+
+        if (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker'], true)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This mobile app is available only for managers, executives, and brokers.',
+            ], 403);
         }
 
         $token = $user->createToken('otp_auth_token')->plainTextToken;

@@ -401,6 +401,8 @@ class ProjectController extends Controller
             ->with(['company', 'buildings.floors', 'units' => function ($q) {
                 $q->withoutGlobalScopes();
             }])
+            ->where('status', 'active')
+            ->where('visibility', 'public')
             ->findOrFail($id);
 
         $broker = null;
@@ -411,15 +413,16 @@ class ProjectController extends Controller
                 ->first();
         }
 
-        $availableUnitsCount = $project->units->where('status', 'available')->count();
-        $unitTypes = $project->units->pluck('unit_type')->unique()->filter()->values();
+        $publicUnits = $project->units->whereIn('status', ['available', 'hold']);
+        $availableUnitsCount = $publicUnits->where('status', 'available')->count();
+        $unitTypes = $publicUnits->pluck('unit_type')->unique()->filter()->values();
 
-        $minPrice = $project->units->where('status', 'available')->min('final_price')
-            ?? $project->units->min('final_price')
-            ?? $project->units->min('base_price');
+        $minPrice = $publicUnits->where('status', 'available')->min('final_price')
+            ?? $publicUnits->min('final_price')
+            ?? $publicUnits->min('base_price');
 
-        $minCarpetArea = $project->units->min('carpet_area');
-        $maxCarpetArea = $project->units->max('carpet_area');
+        $minCarpetArea = $publicUnits->min('carpet_area');
+        $maxCarpetArea = $publicUnits->max('carpet_area');
 
         return view('projects.public', compact('project', 'broker', 'availableUnitsCount', 'unitTypes', 'minPrice', 'minCarpetArea', 'maxCarpetArea'));
     }

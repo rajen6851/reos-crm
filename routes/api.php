@@ -8,6 +8,13 @@ use App\Http\Controllers\Api\SalesExecutiveApiController;
 use App\Http\Controllers\Api\SiteVisitApiController;
 use App\Http\Controllers\Api\SubscriptionApiController;
 use App\Http\Controllers\Api\LeadSourceWebhookController;
+use App\Http\Controllers\Api\NotificationApiController;
+use App\Http\Controllers\Api\ManagerTeamApiController;
+use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\FollowUpApiController;
+use App\Http\Controllers\Api\DocumentApiController;
+use App\Http\Controllers\Api\ReportApiController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,7 +31,7 @@ Route::post('/webhooks/lead-sources/{type}/{token}', [LeadSourceWebhookControlle
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
 
-Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
+Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -40,6 +47,19 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
     // FCM Push Notification Token APIs
     Route::post('/fcm-token', [AuthController::class, 'updateFcmToken']);
     Route::delete('/fcm-token', [AuthController::class, 'removeFcmToken']);
+    Route::get('/attendance', [AttendanceApiController::class, 'index']);
+    Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
+    Route::post('/attendance/clock-out', [AttendanceApiController::class, 'clockOut']);
+    Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
+    Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
+    Route::get('/documents', [DocumentApiController::class, 'index']);
+    Route::post('/documents', [DocumentApiController::class, 'store']);
+    Route::delete('/documents/{id}', [DocumentApiController::class, 'destroy']);
+    Route::get('/reports/summary', [ReportApiController::class, 'summary']);
+
+    // Database-backed notifications shared with the web notification feed
+    Route::get('/notifications', [NotificationApiController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markAsRead']);
 
     // AI Assistant APIs (/api/ai/*)
     Route::prefix('ai')->group(function () {
@@ -63,15 +83,24 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
     Route::get('/bookings', [BookingApiController::class, 'index']);
     Route::post('/bookings', [BookingApiController::class, 'store']);
     Route::post('/bookings/{booking}/approve', [BookingApiController::class, 'approve']);
+    Route::post('/bookings/{booking}/reject', [BookingApiController::class, 'reject']);
 
     // Support Ticket System API
     Route::get('/support/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
     Route::post('/support/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'store']);
     Route::get('/support/tickets/{id}', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'show']);
     Route::post('/support/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
+    Route::patch('/support/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
+
+    // Team chat APIs shared with the web chat authorization flow
+    Route::get('/chat/conversations', [ChatController::class, 'fetchConversations']);
+    Route::get('/chat/{chat}/messages', [ChatController::class, 'fetchMessages']);
+    Route::post('/chat/{chat}/messages', [ChatController::class, 'sendMessage']);
+    Route::post('/chat/direct', [ChatController::class, 'startDirectChat']);
+    Route::post('/chat/group', [ChatController::class, 'createGroupChat']);
 
     // Sales Executive Mobile App APIs (/api/sales/*)
-    Route::prefix('sales')->group(function () {
+    Route::prefix('sales')->middleware('mobile.sales')->group(function () {
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::post('/leads', [SalesExecutiveApiController::class, 'storeLead']);
@@ -93,6 +122,25 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
         Route::post('/bookings/{id}/skip-agreement-request', [SalesExecutiveApiController::class, 'requestAgreementSkip']);
     });
 
+    // Manager Mobile App APIs (/api/manager/*)
+    // These use the same controller, but expose an explicit manager namespace
+    // for React Native clients and return team-scoped data for manager users.
+    Route::prefix('manager')->middleware('mobile.manager')->group(function () {
+        Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
+        Route::get('/team', [ManagerTeamApiController::class, 'index']);
+        Route::post('/team/executives', [ManagerTeamApiController::class, 'store']);
+        Route::put('/team/executives/{id}', [ManagerTeamApiController::class, 'update']);
+        Route::patch('/team/executives/{id}/status', [ManagerTeamApiController::class, 'updateStatus']);
+        Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
+        Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
+        Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
+        Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
+        Route::post('/site-visits/{id}/status', [SalesExecutiveApiController::class, 'updateSiteVisitStatus']);
+        Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);
+        Route::get('/projects/{id}/units', [SalesExecutiveApiController::class, 'projectUnits']);
+        Route::get('/bookings', [SalesExecutiveApiController::class, 'bookings']);
+    });
+
     // Broker Subsystem APIs (/api/broker/*)
     Route::prefix('broker')->group(function () {
         Route::get('/dashboard', [BrokerApiController::class, 'dashboard']);
@@ -112,4 +160,3 @@ Route::middleware(['auth:sanctum', 'subscription'])->group(function () {
         Route::post('/notifications/{id}/read', [BrokerApiController::class, 'markNotificationRead']);
     });
 });
-

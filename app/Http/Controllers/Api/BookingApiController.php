@@ -8,6 +8,7 @@ use App\Services\BookingService;
 use App\Services\BrokerCommissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 
 class BookingApiController extends Controller
 {
@@ -59,17 +60,27 @@ class BookingApiController extends Controller
     {
         Gate::authorize('approve-bookings');
 
-        $booking->update([
-            'status' => 'confirmed',
-            'approval_status' => 'approved',
-            'approved_by_user_id' => $request->user()->id,
-            'approved_at' => now(),
-        ]);
+        abort_unless($booking->company_id === $request->user()->company_id, 404);
+        abort_unless($booking->approval_status === 'pending', 422, 'Only pending bookings can be approved.');
 
-        $booking->unit->update(['status' => 'booked']);
+        DB::transaction(function () use ($booking, $request) {
+            $lockedBooking = Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
+            abort_unless($lockedBooking->approval_status === 'pending', 422, 'Booking has already been processed.');
+            $unit = $lockedBooking->unit()->lockForUpdate()->firstOrFail();
+            abort_unless(in_array($unit->status, ['booking_pending', 'hold'], true), 422, 'Unit is no longer pending approval.');
+
+            $lockedBooking->update([
+                'status' => 'confirmed',
+                'approval_status' => 'approved',
+                'approved_by_user_id' => $request->user()->id,
+                'approved_at' => now(),
+            ]);
+            $unit->update(['status' => 'booked']);
+        });
 
         $commission = null;
-        if ($booking->broker_id) {
+        $booking->refresh();
+        if ($booking->broker_id && !\App\Models\BrokerCommission::where('booking_id', $booking->id)->exists()) {
             $commission = $commissionService->generateCommission($booking);
             if ($commission) {
                 $commissionService->approveCommission($commission, $request->user());
@@ -81,5 +92,26 @@ class BookingApiController extends Controller
             'message' => 'Booking approved successfully.',
             'commission' => $commission,
         ]);
+    }
+
+    public function reject(Request $request, Booking $booking)
+    {
+        Gate::authorize('approve-bookings');
+        abort_unless($booking->company_id === $request->user()->company_id, 404);
+
+        $validated = $request->validate(['reason' => 'required|string|max:500']);
+        abort_unless($booking->approval_status === 'pending', 422, 'Only pending bookings can be rejected.');
+
+        DB::transaction(function () use ($booking, $validated) {
+            $lockedBooking = Booking::whereKey($booking->id)->lockForUpdate()->firstOrFail();
+            $lockedBooking->update([
+                'approval_status' => 'rejected',
+                'status' => 'cancelled',
+                'rejection_reason' => $validated['reason'],
+            ]);
+            $lockedBooking->unit()->update(['status' => 'available']);
+        });
+
+        return response()->json(['status' => 'success', 'message' => 'Booking rejected and unit released.']);
     }
 }

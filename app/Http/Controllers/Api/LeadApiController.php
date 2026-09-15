@@ -63,6 +63,11 @@ class LeadApiController extends Controller
             $lead->update(['assigned_to_user_id' => $user->id]);
         }
 
+        app(\App\Services\LeadDistributionService::class)->distributeNewLead(
+            $lead->fresh(),
+            app(\App\Services\NotificationService::class)
+        );
+
         return response()->json([
             'status' => 'success',
             'message' => $duplicate ? 'Lead created with duplicate flag.' : 'Lead created successfully.',

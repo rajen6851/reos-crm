@@ -107,4 +107,21 @@ class SupportTicketApiController extends Controller
             'data' => $reply
         ]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:open,in_progress,resolved,closed',
+        ]);
+        $user = $request->user();
+        $ticket = SupportTicket::where('company_id', $user->company_id)->findOrFail($id);
+
+        if (($user->isSales() || $user->isBroker()) && $ticket->user_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized to update this ticket.'], 403);
+        }
+
+        $ticket->update(['status' => $validated['status']]);
+
+        return response()->json(['success' => true, 'message' => 'Ticket status updated.', 'data' => $ticket->fresh()]);
+    }
 }
