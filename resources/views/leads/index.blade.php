@@ -292,6 +292,11 @@
                             <div class="font-medium text-slate-700 text-[11px]">
                                 <i class="fa-solid fa-user text-slate-400 mr-1"></i>Exec: {{ $lead->assignedTo->name ?? 'Unassigned' }}
                             </div>
+                            @if($lead->latestDistributionLog && $lead->latestDistributionLog->rule)
+                            <div class="font-medium text-slate-500 text-[9px] mt-0.5" title="Method: {{ ucfirst(str_replace('_', ' ', $lead->latestDistributionLog->distribution_method)) }}">
+                                <i class="fa-solid fa-robot text-slate-400 mr-1"></i>Rule: {{ Str::limit($lead->latestDistributionLog->rule->name, 20) }}
+                            </div>
+                            @endif
                         </div>
 
                         <div class="flex items-center justify-between pt-1 gap-1.5">
@@ -399,6 +404,9 @@
                                     @foreach($salesExecutives as $exec)
                                         <option value="{{ $exec->id }}" {{ $lead->assigned_to_user_id == $exec->id ? 'selected' : '' }}>{{ $exec->name }}</option>
                                     @endforeach
+                                    @if($lead->assigned_to_user_id && !$salesExecutives->contains('id', $lead->assigned_to_user_id))
+                                        <option value="{{ $lead->assigned_to_user_id }}" selected>{{ $lead->assignedTo->name ?? 'Unknown User' }} (Other)</option>
+                                    @endif
                                 </select>
                             </form>
                             @else
@@ -406,6 +414,12 @@
                                 {{ $lead->assignedTo->name ?? 'Unassigned' }}
                             </span>
                             @endcan
+                            @if($lead->latestDistributionLog && $lead->latestDistributionLog->rule)
+                            <div class="mt-1.5 text-[10px] text-slate-500 flex items-center space-x-1" title="Method: {{ ucfirst(str_replace('_', ' ', $lead->latestDistributionLog->distribution_method)) }}">
+                                <i class="fa-solid fa-robot text-slate-400"></i>
+                                <span class="truncate max-w-[120px]">{{ $lead->latestDistributionLog->rule->name }}</span>
+                            </div>
+                            @endif
                         </td>
                         <td class="py-3.5 px-4">
                             @if($lead->status === 'converted')

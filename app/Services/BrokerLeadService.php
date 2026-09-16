@@ -75,10 +75,8 @@ class BrokerLeadService
                 'notes' => $data['requirement_notes'] ?? null,
             ]);
 
-            app(\App\Services\LeadDistributionService::class)->distributeNewLead(
-                $lead,
-                app(\App\Services\NotificationService::class)
-            );
+            // Distribute lead using the new flexible Distribution Engine
+            $lead = app(\App\Services\LeadDistribution\LeadDistributionEngine::class)->assignLead($lead);
 
             // Create BrokerLead authoritative visibility record
             $brokerLead = BrokerLead::create([

@@ -6,7 +6,7 @@ use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\LeadSource;
 use App\Models\Project;
-use App\Services\LeadDistributionService;
+use App\Services\LeadDistribution\LeadDistributionEngine;
 use App\Services\NotificationService;
 use App\Services\LeadSources\Adapters\GoogleLeadAdapter;
 use App\Services\LeadSources\Adapters\HousingAdapter;
@@ -26,7 +26,7 @@ class LeadSourceManager
     protected array $adapters = [];
 
     public function __construct(
-        protected LeadDistributionService $distributionService,
+        protected LeadDistributionEngine $distributionService,
         protected ?NotificationService $notificationService = null
     ) {
         $this->registerAdapter(new MetaLeadAdapter());
@@ -227,8 +227,8 @@ class LeadSourceManager
                 ],
             ]);
 
-            // Trigger 2-Tier Round-Robin Auto-Distribution
-            $this->distributionService->distributeNewLead($lead, $this->notificationService);
+            // Trigger Advanced Distribution Engine
+            $this->distributionService->assignLead($lead);
 
             // Update LeadSource status
             $source->update([

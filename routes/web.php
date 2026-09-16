@@ -102,6 +102,10 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/leads/{lead}/transfer', [LeadController::class, 'transfer'])->name('leads.transfer');
     Route::post('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.update-status');
     Route::post('/leads/{lead}/call', [LeadController::class, 'logCall'])->name('leads.log-call');
+    
+    // Lead Distribution Rule Builder (Web UI)
+    Route::resource('distribution-rules', \App\Http\Controllers\DistributionRuleController::class);
+    
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/site-visits', [SiteVisitController::class, 'index'])->name('site-visits.index');
     Route::post('/site-visits/{lead}/feedback', [SiteVisitController::class, 'storeFeedback'])->name('site-visits.feedback');

@@ -501,5 +501,65 @@ class DatabaseSeeder extends Seeder
             // Auto-distribute lead between Manager 1 and Manager 2 via Round-Robin
             $leadDistributionService->distributeNewLead($dLead);
         }
+
+        // 11. Lead Distribution Engine Rules (Default Templates)
+        $ruleRoundRobin = \App\Models\DistributionRule::create([
+            'company_id' => $company1->id,
+            'name' => 'Default Round Robin',
+            'priority' => 5,
+            'distribution_method' => 'round_robin',
+            'fallback_behavior' => 'redistribute',
+            'is_active' => true,
+            'version' => 1,
+        ]);
+
+        $rulePercentage = \App\Models\DistributionRule::create([
+            'company_id' => $company1->id,
+            'name' => 'Default Percentage Allocation',
+            'priority' => 10,
+            'distribution_method' => 'percentage',
+            'fallback_behavior' => 'redistribute',
+            'is_active' => false,
+            'version' => 1,
+        ]);
+
+        $ruleFixed = \App\Models\DistributionRule::create([
+            'company_id' => $company1->id,
+            'name' => 'Fixed Quantity (Limit Based)',
+            'priority' => 15,
+            'distribution_method' => 'fixed_quantity',
+            'fallback_behavior' => 'unassigned',
+            'is_active' => false,
+            'version' => 1,
+        ]);
+
+        $rulePerformance = \App\Models\DistributionRule::create([
+            'company_id' => $company1->id,
+            'name' => 'Performance Based (AI Recommended)',
+            'priority' => 20,
+            'distribution_method' => 'performance',
+            'fallback_behavior' => 'redistribute',
+            'is_active' => false,
+            'version' => 1,
+        ]);
+
+        // Assign members to Round Robin Rule (Active Default)
+        \App\Models\DistributionRuleMember::create([
+            'distribution_rule_id' => $ruleRoundRobin->id,
+            'user_id' => $exec1_1->id,
+            'allocation_value' => null,
+        ]);
+
+        \App\Models\DistributionRuleMember::create([
+            'distribution_rule_id' => $ruleRoundRobin->id,
+            'user_id' => $exec1_2->id,
+            'allocation_value' => null,
+        ]);
+
+        \App\Models\DistributionRuleMember::create([
+            'distribution_rule_id' => $ruleRoundRobin->id,
+            'user_id' => $exec1_3->id,
+            'allocation_value' => null,
+        ]);
     }
 }

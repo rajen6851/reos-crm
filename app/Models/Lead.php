@@ -97,6 +97,11 @@ class Lead extends Model
         return $this->hasMany(LeadActivity::class)->orderBy('created_at', 'desc');
     }
 
+    public function latestDistributionLog(): HasOne
+    {
+        return $this->hasOne(DistributionLog::class)->latestOfMany();
+    }
+
     public function calls(): HasMany
     {
         return $this->hasMany(Call::class)->orderBy('called_at', 'desc');

@@ -59,6 +59,10 @@ class LeadApiController extends Controller
             'duplicate_of_lead_id' => $duplicate ? $duplicate->id : null,
         ]));
 
+        if (!$duplicate) {
+            app(\App\Services\LeadDistribution\LeadDistributionEngine::class)->assignLead($lead);
+        }
+
         if ($user->isSales() && !$lead->assigned_to_user_id) {
             $lead->update(['assigned_to_user_id' => $user->id]);
         }

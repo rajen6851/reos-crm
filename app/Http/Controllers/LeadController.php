@@ -31,7 +31,7 @@ class LeadController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user']);
+        $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user', 'latestDistributionLog.rule']);
 
         // Privacy Isolation: Executives see assigned leads; Managers see leads in their manager pool
         if ($user->isSales()) {

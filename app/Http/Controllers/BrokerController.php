@@ -190,9 +190,9 @@ class BrokerController extends Controller
             'broker_visible_status' => 'Submitted',
         ]);
 
-        // ─── AUTO DISTRIBUTE: Assign to Manager (Round-Robin) + Sales Executive (Round-Robin) ───
+        // ─── AUTO DISTRIBUTE: Assign via new Flexible Distribution Engine ───
         // Broker-submitted leads enter the same distribution pipeline as regular leads.
-        $distributionService->distributeNewLead($lead, $notificationService);
+        app(\App\Services\LeadDistribution\LeadDistributionEngine::class)->assignLead($lead);
 
         if ($duplicate) {
             return redirect()->route('dashboard')->with('warning', "Lead {$lead->lead_code} submitted! DUPLICATE ALERT: Matches existing lead {$duplicate->lead_code}.");

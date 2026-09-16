@@ -141,6 +141,10 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);
         Route::get('/projects/{id}/units', [SalesExecutiveApiController::class, 'projectUnits']);
         Route::get('/bookings', [SalesExecutiveApiController::class, 'bookings']);
+        
+        // Lead Distribution Rule Builder APIs
+        Route::apiResource('/distribution-rules', \App\Http\Controllers\Api\DistributionRuleApiController::class)
+            ->names('api.manager.distribution-rules');
     });
 
     // Broker Subsystem APIs (/api/broker/*)
