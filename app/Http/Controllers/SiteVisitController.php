@@ -103,7 +103,7 @@ class SiteVisitController extends Controller
             ]);
         } else {
             // Create new if none exists (shouldn't normally happen but graceful)
-            SiteVisit::create([
+            $siteVisit = SiteVisit::create([
                 'company_id'            => $user->company_id,
                 'lead_id'               => $lead->id,
                 'project_id'            => $lead->interested_project_id,
@@ -119,6 +119,9 @@ class SiteVisitController extends Controller
                 'feedback_submitted_at' => now(),
             ]);
         }
+
+        // Sync to Google Calendar
+        \App\Jobs\SyncCalendarEventJob::dispatch($siteVisit);
 
         // Update lead status if changed
         if ($newLeadStatus !== $lead->status) {

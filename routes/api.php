@@ -101,6 +101,8 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
 
     // Sales Executive Mobile App APIs (/api/sales/*)
     Route::prefix('sales')->middleware('mobile.sales')->group(function () {
+        Route::post('/google-calendar/connect', [\App\Http\Controllers\Api\GoogleCalendarApiController::class, 'store']);
+        
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::post('/leads', [SalesExecutiveApiController::class, 'storeLead']);

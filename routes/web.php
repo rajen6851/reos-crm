@@ -86,6 +86,10 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/fcm-token', [\App\Http\Controllers\Api\AuthController::class, 'updateFcmToken'])->name('fcm.token.update');
 
+    // Google Calendar OAuth
+    Route::get('/google-calendar/connect', [\App\Http\Controllers\GoogleCalendarController::class, 'connect'])->name('google-calendar.connect');
+    Route::get('/google-calendar/callback', [\App\Http\Controllers\GoogleCalendarController::class, 'callback'])->name('google-calendar.callback');
+
     // Leads & Customers
     Route::get('/leads/export', [LeadController::class, 'exportExcel'])->name('leads.export');
     Route::post('/leads/import-csv', [LeadImportController::class, 'importCsv'])->name('leads.import-csv');

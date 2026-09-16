@@ -111,7 +111,45 @@
                     Update Password
                 </button>
             </div>
-        </form>
+    </div>
+
+    <!-- Integrations -->
+    <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
+        <div class="border-b border-slate-100 pb-3">
+            <h2 class="text-lg font-black text-slate-900">Integrations</h2>
+            <p class="text-xs text-slate-500">Connect third-party services to enhance your experience.</p>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%20%282020%29.svg" class="w-6 h-6" alt="Google Calendar">
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">Google Calendar</h3>
+                    @php
+                        $googleConnection = \App\Models\GoogleCalendarConnection::where('user_id', auth()->id())->where('status', 'active')->first();
+                    @endphp
+                    @if($googleConnection)
+                        <p class="text-xs text-emerald-600 font-bold">Connected as {{ $googleConnection->google_email }}</p>
+                    @else
+                        <p class="text-xs text-slate-500">Sync your Site Visits and Follow-ups to your personal calendar.</p>
+                    @endif
+                </div>
+            </div>
+            
+            <div>
+                @if($googleConnection)
+                    <span class="px-4 py-2 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200">
+                        <i class="fa-solid fa-check mr-1"></i> Connected
+                    </span>
+                @else
+                    <a href="{{ route('google-calendar.connect') }}" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition">
+                        Connect Calendar
+                    </a>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 @endsection

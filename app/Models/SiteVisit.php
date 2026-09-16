@@ -16,6 +16,7 @@ class SiteVisit extends Model
         'status', 'outcome', 'feedback_notes', 'pickup_location',
         'visit_images', 'customer_rating',
         'visit_feedback_by', 'feedback_submitted_at',
+        'google_event_id', 'google_sync_status', 'google_synced_at',
     ];
 
     protected $casts = [
@@ -23,6 +24,7 @@ class SiteVisit extends Model
         'visited_at'            => 'datetime',
         'feedback_submitted_at' => 'datetime',
         'visit_images'          => 'array',
+        'google_synced_at'      => 'datetime',
     ];
 
     public function lead(): BelongsTo

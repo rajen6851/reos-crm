@@ -148,6 +148,20 @@
                 <input type="text" id="callLogCustomerName" readonly class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-amber-900 font-bold">
             </div>
             <div>
+                <label class="block text-[#475569] mb-1 font-bold">Call / Visit Outcome <span class="text-rose-500">*</span></label>
+                <select name="call_outcome" required class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-[#0F172A] font-bold focus:outline-none focus:border-[#4F46E5]">
+                    <option value="" disabled selected>— Select Outcome —</option>
+                    <option value="connected">Connected & Spoke</option>
+                    <option value="spoke_interested">Connected — High Interest</option>
+                    <option value="site_visit_conducted">Site Visit Conducted</option>
+                    <option value="interested_after_visit">Interested After Site Visit</option>
+                    <option value="scheduled_site_visit">Site Visit Scheduled</option>
+                    <option value="busy_callback">Busy / Callback Requested</option>
+                    <option value="no_answer">No Answer / Switched Off</option>
+                    <option value="not_connected">Not Connected</option>
+                </select>
+            </div>
+            <div>
                 <label class="block text-[#475569] mb-1 font-bold">Call Summary / Discussion Notes *</label>
                 <textarea name="notes" required rows="3" placeholder="Enter customer call response, floor preference, budget discussion..." class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-[#0F172A] font-semibold focus:outline-none focus:border-[#4F46E5]"></textarea>
             </div>

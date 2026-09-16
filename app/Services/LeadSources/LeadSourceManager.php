@@ -157,16 +157,44 @@ class LeadSourceManager
                 ->where('phone', $parsed['phone'])
                 ->first();
 
-            $isDuplicate = false;
-            $duplicateOfId = null;
-
             if ($existingLead) {
-                $isDuplicate = true;
-                $duplicateOfId = $existingLead->id;
                 Log::info("[LEAD INGESTION] Duplicate lead detected for phone {$parsed['phone']} (Existing Lead #{$existingLead->id})");
+                
+                // Update existing lead's last activity
+                $existingLead->update([
+                    'last_activity_at' => now(),
+                ]);
+
+                // Add activity note instead of creating a new lead
+                LeadActivity::create([
+                    'company_id' => $source->company_id,
+                    'lead_id' => $existingLead->id,
+                    'user_id' => null,
+                    'activity_type' => 'updated',
+                    'description' => "Duplicate form submission received via {$source->name}." . ($parsed['campaign_name'] ? " Campaign: {$parsed['campaign_name']}" : ""),
+                    'metadata' => [
+                        'source_type' => $source->type,
+                        'source_id' => $source->id,
+                        'source_lead_id' => $parsed['source_lead_id'] ?? null,
+                        'is_duplicate_submission' => true
+                    ],
+                ]);
+
+                $source->update([
+                    'last_synced_at' => now(),
+                    'error_log' => null,
+                    'status' => 'connected',
+                ]);
+
+                return [
+                    'success' => true,
+                    'lead' => $existingLead,
+                    'is_duplicate' => true,
+                    'message' => 'Duplicate lead updated successfully.'
+                ];
             }
 
-            // Create Lead Record
+            // Create NEW Lead Record (only if not duplicate)
             $leadCode = 'LD-' . strtoupper($source->type) . '-' . strtoupper(Str::random(6));
 
             $lead = Lead::create([
@@ -179,8 +207,8 @@ class LeadSourceManager
                 'email' => $parsed['email'] ?: null,
                 'interested_project_id' => $projectId,
                 'status' => 'new',
-                'is_duplicate' => $isDuplicate,
-                'duplicate_of_lead_id' => $duplicateOfId,
+                'is_duplicate' => false,
+                'duplicate_of_lead_id' => null,
                 'notes' => $parsed['notes'] ?? "Lead received via {$source->name}",
             ]);
 
@@ -190,7 +218,7 @@ class LeadSourceManager
                 'lead_id' => $lead->id,
                 'user_id' => null,
                 'activity_type' => 'created',
-                'description' => "Lead ingested via integration: {$source->name}" . ($isDuplicate ? " (Marked as Duplicate of Lead #{$duplicateOfId})" : ''),
+                'description' => "Lead ingested via integration: {$source->name}",
                 'metadata' => [
                     'source_type' => $source->type,
                     'source_id' => $source->id,
@@ -214,7 +242,7 @@ class LeadSourceManager
             return [
                 'success' => true,
                 'lead' => $lead,
-                'is_duplicate' => $isDuplicate,
+                'is_duplicate' => false,
             ];
         } catch (\Throwable $e) {
             Log::error("[LEAD INGESTION ERROR] Exception: {$e->getMessage()}", [

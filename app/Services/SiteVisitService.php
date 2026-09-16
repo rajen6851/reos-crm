@@ -62,6 +62,9 @@ class SiteVisitService
             'description' => "Site visit scheduled for {$siteVisit->scheduled_at}",
         ]);
 
+        // Sync to Google Calendar
+        \App\Jobs\SyncCalendarEventJob::dispatch($siteVisit);
+
         return $siteVisit;
     }
 }
