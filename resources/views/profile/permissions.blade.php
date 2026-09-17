@@ -13,13 +13,21 @@
             <p class="text-xs text-slate-600 mt-1 font-medium">Review the modules and features you have access to in the REOS platform.</p>
         </div>
         <div class="flex items-center space-x-2 text-xs font-bold text-slate-700 bg-indigo-50 border border-indigo-200 px-3.5 py-2 rounded-2xl">
-            <span class="text-indigo-900">Role: {{ $user->role->name ?? 'Account User' }}</span>
+            <span class="text-indigo-900">Role: {{ $user->isSaaSAdmin() ? ($user->is_super_admin ? 'SaaS Founder' : 'SaaS Sub-Admin') : ($user->role->name ?? 'Account User') }}</span>
         </div>
     </div>
 
     <!-- My Permissions Badges Grouped by Module -->
     <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-8">
-        @if($user->isDirectorOrFounder())
+        @if($user->isSaaSAdmin() && $user->is_super_admin)
+            <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl mb-4">
+                <div class="flex items-center space-x-2 text-purple-800 font-bold">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>SaaS Founder Master Access</span>
+                </div>
+                <p class="text-xs text-purple-700 mt-1">As a SaaS Founder, you have full unrestricted access to all platform features, configuration, and tenant settings.</p>
+            </div>
+        @elseif(!$user->isSaaSAdmin() && $user->isDirectorOrFounder())
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl mb-4">
                 <div class="flex items-center space-x-2 text-emerald-800 font-bold">
                     <i class="fa-solid fa-crown"></i>
