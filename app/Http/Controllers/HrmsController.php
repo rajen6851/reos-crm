@@ -60,24 +60,26 @@ class HrmsController extends Controller
             ->where('date', $today)
             ->first();
 
-        // Data Privacy Scope: Company Admins see full company HRMS. Non-admins see ONLY their own HRMS data!
-        $isAdmin = $user->isCompanyAdmin() || $user->isSaaSFounder();
+        $isAdmin = $user->hasPermission('manage-hrms');
+        $isManager = $user->isManager();
 
-        $todayRoster = $isAdmin
-            ? Attendance::where('company_id', $user->company_id)->where('date', $today)->with('user')->get()
-            : Attendance::where('user_id', $user->id)->where('date', $today)->with('user')->get();
-
-        $leaveRequests = $isAdmin
-            ? LeaveRequest::where('company_id', $user->company_id)->with(['user', 'approver'])->orderByDesc('created_at')->get()
-            : LeaveRequest::where('user_id', $user->id)->with(['user', 'approver'])->orderByDesc('created_at')->get();
-
-        $salarySlips = $isAdmin
-            ? SalarySlip::where('company_id', $user->company_id)->with('user')->orderByDesc('created_at')->get()
-            : SalarySlip::where('user_id', $user->id)->with('user')->orderByDesc('created_at')->get();
-
-        $staffUsers = $isAdmin
-            ? User::where('company_id', $user->company_id)->get()
-            : User::where('id', $user->id)->get();
+        if ($isAdmin) {
+            $todayRoster = Attendance::where('company_id', $user->company_id)->where('date', $today)->with('user')->get();
+            $leaveRequests = LeaveRequest::where('company_id', $user->company_id)->with(['user', 'approver'])->orderByDesc('created_at')->get();
+            $salarySlips = SalarySlip::where('company_id', $user->company_id)->with('user')->orderByDesc('created_at')->get();
+            $staffUsers = User::where('company_id', $user->company_id)->get();
+        } elseif ($isManager) {
+            $teamIds = $user->teamExecutives()->pluck('id')->push($user->id);
+            $todayRoster = Attendance::whereIn('user_id', $teamIds)->where('date', $today)->with('user')->get();
+            $leaveRequests = LeaveRequest::whereIn('user_id', $teamIds)->with(['user', 'approver'])->orderByDesc('created_at')->get();
+            $salarySlips = SalarySlip::where('user_id', $user->id)->with('user')->orderByDesc('created_at')->get();
+            $staffUsers = User::whereIn('id', $teamIds)->get();
+        } else {
+            $todayRoster = Attendance::where('user_id', $user->id)->where('date', $today)->with('user')->get();
+            $leaveRequests = LeaveRequest::where('user_id', $user->id)->with(['user', 'approver'])->orderByDesc('created_at')->get();
+            $salarySlips = SalarySlip::where('user_id', $user->id)->with('user')->orderByDesc('created_at')->get();
+            $staffUsers = User::where('id', $user->id)->get();
+        }
 
         // Fetch monthly attendance history for visual Calendar Grid
         $monthlyAttendance = Attendance::where('user_id', $user->id)
@@ -171,9 +173,7 @@ class HrmsController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
-            return redirect()->back()->with('error', 'Unauthorized action. Only Admins and Managers can update leave status.');
-        }
+        Gate::authorize('manage-hrms');
 
         $leaveRequest->update([
             'status' => $request->input('status', 'approved'),
@@ -187,9 +187,7 @@ class HrmsController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
-            return redirect()->back()->with('error', 'Unauthorized action. Only Company Admins can generate salary slips.');
-        }
+        Gate::authorize('manage-hrms');
 
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -228,7 +226,7 @@ class HrmsController extends Controller
         $user = auth()->user();
         $salarySlip = SalarySlip::with(['user', 'company'])->findOrFail($id);
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder() && $salarySlip->user_id !== $user->id) {
+        if (!$user->hasPermission('manage-hrms') && $salarySlip->user_id !== $user->id) {
             return redirect()->route('hrms.index')->with('error', 'Unauthorized access to salary slip.');
         }
 

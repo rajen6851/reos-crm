@@ -44,6 +44,7 @@ class LeadSourceIntegrationTest extends TestCase
             'email' => 'manager@horizon.com',
             'phone' => '9800000001',
             'password' => Hash::make('password'),
+            'is_active' => true,
         ]);
 
         $salesRole = Role::where('slug', 'sales_executive')->first();
@@ -55,6 +56,7 @@ class LeadSourceIntegrationTest extends TestCase
             'email' => 'exec1@horizon.com',
             'phone' => '9800000002',
             'password' => Hash::make('password'),
+            'is_active' => true,
         ]);
 
         $this->project = Project::create([

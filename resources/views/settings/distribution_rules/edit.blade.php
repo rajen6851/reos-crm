@@ -150,25 +150,44 @@
             <div class="p-6 bg-slate-50">
                 <div id="membersContainer" class="space-y-3">
                     @foreach($rule->members as $index => $ruleMember)
-                    <div class="member-row bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-                        <div class="w-full md:w-5/12">
-                            <select name="members[{{ $index }}][user_id]" class="form-select w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" required>
-                                <option value="">Select User...</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ $ruleMember->user_id == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->role->name ?? 'Sales' }})
-                                    </option>
+                                        <div class="member-row bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-4 animate-fade-in-up" data-index="{{ $index ?? 0 }}">
+                        <div class="flex flex-col md:flex-row gap-4 items-center w-full">
+                            <div class="w-full md:w-5/12">
+                                <select name="members[{{ $index ?? 0 }}][user_id]" class="form-select user-select w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" required>
+                                    <option value="">Select User...</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" data-role="{{ $user->role_id }}" {{ (isset($ruleMember) && $ruleMember->user_id == $user->id) ? 'selected' : '' }}>
+                                            {{ $user->name }} ({{ $user->role->name ?? 'Sales' }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="w-full md:w-5/12 relative parent-allocation">
+                                <input type="number" name="members[{{ $index ?? 0 }}][allocation_value]" value="{{ $ruleMember->allocation_value ?? '' }}" class="form-input w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 allocation-input pl-4 pr-10" placeholder="Allocation Value" step="0.01" min="0">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-sm font-medium method-unit">%</div>
+                            </div>
+                            <div class="w-full md:w-2/12 flex justify-end">
+                                <button type="button" class="remove-btn text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors" title="Remove Member">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="executives-container ml-4 md:ml-8 mt-2 pl-4 border-l-2 border-indigo-200 space-y-2 {{ (isset($ruleMember) && $ruleMember->executives->count() > 0) ? '' : 'hidden' }}">
+                            @if(isset($ruleMember) && $ruleMember->executives->count() > 0)
+                                <div class="text-sm font-medium text-indigo-600 mb-2">Team Executives (Optional nested %)</div>
+                                @foreach($ruleMember->executives as $execIdx => $exec)
+                                    <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                        <div class="w-1/2 flex items-center gap-2">
+                                            <input type="checkbox" name="members[{{ $index }}][executives][{{ $execIdx }}][user_id]" value="{{ $exec->user_id }}" class="form-checkbox text-indigo-600 rounded" checked>
+                                            <span class="text-sm text-slate-700">{{ $exec->user->name ?? 'Unknown' }}</span>
+                                        </div>
+                                        <div class="w-1/2 relative exec-allocation">
+                                            <input type="number" name="members[{{ $index }}][executives][{{ $execIdx }}][allocation_value]" value="{{ $exec->allocation_value }}" class="form-input w-full text-sm rounded border-slate-300 exec-allocation-input" placeholder="Allocation" step="0.01" min="0">
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs font-medium method-unit">%</div>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
-                        </div>
-                        <div class="w-full md:w-5/12 relative">
-                            <input type="number" name="members[{{ $index }}][allocation_value]" value="{{ $ruleMember->allocation_value }}" class="form-input w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 allocation-input pl-4 pr-10" placeholder="Allocation Value" step="0.01" min="0">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-sm font-medium method-unit">%</div>
-                        </div>
-                        <div class="w-full md:w-2/12 flex justify-end">
-                            <button type="button" class="remove-btn text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors" title="Remove Member">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            @endif
                         </div>
                     </div>
                     @endforeach
@@ -190,6 +209,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    
+    const executivesByManager = @json($executivesByManager);
+
     const container = document.getElementById('membersContainer');
     const addBtn = document.getElementById('addMemberBtn');
     const methodSelect = document.getElementById('methodSelect');
@@ -198,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateUnits() {
         const method = methodSelect.value;
         const units = document.querySelectorAll('.method-unit');
-        const inputs = document.querySelectorAll('.allocation-input');
+        const inputs = document.querySelectorAll('.allocation-input, .exec-allocation-input');
         
         if(method === 'percentage') {
             units.forEach(u => u.textContent = '%');
@@ -207,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 i.required = true;
                 i.placeholder = 'Percentage %';
             });
-            document.querySelectorAll('.relative').forEach(r => r.style.display = 'block');
+            document.querySelectorAll('.parent-allocation, .exec-allocation').forEach(r => r.style.display = 'block');
         } else if(method === 'fixed_quantity') {
             units.forEach(u => u.textContent = 'Lds');
             inputs.forEach(i => {
@@ -215,45 +237,136 @@ document.addEventListener('DOMContentLoaded', function() {
                 i.required = true;
                 i.placeholder = 'Qty (Leads)';
             });
-            document.querySelectorAll('.relative').forEach(r => r.style.display = 'block');
+            document.querySelectorAll('.parent-allocation, .exec-allocation').forEach(r => r.style.display = 'block');
         } else {
             inputs.forEach(i => {
                 i.style.display = 'none';
                 i.required = false;
             });
-            document.querySelectorAll('.relative').forEach(r => r.style.display = 'none');
+            document.querySelectorAll('.parent-allocation, .exec-allocation').forEach(r => r.style.display = 'none');
         }
     }
 
     methodSelect.addEventListener('change', updateUnits);
-    updateUnits(); 
+    updateUnits();
+    function renderExecutives(managerSelect) {
+        const row = managerSelect.closest('.member-row');
+        const execContainer = row.querySelector('.executives-container');
+        const selectedOption = managerSelect.options[managerSelect.selectedIndex];
+        const managerId = managerSelect.value;
+        const roleId = selectedOption ? selectedOption.getAttribute('data-role') : null;
+        
+        execContainer.innerHTML = '';
+        
+        // If the selected user is a manager (role_id 2, 3, or 4) and has executives
+        if (roleId && ['2', '3', '4'].includes(roleId) && executivesByManager[managerId]) {
+            execContainer.classList.remove('hidden');
+            const executives = executivesByManager[managerId];
+            const memberIdx = row.getAttribute('data-index');
+            
+            let execHtml = `<div class="text-sm font-medium text-indigo-600 mb-2">Team Executives (Optional nested %)</div>`;
+            
+            executives.forEach((exec, execIdx) => {
+                execHtml += `
+                    <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <div class="w-1/2 flex items-center gap-2">
+                            <input type="checkbox" name="members[${memberIdx}][executives][${execIdx}][user_id]" value="${exec.id}" class="form-checkbox text-indigo-600 rounded" checked>
+                            <span class="text-sm text-slate-700">${exec.name}</span>
+                        </div>
+                        <div class="w-1/2 relative exec-allocation">
+                            <input type="number" name="members[${memberIdx}][executives][${execIdx}][allocation_value]" class="form-input w-full text-sm rounded border-slate-300 exec-allocation-input" placeholder="Allocation" step="0.01" min="0">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs font-medium method-unit">%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            execContainer.innerHTML = execHtml;
+            updateUnits(); // Update units for the newly added inputs
+        } else {
+            execContainer.classList.add('hidden');
+        }
+    }
+
+    container.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-select')) {
+            renderExecutives(e.target);
+        }
+    }); 
 
     addBtn.addEventListener('click', function() {
         const row = document.createElement('div');
         row.className = 'member-row bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center animate-fade-in-up';
         
+                row.setAttribute('data-index', memberIndex);
         row.innerHTML = `
-            <div class="w-full md:w-5/12">
-                <select name="members[${memberIndex}][user_id]" class="form-select w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" required>
-                    <option value="">Select User...</option>
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->role->name ?? 'Sales' }})</option>
-                    @endforeach
-                </select>
+            <div class="flex flex-col md:flex-row gap-4 items-center w-full">
+                <div class="w-full md:w-5/12">
+                    <select name="members[${memberIndex}][user_id]" class="form-select user-select w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" required>
+                        <option value="">Select User...</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}" data-role="{{ $user->role_id }}">{{ $user->name }} ({{ $user->role->name ?? 'Sales' }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-full md:w-5/12 relative parent-allocation">
+                    <input type="number" name="members[${memberIndex}][allocation_value]" class="form-input w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 allocation-input pl-4 pr-10" placeholder="Allocation Value" step="0.01" min="0">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-sm font-medium method-unit">%</div>
+                </div>
+                <div class="w-full md:w-2/12 flex justify-end">
+                    <button type="button" class="remove-btn text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors" title="Remove Member">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </div>
-            <div class="w-full md:w-5/12 relative">
-                <input type="number" name="members[${memberIndex}][allocation_value]" class="form-input w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 allocation-input pl-4 pr-10" placeholder="Allocation Value" step="0.01" min="0">
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-sm font-medium method-unit">%</div>
-            </div>
-            <div class="w-full md:w-2/12 flex justify-end">
-                <button type="button" class="remove-btn text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors" title="Remove Member">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+            <div class="executives-container ml-4 md:ml-8 mt-2 pl-4 border-l-2 border-indigo-200 space-y-2 hidden">
             </div>
         `;
         container.appendChild(row);
         memberIndex++;
         updateUnits();
+    function renderExecutives(managerSelect) {
+        const row = managerSelect.closest('.member-row');
+        const execContainer = row.querySelector('.executives-container');
+        const selectedOption = managerSelect.options[managerSelect.selectedIndex];
+        const managerId = managerSelect.value;
+        const roleId = selectedOption ? selectedOption.getAttribute('data-role') : null;
+        
+        execContainer.innerHTML = '';
+        
+        // If the selected user is a manager (role_id 2, 3, or 4) and has executives
+        if (roleId && ['2', '3', '4'].includes(roleId) && executivesByManager[managerId]) {
+            execContainer.classList.remove('hidden');
+            const executives = executivesByManager[managerId];
+            const memberIdx = row.getAttribute('data-index');
+            
+            let execHtml = `<div class="text-sm font-medium text-indigo-600 mb-2">Team Executives (Optional nested %)</div>`;
+            
+            executives.forEach((exec, execIdx) => {
+                execHtml += `
+                    <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <div class="w-1/2 flex items-center gap-2">
+                            <input type="checkbox" name="members[${memberIdx}][executives][${execIdx}][user_id]" value="${exec.id}" class="form-checkbox text-indigo-600 rounded" checked>
+                            <span class="text-sm text-slate-700">${exec.name}</span>
+                        </div>
+                        <div class="w-1/2 relative exec-allocation">
+                            <input type="number" name="members[${memberIdx}][executives][${execIdx}][allocation_value]" class="form-input w-full text-sm rounded border-slate-300 exec-allocation-input" placeholder="Allocation" step="0.01" min="0">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs font-medium method-unit">%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            execContainer.innerHTML = execHtml;
+            updateUnits(); // Update units for the newly added inputs
+        } else {
+            execContainer.classList.add('hidden');
+        }
+    }
+
+    container.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-select')) {
+            renderExecutives(e.target);
+        }
+    });
     });
 
     container.addEventListener('click', function(e) {

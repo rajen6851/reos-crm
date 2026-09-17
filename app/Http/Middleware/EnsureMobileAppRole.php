@@ -18,7 +18,7 @@ class EnsureMobileAppRole
         $isBrokerAccount = $user && ($user->role?->slug === 'broker'
             || \App\Models\Broker::where('user_id', $user->id)->exists());
 
-        if (!$user || (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker'], true) && !$isBrokerAccount)) {
+        if (!$user || (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker', 'admin', 'company_admin', 'director', 'founder'], true) && !$isBrokerAccount)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'This mobile app is available only for managers, executives, and brokers.',

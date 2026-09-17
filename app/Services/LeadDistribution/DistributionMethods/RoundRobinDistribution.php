@@ -3,68 +3,47 @@
 namespace App\Services\LeadDistribution\DistributionMethods;
 
 use App\Models\DistributionRule;
-use App\Models\DistributionState;
+use App\Models\DistributionMemberState;
 
 class RoundRobinDistribution
 {
     /**
-     * Select a user based on persistent Round Robin sequence.
+     * Select a user based on the member with the lowest actual_assigned_count among the eligible members.
+     * Tied members are processed in sequence by ID.
      */
     public function selectUser(DistributionRule $rule, $eligibleMembers)
     {
-        // Sort members consistently, e.g., by ID to maintain a strict sequence
         $sortedMembers = $eligibleMembers->sortBy('id')->values();
 
         if ($sortedMembers->isEmpty()) {
-            \Log::info("RoundRobinDistribution: eligible members is empty!");
             return null;
         }
 
-        $ruleState = DistributionState::firstOrCreate(
-            ['distribution_rule_id' => $rule->id],
-            ['total_distributed' => 0]
-        );
+        $minAssignedCount = null;
+        $selectedMember = null;
+        $memberStates = [];
 
-        $lastAssignedUserId = $ruleState->last_assigned_user_id;
-        \Log::info("RoundRobinDistribution: lastAssignedUserId is " . json_encode($lastAssignedUserId));
-        
-        $nextMember = null;
+        // Determine which member in THIS specific group is farthest behind in the robin cycle.
+        // This makes the round robin completely isolated and safe for nested tiers.
+        foreach ($sortedMembers as $member) {
+            $memberState = DistributionMemberState::firstOrCreate(
+                ['distribution_rule_id' => $rule->id, 'user_id' => $member->user_id],
+                ['actual_assigned_count' => 0]
+            );
+            $memberStates[$member->user_id] = $memberState;
 
-        if (!$lastAssignedUserId) {
-            // No one assigned yet, pick the first one
-            $nextMember = $sortedMembers->first();
-        } else {
-            // Find the index of the last assigned user in our currently active sorted members
-            $lastIndex = $sortedMembers->search(function ($item) use ($lastAssignedUserId) {
-                return $item->user_id == $lastAssignedUserId;
-            });
-
-            if ($lastIndex !== false) {
-                // Pick the next one in the array
-                $nextIndex = $lastIndex + 1;
-                
-                // If we reach the end of the array, loop back to 0
-                if ($nextIndex >= $sortedMembers->count()) {
-                    $nextIndex = 0;
-                }
-                
-                $nextMember = $sortedMembers[$nextIndex];
-            } else {
-                // If last assigned user is no longer eligible (e.g. inactive),
-                // just pick the first eligible member to restart sequence cleanly among active members.
-                $nextMember = $sortedMembers->first();
+            if ($minAssignedCount === null || $memberState->actual_assigned_count < $minAssignedCount) {
+                $minAssignedCount = $memberState->actual_assigned_count;
+                $selectedMember = $member;
             }
         }
 
-        if ($nextMember) {
-            // Update states
-            $ruleState->last_assigned_user_id = $nextMember->user_id;
-            $ruleState->increment('total_distributed');
-            \Log::info("RoundRobinDistribution: nextMember selected is " . $nextMember->user_id);
-            return $nextMember->user_id;
+        if ($selectedMember) {
+            $selectedMemberState = $memberStates[$selectedMember->user_id];
+            $selectedMemberState->increment('actual_assigned_count');
+            return $selectedMember->user_id;
         }
-        
-        \Log::info("RoundRobinDistribution: nextMember is null for some reason!");
+
         return null;
     }
 }

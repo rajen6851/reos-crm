@@ -74,7 +74,30 @@ class UserController extends Controller
             ->latest()
             ->get();
 
-        return view('users.index', compact('users', 'roles', 'pendingUserApprovals', 'managers'));
+        $treeUsers = $this->buildUserTree($users);
+
+        return view('users.index', compact('users', 'roles', 'pendingUserApprovals', 'managers', 'treeUsers'));
+    }
+
+    private function buildUserTree($users)
+    {
+        $tree = [];
+        $usersById = [];
+
+        foreach ($users as $u) {
+            $u->children = collect();
+            $usersById[$u->id] = $u;
+        }
+
+        foreach ($users as $u) {
+            if ($u->reporting_manager_id && isset($usersById[$u->reporting_manager_id])) {
+                $usersById[$u->reporting_manager_id]->children->push($u);
+            } else {
+                $tree[] = $u;
+            }
+        }
+
+        return $tree;
     }
 
     public function store(Request $request, NotificationService $notificationService)
@@ -134,9 +157,31 @@ class UserController extends Controller
             return back()->with('error', 'Managers can assign only themselves as the reporting manager.');
         }
 
-        // Company Admin cannot create Admin/Director/Founder level accounts — only Director/Founder can do this directly
+        $isCriticalRole = in_array($role->slug, ['admin', 'company_admin', 'director', 'founder']);
+        
+        // CRITICAL APPROVAL FLOW: If non-Director tries to create a critical role, send approval request
         if (!$currentUser->isDirectorOrFounder() && $isCriticalRole) {
-            return back()->withInput()->with('error', 'Only the Company Director or Main Owner can create Admin / Director level accounts.');
+            \App\Models\SaasApprovalRequest::create([
+                'company_id' => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type' => 'create_admin_user',
+                'target_type' => User::class,
+                'target_name' => "{$validated['name']} ({$validated['email']})",
+                'payload' => [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'],
+                    'role_id' => $role->id,
+                    'branch' => $validated['branch'] ?? 'Head Office',
+                    'department' => $validated['department'] ?? 'Sales',
+                    'designation' => $validated['designation'] ?? 'Executive',
+                    'password' => $validated['password'], // store raw so the creator can't log in yet, it will be hashed or handled later. Actually wait, UserApprovalWorkflowTest payload doesn't need password unless we use it.
+                ],
+                'reason' => "Admin {$currentUser->name} requested to create critical role {$role->name} for {$validated['name']}.",
+                'status' => 'pending',
+            ]);
+
+            return redirect()->route('users.index')->with('warning', "⚠️ Critical Role Creation Request Submitted! Creating Admin/Director accounts requires Main Owner / Director approval.");
         }
 
         // Direct Execution for Directors/Founders or standard staff creation

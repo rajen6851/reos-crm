@@ -3,7 +3,7 @@
 @section('title', 'Team & Staff Management - REOS')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeRoleTab: 'all' }">
+<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeRoleTab: 'all', viewMode: 'list' }">
     <!-- Header Banner -->
     <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -140,10 +140,21 @@
             <i class="fa-solid fa-headset text-emerald-600"></i>
             <span>Sales Executives ({{ $users->filter(fn($u) => str_contains(strtolower($u->role->name ?? ''), 'executive') || str_contains(strtolower($u->role->name ?? ''), 'sales'))->count() }})</span>
         </button>
+
+        <div class="ml-auto flex items-center border border-[#E2E8F0] rounded-xl overflow-hidden shadow-2xs">
+            <button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-slate-100 text-[#0F172A] border-r border-[#E2E8F0]' : 'bg-white text-[#64748B] hover:bg-slate-50 border-r border-[#E2E8F0]'" class="px-4 py-2 text-[11px] font-bold transition flex items-center space-x-1.5 cursor-pointer">
+                <i class="fa-solid fa-list"></i>
+                <span>List View</span>
+            </button>
+            <button @click="viewMode = 'tree'" :class="viewMode === 'tree' ? 'bg-slate-100 text-[#0F172A]' : 'bg-white text-[#64748B] hover:bg-slate-50'" class="px-4 py-2 text-[11px] font-bold transition flex items-center space-x-1.5 cursor-pointer">
+                <i class="fa-solid fa-sitemap"></i>
+                <span>Tree View</span>
+            </button>
+        </div>
     </div>
 
     <!-- Internal Users Directory Table -->
-    <div class="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xs overflow-hidden">
+    <div x-show="viewMode === 'list'" class="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xs overflow-hidden">
         <div class="p-5 border-b border-[#E2E8F0] flex justify-between items-center">
             <h3 class="section-heading text-base">Internal Team Members Directory</h3>
             <span class="text-xs text-[#64748B] font-medium">Sorted by creation date</span>
@@ -277,6 +288,27 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        @endif
+    </div>
+
+    <!-- Tree View Container -->
+    <div x-show="viewMode === 'tree'" style="display: none;" class="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xs overflow-hidden p-6">
+        <div class="mb-4 border-b border-[#E2E8F0] pb-4 flex justify-between items-center">
+            <h3 class="section-heading text-base flex items-center space-x-2">
+                <i class="fa-solid fa-sitemap text-[#4F46E5]"></i>
+                <span>Company Organization Chart</span>
+            </h3>
+            <span class="text-xs text-[#64748B] font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">Reporting Hierarchy</span>
+        </div>
+        
+        @if(empty($treeUsers))
+            <div class="p-8 text-center text-slate-500 font-medium text-xs">No users found to build hierarchy.</div>
+        @else
+            <div class="overflow-x-auto py-2 pr-4 min-w-max">
+                <ul class="ml-2">
+                    @include('users.partials.tree-node', ['users' => $treeUsers])
+                </ul>
             </div>
         @endif
     </div>

@@ -53,7 +53,7 @@ class DocumentApiController extends Controller
 
     public function destroy(Request $request, int $id)
     {
-        abort_unless($request->user()->isManager() || $request->user()->isCompanyAdmin(), 403);
+        \Illuminate\Support\Facades\Gate::authorize('manage-users');
         $document = KycDocument::where('company_id', $request->user()->company_id)->findOrFail($id);
         $document->delete();
         return response()->json(['status' => 'success', 'message' => 'Document deleted.']);

@@ -95,9 +95,9 @@ class PermissionController extends Controller
         // Only Founder and Admin can configure the full matrix for all roles.
         // Director and below can only see & configure their OWN role card.
         $roleHierarchy = [
-            'founder'         => ['founder', 'director', 'admin', 'manager', 'sales_executive', 'support_team', 'broker'],
-            'admin'           => ['admin', 'manager', 'sales_executive', 'support_team', 'broker'],
-            'director'        => ['admin', 'manager', 'sales_executive'], // manages internal team roles only
+            'founder'         => ['admin', 'manager', 'sales_executive'],
+            'director'        => ['admin', 'manager', 'sales_executive'],
+            'admin'           => ['admin', 'manager', 'sales_executive'],
             'manager'         => ['manager'],         // sees only own role
             'sales_executive' => ['sales_executive'], // sees only own role
             'support_team'    => ['support_team'],    // sees only own role

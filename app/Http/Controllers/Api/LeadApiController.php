@@ -105,4 +105,39 @@ class LeadApiController extends Controller
             'lead' => $lead->fresh(['project', 'broker', 'brokerLead']),
         ]);
     }
+    public function assign(Request $request, Lead $lead)
+    {
+        $user = $request->user();
+
+        if ($lead->company_id !== $user->company_id) {
+            return response()->json(['error' => 'Unauthorized access to lead.'], 403);
+        }
+
+        $validated = $request->validate([
+            'assigned_to_user_id' => 'required|exists:users,id',
+        ]);
+
+        $assignedUser = \App\Models\User::where('company_id', $user->company_id)
+            ->findOrFail($validated['assigned_to_user_id']);
+
+        $lead->update([
+            'assigned_to_user_id' => $assignedUser->id,
+            'assigned_to_manager_id' => $assignedUser->reporting_manager_id ?? null,
+            'status' => 'assigned'
+        ]);
+
+        \App\Models\LeadActivity::create([
+            'company_id' => $user->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'activity_type' => 'assigned',
+            'description' => "Lead manually assigned to {$assignedUser->name} by {$user->name}",
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Lead assigned successfully.',
+            'lead' => $lead->fresh(['assignedTo', 'broker', 'project', 'source']),
+        ]);
+    }
 }

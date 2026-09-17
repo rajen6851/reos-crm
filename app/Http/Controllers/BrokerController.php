@@ -205,9 +205,7 @@ class BrokerController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Brokers Directory is reserved for Company Admins and Directors.');
-        }
+        Gate::authorize('manage-users');
 
         // Bypassing tenant scope for SuperAdmin Founder to view all global brokers
         $query = $user->isSaaSFounder()
@@ -260,9 +258,7 @@ class BrokerController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Broker management is reserved for Company Admins and Directors.');
-        }
+        Gate::authorize('manage-users');
 
         $validated = $request->validate([
             'agency_name' => 'required|string|max:150',
@@ -353,9 +349,7 @@ class BrokerController extends Controller
     {
         $currentUser = Auth::user();
 
-        if (!$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access. Broker management is reserved for Company Admins and Directors.');
-        }
+        Gate::authorize('manage-users');
 
         // CRITICAL APPROVAL FLOW: If non-Director tries to delete a Broker, send approval request
         if (!$currentUser->isDirectorOrFounder()) {

@@ -48,7 +48,7 @@ class SubscriptionApiController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
+        if (!$user->hasPermission('company-settings') && !$user->isSaaSFounder()) {
             return response()->json(['error' => 'Only company admin or founder can manage subscription.'], 403);
         }
 
@@ -83,7 +83,7 @@ class SubscriptionApiController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isSaaSFounder()) {
+        if (!$user->hasPermission('company-settings') && !$user->isSaaSFounder()) {
             return response()->json(['error' => 'Only company admin can renew subscription.'], 403);
         }
 

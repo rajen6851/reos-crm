@@ -27,9 +27,7 @@ class LeadController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isBroker()) {
-            return redirect()->route('dashboard');
-        }
+        Gate::authorize('manage-leads');
 
         $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user', 'latestDistributionLog.rule']);
 
@@ -116,9 +114,7 @@ class LeadController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isSales() || $user->isBroker()) {
-            return redirect()->route('leads.index')->with('error', 'Unauthorized access. Lead export is reserved for Admins and Managers.');
-        }
+        Gate::authorize('export-leads');
 
         $query = Lead::with(['assignedTo', 'broker', 'project', 'source']);
 
@@ -208,6 +204,8 @@ class LeadController extends Controller
 
     public function store(Request $request, DuplicateLeadService $duplicateService)
     {
+        Gate::authorize('manage-leads');
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'nullable|string|max:100',
@@ -555,11 +553,9 @@ class LeadController extends Controller
 
     public function destroy(Lead $lead, NotificationService $notificationService)
     {
-        $currentUser = Auth::user();
+        Gate::authorize('delete-leads');
 
-        if (!$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
-            return back()->with('error', 'Only Company Admins and SaaS Founders can delete leads.');
-        }
+        $currentUser = Auth::user();
 
         $leadCode     = $lead->lead_code;
         $customerName = "{$lead->first_name} {$lead->last_name}";
@@ -589,7 +585,7 @@ class LeadController extends Controller
                     'critical_approval_request',
                     "🚨 Critical Approval Needed: Delete Customer Lead",
                     "Admin {$currentUser->name} requested to DELETE lead '{$leadCode}' ({$customerName}). Please review and approve.",
-                    route('users.companyApprovals')
+                    route('company.approvals')
                 );
             }
 
@@ -606,6 +602,8 @@ class LeadController extends Controller
 
     public function update(Request $request, Lead $lead)
     {
+        Gate::authorize('manage-leads');
+
         $user = Auth::user();
 
         if ($user->isSales() && $lead->assigned_to_user_id !== $user->id) {

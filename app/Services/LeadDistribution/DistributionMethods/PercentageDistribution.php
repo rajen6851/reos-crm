@@ -4,7 +4,6 @@ namespace App\Services\LeadDistribution\DistributionMethods;
 
 use App\Models\DistributionRule;
 use App\Models\DistributionMemberState;
-use App\Models\DistributionState;
 
 class PercentageDistribution
 {
@@ -13,42 +12,38 @@ class PercentageDistribution
      */
     public function selectUser(DistributionRule $rule, $eligibleMembers)
     {
-        // Get the overall state for this rule
-        $ruleState = DistributionState::firstOrCreate(
-            ['distribution_rule_id' => $rule->id],
-            ['total_distributed' => 0]
-        );
-
-        $totalLeadsDistributed = $ruleState->total_distributed;
-
         $selectedMember = null;
         $maxDeficit = -999999;
 
-        // We calculate total active weight (incase some users are inactive/on leave and we need fallback behavior)
+        // 1. Calculate active weight
         $totalActiveWeight = $eligibleMembers->sum('allocation_value');
         if ($totalActiveWeight <= 0) {
             return null;
         }
 
+        // 2. Fetch or create member states for exactly this group and sum up total assigned.
+        // By relying only on the member state instead of a global state, this automatically
+        // adapts accurately to nested tiers (Managers vs Executives).
+        $totalLeadsDistributed = 0;
+        $memberStates = [];
         foreach ($eligibleMembers as $member) {
-            // Normalize the target percentage based on active users (Fallback logic)
-            // If original total was 100, but an active user is missing, this recalculates to 100% among active users
-            $normalizedPercentage = $member->allocation_value / $totalActiveWeight;
-
-            // Load member state
             $memberState = DistributionMemberState::firstOrCreate(
                 ['distribution_rule_id' => $rule->id, 'user_id' => $member->user_id],
                 ['actual_assigned_count' => 0]
             );
+            $memberStates[$member->user_id] = $memberState;
+            $totalLeadsDistributed += $memberState->actual_assigned_count;
+        }
 
-            // Calculate Expected Leads
+        // 3. Calculate expected vs actual for this specific subset of members
+        foreach ($eligibleMembers as $member) {
+            $normalizedPercentage = $member->allocation_value / $totalActiveWeight;
+            $memberState = $memberStates[$member->user_id];
+
             $expectedLeads = $totalLeadsDistributed * $normalizedPercentage;
-
-            // Calculate Deficit
             $deficit = $expectedLeads - $memberState->actual_assigned_count;
-
-            // Add a small tie-breaker using original allocation_value just in case deficits are exactly equal
-            // The one with the higher original percentage should win ties
+            
+            // Tie-breaker
             $weightedDeficit = $deficit + ($normalizedPercentage * 0.0001);
 
             if ($weightedDeficit > $maxDeficit) {
@@ -58,15 +53,8 @@ class PercentageDistribution
         }
 
         if ($selectedMember) {
-            // Update states
-            $ruleState->increment('total_distributed');
-            
-            $selectedMemberState = DistributionMemberState::where('distribution_rule_id', $rule->id)
-                ->where('user_id', $selectedMember->user_id)
-                ->first();
-                
+            $selectedMemberState = $memberStates[$selectedMember->user_id];
             $selectedMemberState->increment('actual_assigned_count');
-
             return $selectedMember->user_id;
         }
 

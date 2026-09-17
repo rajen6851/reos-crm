@@ -121,6 +121,14 @@ class DashboardController extends Controller
             $availableUnits = Unit::where('status', 'available')->count();
             $bookedUnits = Unit::where('status', 'booked')->count();
             $totalLeads = Lead::count();
+            $newLeadsCount = Lead::where('status', 'new')->count();
+            $contactedLeadsCount = Lead::where('status', 'contacted')->count();
+            $qualifiedLeadsCount = Lead::where('status', 'qualified')->count();
+            $siteVisitsCount = Lead::where('status', 'site_visit')->count();
+            $negotiationCount = Lead::where('status', 'negotiation')->count();
+            $convertedCount = Lead::where('status', 'converted')->count();
+            $pendingFollowUpsCount = \App\Models\FollowUp::where('company_id', $user->company_id)->where('status', 'pending')->count();
+            $totalRevenue = \App\Models\Booking::where('company_id', $user->company_id)->sum('booking_amount');
             $teamUsers = User::where('company_id', $user->company_id)
                 ->whereHas('role', function ($q) {
                     $q->where('slug', '!=', 'broker');
@@ -135,9 +143,27 @@ class DashboardController extends Controller
                 ->latest()
                 ->get();
 
+            $todaysAgenda = \App\Models\FollowUp::where('company_id', $user->company_id)
+                ->whereDate('scheduled_at', now()->toDateString())
+                ->where('status', 'pending')
+                ->with(['lead'])
+                ->orderBy('scheduled_at')
+                ->take(5)
+                ->get();
+
+            $recentHighPriorityLeads = \App\Models\Lead::where('company_id', $user->company_id)
+                ->whereIn('status', ['qualified', 'site_visit', 'negotiation'])
+                ->with(['assignedTo', 'project'])
+                ->latest('last_activity_at')
+                ->take(6)
+                ->get();
+
             return view('dashboard.admin', compact(
                 'user', 'company', 'totalUsers', 'totalProjects', 'totalUnits', 'availableUnits',
-                'bookedUnits', 'totalLeads', 'teamUsers', 'subscriptionPlans', 'subscriptionSummary', 'pendingCompanyApprovals'
+                'bookedUnits', 'totalLeads', 'teamUsers', 'subscriptionPlans', 'subscriptionSummary', 'pendingCompanyApprovals',
+                'todaysAgenda', 'recentHighPriorityLeads', 'newLeadsCount', 'contactedLeadsCount',
+                'qualifiedLeadsCount', 'siteVisitsCount', 'negotiationCount', 'convertedCount',
+                'pendingFollowUpsCount', 'totalRevenue'
             ));
         }
 

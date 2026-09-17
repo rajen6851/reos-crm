@@ -35,6 +35,9 @@ class AttendanceApiController extends Controller
             'work_location' => 'required|in:office,field_visit,wfh',
             'selfie' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'notes' => 'nullable|string|max:500',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'address' => 'nullable|string|max:500',
         ]);
         $user = $request->user();
         $attendance = Attendance::firstOrCreate(
@@ -45,20 +48,41 @@ class AttendanceApiController extends Controller
                 'status' => 'present',
                 'notes' => $validated['notes'] ?? null,
                 'selfie_path' => $request->file('selfie')->store('attendance-selfies', 'public'),
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'address' => $validated['address'] ?? null,
             ]
         );
 
-        return response()->json(['status' => 'success', 'message' => 'Attendance clock-in recorded.', 'data' => $attendance], 201);
+        $msg = 'Attendance clock-in recorded.';
+        if (!empty($validated['latitude']) && !empty($validated['longitude'])) {
+            $msg .= " Location Captured: Lat: {$validated['latitude']}, Lon: {$validated['longitude']}";
+        }
+
+        return response()->json(['status' => 'success', 'message' => $msg, 'data' => $attendance], 201);
     }
 
     public function clockOut(Request $request)
     {
         abort_if($request->user()->isBroker(), 403, 'Attendance is available for internal staff only.');
+        
+        $validated = $request->validate([
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'address' => 'nullable|string|max:500',
+        ]);
+
         $attendance = Attendance::where('company_id', $request->user()->company_id)
             ->where('user_id', $request->user()->id)
             ->whereDate('date', now()->toDateString())
             ->firstOrFail();
-        $attendance->update(['clock_out' => now()->format('H:i:s')]);
+            
+        $attendance->update([
+            'clock_out' => now()->format('H:i:s'),
+            'latitude' => $attendance->latitude ?? $validated['latitude'] ?? null,
+            'longitude' => $attendance->longitude ?? $validated['longitude'] ?? null,
+            'address' => $attendance->address ?? $validated['address'] ?? null,
+        ]);
 
         return response()->json(['status' => 'success', 'message' => 'Attendance clock-out recorded.', 'data' => $attendance->fresh()]);
     }

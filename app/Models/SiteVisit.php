@@ -17,6 +17,7 @@ class SiteVisit extends Model
         'visit_images', 'customer_rating',
         'visit_feedback_by', 'feedback_submitted_at',
         'google_event_id', 'google_sync_status', 'google_synced_at',
+        'latitude', 'longitude', 'distance_from_project', 'is_geo_verified', 'visit_photo_path'
     ];
 
     protected $casts = [

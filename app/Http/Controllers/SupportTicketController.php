@@ -148,7 +148,7 @@ class SupportTicketController extends Controller
         ]);
 
         // Auto update status if resolved/in_progress based on user role
-        if ($ticket->status === 'open' && ($user->isManager() || $user->isCompanyAdmin())) {
+        if ($ticket->status === 'open' && $user->hasPermission('manage-users')) {
             $ticket->update(['status' => 'in_progress']);
         }
 
@@ -172,7 +172,7 @@ class SupportTicketController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
+        if (!$user->hasPermission('manage-users') && !$user->isSaaSFounder()) {
             return back()->with('error', 'Unauthorized. Only Admins and Managers can update ticket status.');
         }
 
@@ -193,7 +193,7 @@ class SupportTicketController extends Controller
 
     public function destroy($id)
     {
-        if (!auth()->user()->isCompanyAdmin() && auth()->user()->role?->slug !== 'founder') {
+        if (!auth()->user()->hasPermission('manage-users') && auth()->user()->role?->slug !== 'founder') {
             return back()->with('error', 'Only Admins can delete support tickets.');
         }
 

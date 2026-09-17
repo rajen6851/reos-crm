@@ -156,9 +156,7 @@ class KycDocumentController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isCompanyAdmin() && !$user->isManager() && !$user->isSaaSFounder()) {
-            return back()->with('error', 'Unauthorized action. Only Company Admins and Managers can delete drive files.');
-        }
+        Gate::authorize('manage-users');
 
         $doc = KycDocument::where(function ($q) use ($user) {
             if (!$user->isSaaSFounder()) {

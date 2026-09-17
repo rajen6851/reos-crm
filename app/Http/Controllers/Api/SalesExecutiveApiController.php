@@ -48,7 +48,7 @@ class SalesExecutiveApiController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        if (!$user->isSales() && !$user->isCompanyAdmin() && !$user->isManager()) {
+        if (!$user->isSales() && !$user->hasPermission('manage-leads') && !$user->isManager()) {
             return response()->json(['error' => 'Unauthorized access to sales dashboard.'], 403);
         }
 
@@ -181,7 +181,7 @@ class SalesExecutiveApiController extends Controller
                     ->when($user->isManager(), function ($managerQuery) use ($user) {
                         $this->managerLeadScope($managerQuery, $user);
                     })
-                    ->when($user->isCompanyAdmin(), function ($adminQuery) {
+                    ->when($user->hasPermission('manage-leads'), function ($adminQuery) {
                         $adminQuery->orWhereNotNull('id');
                     });
             })
@@ -264,8 +264,8 @@ class SalesExecutiveApiController extends Controller
             && (($lead->assigned_to_manager_id === $user->id)
                 || $this->teamExecutiveIds($user)->contains($lead->assigned_to_user_id));
 
-        if ($lead->assigned_to_user_id !== $user->id && !$managerCanAccess && !$user->isCompanyAdmin()) {
-            return response()->json(['error' => 'Not authorized to update this lead.'], 403);
+        if ($lead->assigned_to_user_id !== $user->id && !$managerCanAccess && !$user->hasPermission('manage-leads')) {
+            return response()->json(['error' => 'Unauthorized. You can only update leads assigned to you.'], 403);
         }
 
         $validated = $request->validate([
@@ -321,6 +321,63 @@ class SalesExecutiveApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Lead status updated successfully and broker portal view synchronized.',
+            'lead' => $lead->fresh(['project', 'broker', 'brokerLead']),
+        ]);
+    }
+
+    /**
+     * Assign lead to a team member (Manager only)
+     */
+    public function assignLead(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        if (!$user->isManager() && !$user->hasPermission('manage-users')) {
+            return response()->json(['error' => 'Unauthorized. Only managers can view team metrics.'], 403);
+        }
+
+        $lead = Lead::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // Check if manager has access to this lead
+        $managerCanAccess = $user->hasPermission('manage-leads') || 
+            ($lead->assigned_to_manager_id === $user->id) || 
+            $this->teamExecutiveIds($user)->contains($lead->assigned_to_user_id);
+
+        if (!$managerCanAccess) {
+            return response()->json(['error' => 'Not authorized to assign this lead.'], 403);
+        }
+
+        $validated = $request->validate([
+            'assigned_to_user_id' => 'required|exists:users,id',
+        ]);
+
+        $assignedUser = User::where('company_id', $user->company_id)
+            ->findOrFail($validated['assigned_to_user_id']);
+
+        // Verify that the assigned user is in the manager's team
+        if (!$user->hasPermission('manage-leads') && $assignedUser->reporting_manager_id !== $user->id && $assignedUser->id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized to view this user\'s timeline.'], 403);
+        }
+
+        $lead->update([
+            'assigned_to_user_id' => $assignedUser->id,
+            'assigned_to_manager_id' => $assignedUser->reporting_manager_id ?? null,
+            'status' => 'assigned'
+        ]);
+
+        LeadActivity::create([
+            'company_id' => $user->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'activity_type' => 'assigned',
+            'description' => "Lead assigned to {$assignedUser->name} by {$user->name}",
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Lead assigned successfully.',
             'lead' => $lead->fresh(['project', 'broker', 'brokerLead']),
         ]);
     }
@@ -838,5 +895,79 @@ class SalesExecutiveApiController extends Controller
             'message' => 'Agreement skip request submitted for Manager & Founder approval.',
             'data' => $agreement,
         ], 201);
+    }
+
+    /**
+     * Geo-verify a site visit
+     */
+    public function verifyVisit(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $visit = \App\Models\SiteVisit::where('company_id', $user->company_id)
+            ->where(function ($q) use ($user) {
+                $q->where('assigned_to_user_id', $user->id)
+                    ->when($user->isManager(), function ($managerQuery) use ($user) {
+                        $teamIds = $user->teamExecutives()->pluck('id')->push($user->id);
+                        $managerQuery->orWhereIn('assigned_to_user_id', $teamIds);
+                    })
+                    ->when($user->hasPermission('manage-leads'), function ($adminQuery) {
+                        $adminQuery->orWhereNotNull('id');
+                    });
+            })
+            ->where('id', $id)
+            ->with('project')
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        $projectLat = $visit->project?->latitude;
+        $projectLng = $visit->project?->longitude;
+
+        $distance = null;
+        $isVerified = false;
+
+        if ($projectLat && $projectLng) {
+            $distance = \App\Helpers\GeoHelper::calculateDistance(
+                $validated['latitude'],
+                $validated['longitude'],
+                $projectLat,
+                $projectLng
+            );
+            
+            // Allow 300 meters radius
+            if ($distance !== null && $distance <= 300) {
+                $isVerified = true;
+            }
+        }
+
+        $photoPath = $visit->visit_photo_path;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('visit-photos', 'public');
+        }
+
+        $visit->update([
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'distance_from_project' => $distance,
+            'is_geo_verified' => $isVerified,
+            'visit_photo_path' => $photoPath,
+            'visited_at' => now(),
+            'status' => 'conducted',
+        ]);
+
+        $msg = $isVerified 
+            ? "Visit Verified ✅ (Distance: {$distance}m)" 
+            : ($distance !== null ? "Not Verified ❌ (Distance: {$distance}m)" : "Verification pending: Project location missing.");
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $msg,
+            'data' => $visit->fresh(),
+        ]);
     }
 }

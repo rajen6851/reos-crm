@@ -38,10 +38,7 @@ class BookingController extends Controller
     public function store(Request $request, BookingService $bookingService, LeadService $leadService)
     {
         $user = Auth::user();
-        abort_unless(
-            $user->isSales() || $user->isManager() || $user->isCompanyAdmin() || $user->isSaaSFounder(),
-            403
-        );
+        abort_if($user->isBroker(), 403, 'Brokers cannot create bookings directly.');
 
         $validated = $request->validate([
             'unit_id' => 'required|exists:units,id',

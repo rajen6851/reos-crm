@@ -12,7 +12,7 @@ class ReportApiController extends Controller
 {
     public function summary(Request $request)
     {
-        abort_unless($request->user()->isManager() || $request->user()->isCompanyAdmin(), 403);
+        \Illuminate\Support\Facades\Gate::authorize('view-reports');
         $companyId = $request->user()->company_id;
         $leads = Lead::where('company_id', $companyId);
         $bookings = Booking::where('company_id', $companyId);

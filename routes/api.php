@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     Route::get('/leads', [LeadApiController::class, 'index']);
     Route::post('/leads', [LeadApiController::class, 'store']);
     Route::post('/leads/{lead}/status', [LeadApiController::class, 'updateStatus']);
+    Route::post('/leads/{lead}/assign', [LeadApiController::class, 'assign']);
 
     // General Site Visits API
     Route::get('/site-visits', [SiteVisitApiController::class, 'index']);
@@ -109,6 +110,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::post('/leads/check-duplicate', [SalesExecutiveApiController::class, 'checkDuplicate']);
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
+        Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
         Route::post('/leads/{id}/notes', [SalesExecutiveApiController::class, 'addNote']);
         Route::post('/leads/{id}/calls', [SalesExecutiveApiController::class, 'logCall']);
         Route::get('/leads/{id}/follow-ups', [SalesExecutiveApiController::class, 'followUps']);
@@ -116,6 +118,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
         Route::post('/site-visits', [SalesExecutiveApiController::class, 'storeSiteVisit']);
         Route::post('/site-visits/{id}/status', [SalesExecutiveApiController::class, 'updateSiteVisitStatus']);
+        Route::post('/site-visits/{id}/verify-visit', [SalesExecutiveApiController::class, 'verifyVisit']);
         Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);
         Route::get('/projects/{id}/units', [SalesExecutiveApiController::class, 'projectUnits']);
         Route::get('/bookings', [SalesExecutiveApiController::class, 'bookings']);
@@ -136,6 +139,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
+        Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
         Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
         Route::post('/site-visits/{id}/status', [SalesExecutiveApiController::class, 'updateSiteVisitStatus']);
         Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);

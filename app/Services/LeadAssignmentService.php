@@ -43,8 +43,10 @@ class LeadAssignmentService
                 'transfer_eligible_at'=> null, // reset after fresh assignment
             ];
 
-            if ($assignedBy->isManager()) {
-                $updatePayload['assigned_to_manager_id'] = $assignedBy->id;
+            if ($assignedTo->isManager()) {
+                $updatePayload['assigned_to_manager_id'] = $assignedTo->id;
+            } elseif ($assignedTo->reporting_manager_id) {
+                $updatePayload['assigned_to_manager_id'] = $assignedTo->reporting_manager_id;
             }
 
             $lead->update($updatePayload);
@@ -112,8 +114,10 @@ class LeadAssignmentService
                 'transfer_eligible_at' => null, // reset after transfer
             ];
 
-            if ($transferredBy->isManager()) {
-                $transferPayload['assigned_to_manager_id'] = $transferredBy->id;
+            if ($newAssignee->isManager()) {
+                $transferPayload['assigned_to_manager_id'] = $newAssignee->id;
+            } elseif ($newAssignee->reporting_manager_id) {
+                $transferPayload['assigned_to_manager_id'] = $newAssignee->reporting_manager_id;
             }
 
             $lead->update($transferPayload);

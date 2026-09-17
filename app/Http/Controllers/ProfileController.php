@@ -52,9 +52,31 @@ class ProfileController extends Controller
 
         $user->delete();
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Display the user's permissions screen.
+     */
+    public function myPermissions(Request $request): View
+    {
+        $user = $request->user();
+        
+        $myPermissions = [];
+        if ($user->isDirectorOrFounder()) {
+            $myPermissions = \App\Models\Permission::pluck('slug')->toArray();
+        } elseif ($user->role) {
+            $myPermissions = $user->role->permissions()->pluck('slug')->toArray();
+        }
+
+        $allPermissionsGrouped = \App\Models\Permission::all()->groupBy('module');
+
+        return view('profile.permissions', [
+            'user' => $user,
+            'myPermissions' => $myPermissions,
+            'allPermissionsGrouped' => $allPermissionsGrouped,
+        ]);
     }
 }

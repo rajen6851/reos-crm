@@ -37,7 +37,7 @@
                 <span>Total Leads</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">1,284</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">{{ $totalLeads }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+12.8%)</div>
         </div>
 
@@ -46,7 +46,7 @@
             <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
                 <span>Active Properties</span>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">248</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">{{ $totalProjects }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+6.4%)</div>
         </div>
 
@@ -56,7 +56,7 @@
                 <span>Site Visits</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">186</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">{{ $siteVisitsCount }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+18.2%)</div>
         </div>
 
@@ -66,7 +66,7 @@
                 <span>Deals Closed</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">42</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">{{ $convertedCount }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+9.6%)</div>
         </div>
 
@@ -76,7 +76,7 @@
                 <span>Revenue</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">₹2.84 Cr</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalRevenue) }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+14.5%)</div>
         </div>
 
@@ -85,7 +85,7 @@
             <div class="flex items-center justify-between text-xs text-slate-600 font-medium">
                 <span>Pending Follow-ups</span>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">73</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">{{ $pendingFollowUpsCount }}</div>
             <div class="text-xs font-semibold text-rose-500">(-8.2%)</div>
         </div>
     </div>
@@ -134,40 +134,40 @@
 
             <!-- Funnel Inverted Pyramid Stack -->
             <div class="py-2 space-y-1 flex flex-col items-center justify-center flex-1 text-white text-[11px] font-bold">
-                <!-- Stage 1: Prospecting (1,284) -->
+                <!-- Stage 1: Prospecting -->
                 <div class="w-full bg-[#0F172A] py-2.5 px-3 rounded-t-sm flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">1,284</span>
+                    <span class="font-mono">{{ $totalLeads }}</span>
                     <span class="text-[10px]">Prospecting</span>
                 </div>
 
-                <!-- Stage 2: Contacted (890) -->
+                <!-- Stage 2: Contacted -->
                 <div class="w-[88%] bg-[#1E3A8A] py-2 px-3 flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">890</span>
+                    <span class="font-mono">{{ $contactedLeadsCount }}</span>
                     <span class="text-[10px]">Contacted</span>
                 </div>
 
-                <!-- Stage 3: Qualified (412) -->
+                <!-- Stage 3: Qualified -->
                 <div class="w-[76%] bg-[#2563EB] py-2 px-3 flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">412</span>
-                    <span class="text-[10px]">Qualified (412)</span>
+                    <span class="font-mono">{{ $qualifiedLeadsCount }}</span>
+                    <span class="text-[10px]">Qualified ({{ $qualifiedLeadsCount }})</span>
                 </div>
 
-                <!-- Stage 4: Site Visit (186) -->
-                <div class="w-[62%] bg-[#3B82F6] py-1.5 px-2.5 flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">186</span>
-                    <span class="text-[10px]">Site Visit (186)</span>
+                <!-- Stage 4: Site Visit -->
+                <div class="w-[60%] bg-[#38BDF8] py-2 px-3 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">{{ $siteVisitsCount }}</span>
+                    <span class="text-[10px]">Site Visit ({{ $siteVisitsCount }})</span>
                 </div>
 
-                <!-- Stage 5: Negotiation (64) -->
-                <div class="w-[48%] bg-[#6366F1] py-1.5 px-2 flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">64</span>
-                    <span class="text-[10px]">Negotiation (64)</span>
+                <!-- Stage 5: Negotiation -->
+                <div class="w-[45%] bg-[#F59E0B] py-2 px-3 flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">{{ $negotiationCount }}</span>
+                    <span class="text-[10px]">Negotiation ({{ $negotiationCount }})</span>
                 </div>
 
-                <!-- Stage 6: Won (42) -->
-                <div class="w-[36%] bg-[#10B981] py-1.5 px-2 rounded-b-sm flex items-center justify-between shadow-2xs">
-                    <span class="font-mono">42</span>
-                    <span class="text-[10px]">Won (42)</span>
+                <!-- Stage 6: Won -->
+                <div class="w-[30%] bg-[#10B981] py-2.5 px-3 rounded-b-sm flex items-center justify-between shadow-2xs">
+                    <span class="font-mono">{{ $convertedCount }}</span>
+                    <span class="text-[10px]">Won ({{ $convertedCount }})</span>
                 </div>
             </div>
         </div>
@@ -179,30 +179,21 @@
             </div>
 
             <!-- Agenda Events List -->
-            <div class="space-y-4 flex-1 text-xs py-2">
-                <!-- Event 1 -->
+            <div class="space-y-4 flex-1 text-xs py-2 overflow-y-auto max-h-48">
+                @forelse($todaysAgenda as $agenda)
                 <div class="flex items-start space-x-3">
-                    <span class="font-mono text-slate-500 text-[11px] w-16 pt-0.5 shrink-0">10:30 AM</span>
+                    <span class="font-mono text-slate-500 text-[11px] w-16 pt-0.5 shrink-0">{{ $agenda->scheduled_at->format('h:i A') }}</span>
                     <div class="space-y-0.5">
                         <div class="flex items-center space-x-2">
                             <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                            <span class="font-bold text-slate-900">Site Visit:</span>
+                            <span class="font-bold text-slate-900">{{ ucfirst(str_replace('_', ' ', $agenda->status)) }}:</span>
                         </div>
-                        <div class="text-slate-600 pl-4">Skyline Residency</div>
+                        <div class="text-slate-600 pl-4">{{ $agenda->lead ? $agenda->lead->first_name . ' ' . $agenda->lead->last_name : 'General Task' }} - {{ \Illuminate\Support\Str::limit($agenda->notes, 30) }}</div>
                     </div>
                 </div>
-
-                <!-- Event 2 -->
-                <div class="flex items-start space-x-3">
-                    <span class="font-mono text-slate-500 text-[11px] w-16 pt-0.5 shrink-0">02:00 PM</span>
-                    <div class="space-y-0.5">
-                        <div class="flex items-center space-x-2">
-                            <span class="w-2 h-2 rounded-full bg-slate-800"></span>
-                            <span class="font-bold text-slate-900">Negotiation Call:</span>
-                        </div>
-                        <div class="text-slate-600 pl-4">Mr. Gupta</div>
-                    </div>
-                </div>
+                @empty
+                <div class="text-slate-400 italic py-4 text-center">No agenda for today.</div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -230,113 +221,38 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-800">
-                        <!-- Row 1 -->
+                        @forelse($recentHighPriorityLeads as $lead)
                         <tr class="hover:bg-slate-50/70 transition">
                             <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
-                            <td class="p-3 font-bold text-slate-900">Vikram Malhotra</td>
+                            <td class="p-3 font-bold text-slate-900">{{ $lead->first_name }} {{ $lead->last_name }}</td>
                             <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
-                                <span>+91 98260...</span>
-                                <span class="text-xs" title="India">🇮🇳</span>
+                                <span>{{ $lead->phone }}</span>
                             </td>
-                            <td class="p-3 text-slate-700">Skyline Residency 3BHK</td>
+                            <td class="p-3 text-slate-700">{{ $lead->project ? $lead->project->name : 'N/A' }}</td>
                             <td class="p-3 text-slate-700 flex items-center space-x-2">
-                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
-                                <span class="truncate">Rajesh Malh...</span>
+                                @if($lead->assignedTo)
+                                    <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">{{ strtoupper(substr($lead->assignedTo->name, 0, 2)) }}</div>
+                                    <span class="truncate" title="{{ $lead->assignedTo->name }}">{{ \Illuminate\Support\Str::limit($lead->assignedTo->name, 12) }}</span>
+                                @else
+                                    <span class="text-slate-400 italic">Unassigned</span>
+                                @endif
                             </td>
                             <td class="p-3">
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                    Qualified
+                                    {{ ucfirst(str_replace('_', ' ', $lead->status)) }}
                                 </span>
                             </td>
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center space-x-1">
-                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
+                                    <a href="{{ route('leads.show', $lead->id) }}" class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="View"><i class="fa-solid fa-eye text-[10px]"></i></a>
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- Row 2 -->
-                        <tr class="hover:bg-slate-50/70 transition">
-                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
-                            <td class="p-3 font-bold text-slate-900">Sunita Rao</td>
-                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
-                                <span>+91 98260...</span>
-                                <span class="text-xs" title="India">🇮🇳</span>
-                            </td>
-                            <td class="p-3 text-slate-700">Green Valley Villa</td>
-                            <td class="p-3 text-slate-700 flex items-center space-x-2">
-                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">MG</div>
-                                <span class="truncate">Mr. Gupta</span>
-                            </td>
-                            <td class="p-3">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
-                                    Site Visit
-                                </span>
-                            </td>
-                            <td class="p-3 text-center">
-                                <div class="flex items-center justify-center space-x-1">
-                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
-                                </div>
-                            </td>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-slate-500 italic">No high-priority leads found.</td>
                         </tr>
-
-                        <!-- Row 3 -->
-                        <tr class="hover:bg-slate-50/70 transition">
-                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
-                            <td class="p-3 font-bold text-slate-900">Amitabh Verma</td>
-                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
-                                <span>+91 98260...</span>
-                                <span class="text-xs" title="India">🇮🇳</span>
-                            </td>
-                            <td class="p-3 text-slate-700">Croteckivii Property</td>
-                            <td class="p-3 text-slate-700 flex items-center space-x-2">
-                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
-                                <span class="truncate">Rajesh Malh...</span>
-                            </td>
-                            <td class="p-3">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-900 border border-amber-200">
-                                    Negotiation
-                                </span>
-                            </td>
-                            <td class="p-3 text-center">
-                                <div class="flex items-center justify-center space-x-1">
-                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Row 4 -->
-                        <tr class="hover:bg-slate-50/70 transition">
-                            <td class="p-3"><input type="checkbox" class="rounded border-slate-300"></td>
-                            <td class="p-3 font-bold text-slate-900">Amitabh Verma</td>
-                            <td class="p-3 font-mono text-slate-600 flex items-center space-x-1.5">
-                                <span>+91 98260...</span>
-                                <span class="text-xs" title="India">🇮🇳</span>
-                            </td>
-                            <td class="p-3 text-slate-700">Skylie Residency 3BHK</td>
-                            <td class="p-3 text-slate-700 flex items-center space-x-2">
-                                <div class="w-5 h-5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] flex items-center justify-center">RM</div>
-                                <span class="truncate">Rajesh Malh...</span>
-                            </td>
-                            <td class="p-3">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                                    Contacted
-                                </span>
-                            </td>
-                            <td class="p-3 text-center">
-                                <div class="flex items-center justify-center space-x-1">
-                                    <button class="p-1 text-slate-500 hover:text-blue-600 rounded border border-slate-200 hover:bg-slate-50" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-emerald-600 rounded border border-slate-200 hover:bg-slate-50" title="Call"><i class="fa-solid fa-phone text-[10px]"></i></button>
-                                    <button class="p-1 text-slate-500 hover:text-indigo-600 rounded border border-slate-200 hover:bg-slate-50" title="Email"><i class="fa-regular fa-envelope text-[10px]"></i></button>
-                                </div>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -359,15 +275,15 @@
                     <div class="w-full mt-5 flex items-center justify-center space-x-4 text-xs font-semibold text-slate-600">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-3 h-3 rounded-xs bg-[#0F172A]"></span>
-                            <span>Available: <strong>164</strong></span>
+                            <span>Available: <strong>{{ $availableUnits }}</strong></span>
                         </div>
                         <div class="flex items-center space-x-1.5">
                             <span class="w-3 h-3 rounded-xs bg-[#2563EB]"></span>
-                            <span>Reserved: <strong>32</strong></span>
+                            <span>Reserved: <strong>{{ $bookedUnits }}</strong></span>
                         </div>
                         <div class="flex items-center space-x-1.5">
                             <span class="w-3 h-3 rounded-xs bg-[#94A3B8]"></span>
-                            <span>Sold: <strong>52</strong></span>
+                            <span>Sold: <strong>{{ $totalUnits - $availableUnits - $bookedUnits }}</strong></span>
                         </div>
                     </div>
                 </div>

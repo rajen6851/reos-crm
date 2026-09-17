@@ -9,15 +9,25 @@ class DistributionRuleMember extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'distribution_rule_id',
+        'user_id',
+        'parent_member_id',
+        'allocation_value',
+    ];
 
     public function rule()
     {
-        return $this->belongsTo(DistributionRule::class, 'distribution_rule_id');
+        return $this->belongsTo(DistributionRule::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function executives()
+    {
+        return $this->hasMany(DistributionRuleMember::class, 'parent_member_id');
     }
 }

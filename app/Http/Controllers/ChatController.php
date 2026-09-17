@@ -241,7 +241,7 @@ class ChatController extends Controller
     {
         $currentUser = Auth::user();
 
-        if (!$currentUser->isCompanyAdmin() && !$currentUser->isManager() && !$currentUser->isSaaSFounder()) {
+        if (!$currentUser->hasPermission('manage-users') && !$currentUser->isSaaSFounder()) {
             return response()->json(['error' => 'Unauthorized. Group chat creation is reserved for Admins and Managers.'], 403);
         }
 

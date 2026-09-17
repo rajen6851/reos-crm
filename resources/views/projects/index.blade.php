@@ -227,6 +227,17 @@
                             <input type="text" name="rera_number" placeholder="P02400001234" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono focus:outline-none focus:border-[#2563EB] focus:bg-white transition">
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Latitude</label>
+                            <input type="number" step="any" name="latitude" placeholder="22.7536" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono focus:outline-none focus:border-[#2563EB] focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Longitude</label>
+                            <input type="number" step="any" name="longitude" placeholder="75.9143" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono focus:outline-none focus:border-[#2563EB] focus:bg-white transition">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-3.5 rounded-md bg-slate-50 border border-slate-200 space-y-3">

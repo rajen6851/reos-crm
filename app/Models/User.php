@@ -90,7 +90,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permissionSlug): bool
     {
-        if ($this->is_super_admin || $this->isCompanyAdmin()) {
+        if ($this->is_super_admin || $this->isDirectorOrFounder()) {
             return true;
         }
 
@@ -98,30 +98,12 @@ class User extends Authenticatable
             return false;
         }
 
-        // Check assigned permissions via relation
+        // Strictly honor the Matrix permissions defined in the database
         if ($this->role->relationLoaded('permissions')) {
-            if ($this->role->permissions->contains('slug', $permissionSlug)) {
-                return true;
-            }
+            return $this->role->permissions->contains('slug', $permissionSlug);
         } else {
-            if ($this->role->permissions()->where('slug', $permissionSlug)->exists()) {
-                return true;
-            }
+            return $this->role->permissions()->where('slug', $permissionSlug)->exists();
         }
-
-        // Default role-based permission fallback mapping
-        return match ($permissionSlug) {
-            'manage-leads' => in_array($this->role->slug, ['manager', 'sales_executive']),
-            'assign-leads' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
-            'manage-projects' => in_array($this->role->slug, ['manager', 'admin', 'director', 'founder']),
-            'approve-bookings' => in_array($this->role->slug, ['admin', 'director', 'founder']),
-            'approve-agreement-skips' => in_array($this->role->slug, ['director', 'founder', 'admin']),
-            'manage-commissions' => in_array($this->role->slug, ['admin', 'director', 'founder']),
-            'process-payouts' => in_array($this->role->slug, ['admin', 'director', 'founder']),
-            'manage-users' => in_array($this->role->slug, ['admin', 'director', 'founder', 'manager', 'sales_manager']),
-            'broker-access' => $this->role->slug === 'broker',
-            default => false,
-        };
     }
 
     public function isSaaSFounder(): bool

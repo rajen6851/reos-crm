@@ -70,6 +70,8 @@ class ProjectController extends Controller
             'project_type' => 'required|string',
             'visibility' => 'nullable|in:public,private',
             'banner_image' => 'nullable|file|mimes:jpeg,jpg,png,webp,gif|max:5120',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
 
         $project = Project::create([
@@ -83,6 +85,8 @@ class ProjectController extends Controller
             'rera_number' => $validated['rera_number'] ?? 'P0240000' . rand(1000, 9999),
             'project_type' => $validated['project_type'],
             'visibility' => $validated['visibility'] ?? 'public',
+            'latitude' => $validated['latitude'] ?? null,
+            'longitude' => $validated['longitude'] ?? null,
             'status' => 'active',
         ]);
 
@@ -397,13 +401,21 @@ class ProjectController extends Controller
 
     public function publicShow($id, Request $request)
     {
-        $project = Project::withoutGlobalScopes()
+        $projectQuery = Project::withoutGlobalScopes()
             ->with(['company', 'buildings.floors', 'units' => function ($q) {
                 $q->withoutGlobalScopes();
-            }])
-            ->where('status', 'active')
-            ->where('visibility', 'public')
-            ->findOrFail($id);
+            }]);
+
+        if (auth()->check()) {
+            $project = $projectQuery->findOrFail($id);
+            if ($project->company_id !== auth()->user()->company_id && !auth()->user()->is_super_admin) {
+                // If logged in but from a different company, enforce public constraints
+                $project = $projectQuery->where('status', 'active')->where('visibility', 'public')->findOrFail($id);
+            }
+        } else {
+            // Guests must only see active & public projects
+            $project = $projectQuery->where('status', 'active')->where('visibility', 'public')->findOrFail($id);
+        }
 
         $broker = null;
         if ($request->has('ref')) {

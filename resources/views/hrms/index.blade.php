@@ -29,7 +29,7 @@
         </div>
 
         <div class="flex items-center space-x-3 shrink-0">
-            @if(!auth()->user()->isSaaSFounder())
+            @if(!auth()->user()->isSaaSFounder() && !auth()->user()->isCompanyFounder() && !auth()->user()->isDirector())
             <button onclick="document.getElementById('applyLeaveModal').classList.remove('hidden')" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-[#0F172A] btn-text text-xs rounded-lg border border-[#E2E8F0] shadow-2xs transition flex items-center space-x-2 cursor-pointer">
                 <i class="fa-solid fa-calendar-plus text-[#4F46E5] text-xs"></i>
                 <span>Apply for Leave</span>
@@ -133,6 +133,7 @@
 
     <!-- BUILDER TENANT DAILY CLOCK-IN & ATTENDANCE ROSTER -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        @if(!auth()->user()->isDirector() && !auth()->user()->isCompanyFounder() && !auth()->user()->isSaaSFounder())
         <!-- Daily Clock-In / Clock-Out Hero Widget (5 cols) -->
         <div class="lg:col-span-5 bg-[#0F172A] text-white p-6 rounded-2xl shadow-md flex flex-col justify-between space-y-6">
             <div>
@@ -187,9 +188,10 @@
                 @endif
             </div>
         </div>
+        @endif
 
-        <!-- Today's Attendance Roster (7 cols) -->
-        <div class="lg:col-span-7 reos-card p-6 flex flex-col justify-between space-y-4">
+        <!-- Today's Attendance Roster -->
+        <div class="{{ (auth()->user()->isDirector() || auth()->user()->isCompanyFounder() || auth()->user()->isSaaSFounder()) ? 'lg:col-span-12' : 'lg:col-span-7' }} reos-card p-6 flex flex-col justify-between space-y-4">
             <div class="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
                 <div>
                     <h2 class="section-heading text-base">Today's Staff Check-in Roster</h2>
@@ -246,6 +248,7 @@
         </div>
     </div>
 
+    @if(!auth()->user()->isDirector() && !auth()->user()->isCompanyFounder() && !auth()->user()->isSaaSFounder())
     <!-- MONTHLY ATTENDANCE VISUAL CALENDAR GRID (Visualizing Monthly Present/Leaves) -->
     <div class="reos-card p-6 bg-white space-y-4">
         <div class="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
@@ -320,7 +323,7 @@
                     <h2 class="section-heading text-base">Leave Applications</h2>
                     <p class="body-text text-xs">Staff leave requests & manager approval status</p>
                 </div>
-                @if(!auth()->user()->isSaaSFounder())
+                @if(!auth()->user()->isSaaSFounder() && !auth()->user()->isCompanyFounder() && !auth()->user()->isDirector())
                 <button onclick="document.getElementById('applyLeaveModal').classList.remove('hidden')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#4F46E5] btn-text text-xs rounded-xl border border-indigo-200 transition">
                     + Apply
                 </button>
@@ -436,7 +439,9 @@
                 </table>
             </div>
         </div>
+        </div>
     </div>
+    @endif
 </div>
 
 <!-- Modal 1: Apply for Leave -->

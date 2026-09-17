@@ -39,14 +39,15 @@ class LeadDistributionService
                 ->where('is_active', true)
                 ->first();
 
-            $selectedManager = $assignedExecutive?->reportingManager()
-                ->withoutGlobalScopes()
-                ->where('company_id', $lead->company_id)
-                ->where('is_active', true)
-                ->whereHas('role', function ($q) {
-                    $q->whereIn('slug', ['manager', 'sales_manager']);
-                })
-                ->first();
+            if ($assignedExecutive && $assignedExecutive->isManager()) {
+                $selectedManager = $assignedExecutive;
+            } else {
+                $selectedManager = $assignedExecutive?->reportingManager()
+                    ->withoutGlobalScopes()
+                    ->where('company_id', $lead->company_id)
+                    ->where('is_active', true)
+                    ->first();
+            }
         } else {
             $managers = User::where('company_id', $lead->company_id)
                 ->where('is_active', true)
