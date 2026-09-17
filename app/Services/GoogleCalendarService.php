@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\GoogleCalendarConnection;
 use App\Models\SiteVisit;
-use Google_Client;
-use Google_Service_Calendar;
-use Google_Service_Calendar_Event;
-use Google_Service_Calendar_EventDateTime;
+use Google\Client as Google_Client;
+use Google\Service\Calendar as Google_Service_Calendar;
+use Google\Service\Calendar\Event as Google_Service_Calendar_Event;
+use Google\Service\Calendar\EventDateTime as Google_Service_Calendar_EventDateTime;
+use Google\Service\Oauth2 as Google_Service_Oauth2;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -59,7 +60,7 @@ class GoogleCalendarService
             }
 
             // Get user info to save email
-            $oauth2 = new \Google_Service_Oauth2($this->client);
+            $oauth2 = new Google_Service_Oauth2($this->client);
             $userInfo = $oauth2->userinfo->get();
 
             GoogleCalendarConnection::updateOrCreate(
