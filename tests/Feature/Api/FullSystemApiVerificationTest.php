@@ -40,8 +40,12 @@ class FullSystemApiVerificationTest extends TestCase
         ]);
 
         $salesRole = Role::create(['company_id' => $this->company->id, 'name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $this->attachPermissionsToRole($salesRole, ['manage-leads', 'assign-leads']);
+        
         $brokerRole = Role::create(['company_id' => $this->company->id, 'name' => 'Broker', 'slug' => 'broker']);
+        
         $managerRole = Role::create(['company_id' => $this->company->id, 'name' => 'Manager', 'slug' => 'manager']);
+        $this->attachPermissionsToRole($managerRole, ['manage-leads', 'assign-leads', 'approve-bookings', 'manage-commissions']);
 
         $password = Hash::make('secret123');
 

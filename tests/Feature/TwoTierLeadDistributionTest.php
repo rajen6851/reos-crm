@@ -23,8 +23,11 @@ class TwoTierLeadDistributionTest extends TestCase
         Role::create(['name' => 'Founder', 'slug' => 'founder']);
         Role::create(['name' => 'Director', 'slug' => 'director']);
         Role::create(['name' => 'Admin', 'slug' => 'admin']);
-        Role::create(['name' => 'Manager', 'slug' => 'manager']);
-        Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $managerRole = Role::create(['name' => 'Manager', 'slug' => 'manager']);
+        $this->attachPermissionsToRole($managerRole, ['manage-leads']);
+        
+        $execRole = Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $this->attachPermissionsToRole($execRole, ['manage-leads']);
     }
 
     public function test_leads_are_auto_distributed_equally_between_two_managers()

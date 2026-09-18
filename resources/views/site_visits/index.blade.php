@@ -3,7 +3,7 @@
 @section('title', 'Site Visits – REOS CRM')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '' }">
+<div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '', isFilterOpen: true }">
 
     {{-- ═══ HEADER ═══ --}}
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -62,6 +62,206 @@
                 <div class="text-2xl font-extrabold text-amber-600 mt-1 font-mono">{{ $siteVisits->pluck('interested_project_id')->unique()->filter()->count() }}</div>
             </div>
             <span class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base border border-amber-100"><i class="fa-solid fa-building"></i></span>
+        </div>
+    </div>
+
+    {{-- ═══ ADVANCED SEARCH PANEL ═══ --}}
+    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <button @click="isFilterOpen = !isFilterOpen" class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/50 transition">
+            <div class="flex items-center space-x-2 text-sm font-extrabold text-blue-600">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Search Panel</span>
+            </div>
+            <i class="fa-solid" :class="isFilterOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </button>
+
+        <div x-show="isFilterOpen" x-collapse class="p-5 border-t border-slate-200">
+            <form action="{{ route('site-visits.index') }}" method="GET" class="space-y-5 text-xs font-semibold">
+                
+                {{-- Row 1 --}}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Source</label>
+                        <select name="source" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Source</option>
+                            <option value="digital" {{ request('source') == 'digital' ? 'selected' : '' }}>Digital</option>
+                            <option value="walk_in" {{ request('source') == 'walk_in' ? 'selected' : '' }}>Walk-in</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Lead</label>
+                        <select name="lead_id" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Lead</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Assign By</label>
+                        <select name="assigned_by" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Assign By</option>
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}" {{ request('assigned_by') == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Site Visited By</label>
+                        <select name="site_visited_by" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">-SELECT-</option>
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}" {{ request('site_visited_by') == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Row 2 --}}
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Interested in</label>
+                        <select name="interested_in" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Interested in</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Inquiry Code</label>
+                        <input type="text" name="inquiry_code" value="{{ request('inquiry_code') }}" placeholder="Select inquiry code" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Inquiry Status</label>
+                        <select name="inquiry_status" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select inquiry status</option>
+                            <option value="site_visit" {{ request('inquiry_status') == 'site_visit' ? 'selected' : '' }}>Site Visit</option>
+                            <option value="negotiation" {{ request('inquiry_status') == 'negotiation' ? 'selected' : '' }}>Negotiation</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Visit From</label>
+                        <input type="date" name="visit_from" value="{{ request('visit_from') }}" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Visit To</label>
+                        <input type="date" name="visit_to" value="{{ request('visit_to') }}" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                </div>
+
+                {{-- Row 3 --}}
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Next Follow Dt</label>
+                        <input type="date" name="next_follow_dt" value="{{ request('next_follow_dt') }}" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Project</label>
+                        <select name="project_id" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Project</option>
+                            @foreach($projects as $p)
+                                <option value="{{ $p->id }}" {{ request('project_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Budget Upto</label>
+                        <select name="budget" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Budget Upto</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Status</label>
+                        <select name="status" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">State</label>
+                        <select name="state" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Row 4 --}}
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">City</label>
+                        <select name="city" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select City</option>
+                            @foreach($cities as $c)
+                                <option value="{{ $c }}" {{ request('city') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Purpose</label>
+                        <select name="purpose" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                            <option value="Residential" {{ request('purpose') == 'Residential' ? 'selected' : '' }}>Residential</option>
+                            <option value="Commercial" {{ request('purpose') == 'Commercial' ? 'selected' : '' }}>Commercial</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Locality</label>
+                        <select name="locality" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Broker</label>
+                        <select name="broker" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                            @foreach($brokers as $b)
+                                <option value="{{ $b->id }}" {{ request('broker') == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Size/Area</label>
+                        <select name="size_area" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Row 5 --}}
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">FB Page</label>
+                        <select name="fb_page" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">FB Form</label>
+                        <select name="fb_form" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">- ALL -</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Resource</label>
+                        <select name="resource" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select Resource</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Mode</label>
+                        <select name="mode" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select All</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-slate-700">Stage</label>
+                        <select name="stage" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">Select All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition">
+                        <i class="fa-solid fa-filter mr-1"></i> Apply Filters
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

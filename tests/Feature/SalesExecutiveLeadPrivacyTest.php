@@ -18,7 +18,9 @@ class SalesExecutiveLeadPrivacyTest extends TestCase
     {
         $company = Company::create(['name' => 'Privacy Test Co', 'code' => 'PTC', 'slug' => 'privacy-test']);
         $salesRole = Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $this->attachPermissionsToRole($salesRole, ['manage-leads']);
         $managerRole = Role::create(['name' => 'Manager', 'slug' => 'manager']);
+        $this->attachPermissionsToRole($managerRole, ['manage-leads']);
 
         $manager = User::factory()->create(['company_id' => $company->id, 'role_id' => $managerRole->id, 'name' => 'Manager M']);
         $execA = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id, 'reporting_manager_id' => $manager->id, 'name' => 'Exec A']);

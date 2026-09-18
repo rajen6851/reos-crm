@@ -305,45 +305,50 @@
 
 <!-- Modal 1: Edit Lead Details -->
 <div id="editLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-    <div class="bg-white max-w-md w-full rounded-2xl p-5 border border-slate-200 shadow-2xl space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
-            <h3 class="text-sm font-bold text-[#0F172A]">Edit Lead Details</h3>
-            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+    <div class="bg-white w-full max-w-lg overflow-hidden shadow-2xl border border-slate-300">
+        <!-- Header -->
+        <div class="flex justify-between items-start px-5 py-4 bg-[#4A86BA] text-white relative">
+            <div>
+                <h3 class="text-xl font-bold mb-1">Edit Lead Details</h3>
+                <div class="text-[13px] font-semibold text-blue-100">Update primary details for this lead</div>
+            </div>
+            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
         </div>
 
-        <form action="{{ route('leads.update', $lead->id) }}" method="POST" class="space-y-3 text-xs">
+        <form action="{{ route('leads.update', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
             @csrf
             @method('PUT')
-            <div class="grid grid-cols-2 gap-3">
+            
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="form-label">First Name *</label>
-                    <input type="text" name="first_name" required value="{{ $lead->first_name }}" class="form-input">
+                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">First Name <span class="text-orange-500">*</span></label>
+                    <input type="text" name="first_name" required value="{{ $lead->first_name }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                 </div>
                 <div>
-                    <label class="form-label">Last Name</label>
-                    <input type="text" name="last_name" value="{{ $lead->last_name }}" class="form-input">
+                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Last Name</label>
+                    <input type="text" name="last_name" value="{{ $lead->last_name }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="form-label">Phone Number *</label>
-                    <input type="text" name="phone" required value="{{ $lead->phone }}" class="form-input font-mono">
+                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Phone Number <span class="text-orange-500">*</span></label>
+                    <input type="text" name="phone" required value="{{ $lead->phone }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                 </div>
                 <div>
-                    <label class="form-label">Email Address</label>
-                    <input type="email" name="email" value="{{ $lead->email }}" class="form-input font-mono">
+                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Email Address</label>
+                    <input type="email" name="email" value="{{ $lead->email }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                 </div>
             </div>
 
             <div>
-                <label class="form-label">Max Budget (₹)</label>
-                <input type="number" name="budget_max" value="{{ $lead->budget_max }}" class="form-input font-mono">
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Max Budget (₹)</label>
+                <input type="number" name="budget_max" value="{{ $lead->budget_max }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
             </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
-                <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
-                <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Save Changes</button>
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded shadow-sm text-[13px] border border-slate-300">Cancel</button>
+                <button type="submit" class="bg-[#4A86BA] hover:bg-[#386b99] text-white font-bold py-1.5 px-6 rounded shadow text-[13px]">Save Changes</button>
             </div>
         </form>
     </div>
@@ -351,26 +356,30 @@
 
 <!-- Modal 2: Change Assigned Agent -->
 <div id="changeAgentModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-    <div class="bg-white max-w-md w-full rounded-2xl p-5 border border-slate-200 shadow-2xl space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
-            <h3 class="text-sm font-bold text-[#0F172A]">Re-assign Sales Executive</h3>
-            <button onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+    <div class="bg-white w-full max-w-md overflow-hidden shadow-2xl border border-slate-300">
+        <!-- Header -->
+        <div class="flex justify-between items-start px-5 py-4 bg-[#4A86BA] text-white relative">
+            <div>
+                <h3 class="text-xl font-bold mb-1">Re-assign Sales Executive</h3>
+                <div class="text-[13px] font-semibold text-blue-100">Change assigned executive for this lead</div>
+            </div>
+            <button onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
         </div>
 
-        <form action="{{ route('leads.assign', $lead->id) }}" method="POST" class="space-y-3 text-xs">
+        <form action="{{ route('leads.assign', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
             @csrf
             <div>
-                <label class="form-label">Select Sales Executive *</label>
-                <select name="assigned_to_user_id" required class="form-input">
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Select Sales Executive <span class="text-orange-500">*</span></label>
+                <select name="assigned_to_user_id" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     @foreach(\App\Models\User::where('company_id', $lead->company_id)->get() as $exec)
                         <option value="{{ $exec->id }}" {{ $lead->assigned_to_user_id == $exec->id ? 'selected' : '' }}>{{ $exec->name }} ({{ $exec->role->name ?? 'Sales Executive' }})</option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
-                <button type="button" onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
-                <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Confirm Re-assignment</button>
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button type="button" onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded shadow-sm text-[13px] border border-slate-300">Cancel</button>
+                <button type="submit" class="bg-[#4A86BA] hover:bg-[#386b99] text-white font-bold py-1.5 px-6 rounded shadow text-[13px]">Confirm Re-assignment</button>
             </div>
         </form>
     </div>
@@ -381,43 +390,37 @@
 {{-- MODAL 3: TRANSFER LEAD (Manager/Admin only — with reason + note)           --}}
 {{-- ═══════════════════════════════════════════════════════════════════════════ --}}
 <div id="transferLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-    <div class="bg-white max-w-lg w-full rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+    <div class="bg-white w-full max-w-lg overflow-hidden shadow-2xl border border-slate-300">
         <!-- Header -->
-        <div class="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-amber-50">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-                    <i class="fa-solid fa-arrows-left-right text-white text-sm"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-bold text-[#0F172A]">Transfer Lead to Another Executive</h3>
-                    <p class="text-[10px] text-slate-500 font-medium">{{ $lead->lead_code }} &bull; {{ $lead->first_name }} {{ $lead->last_name }}</p>
-                </div>
+        <div class="flex justify-between items-start px-5 py-4 bg-[#4A86BA] text-white relative">
+            <div>
+                <h3 class="text-xl font-bold mb-1">Transfer Lead</h3>
+                <div class="text-[13px] font-semibold text-blue-100">{{ $lead->lead_code }} &bull; {{ $lead->first_name }} {{ $lead->last_name }}</div>
             </div>
-            <button onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+            <button onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
         </div>
 
-        <form action="{{ route('leads.transfer', $lead->id) }}" method="POST" class="p-5 space-y-4 text-xs">
+        <form action="{{ route('leads.transfer', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
             @csrf
 
             {{-- Current Executive Info --}}
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div class="p-3 border border-slate-300 bg-slate-50 flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#0F172A] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                    <div class="w-8 h-8 bg-[#4A86BA] text-white font-bold text-xs flex items-center justify-center shrink-0">
                         {{ strtoupper(substr($lead->assignedTo->name ?? 'UN', 0, 2)) }}
                     </div>
                     <div>
-                        <div class="font-bold text-slate-900">{{ $lead->assignedTo->name ?? 'Unassigned' }}</div>
-                        <div class="text-[10px] text-slate-500">Current Assignee</div>
+                        <div class="font-bold text-[#1F2937] text-[13px]">{{ $lead->assignedTo->name ?? 'Unassigned' }}</div>
+                        <div class="text-[11px] text-slate-500">Current Assignee</div>
                     </div>
                 </div>
-                <i class="fa-solid fa-arrow-right text-slate-400"></i>
                 <div class="text-slate-400 font-semibold text-[11px]">Select New &rarr;</div>
             </div>
 
             {{-- Select New Executive --}}
-            <div class="space-y-1.5">
-                <label class="form-label font-bold text-slate-800">Transfer To <span class="text-rose-500">*</span></label>
-                <select name="new_assignee_id" required class="form-input font-semibold">
+            <div>
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Transfer To <span class="text-orange-500">*</span></label>
+                <select name="new_assignee_id" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     <option value="">— Select Sales Executive —</option>
                     @foreach(\App\Models\User::where('company_id', $lead->company_id)->where('id', '!=', $lead->assigned_to_user_id)->whereHas('role', function($q){ $q->whereIn('slug', ['sales_executive', 'executive', 'sales']); })->orderBy('name')->get() as $exec)
                     <option value="{{ $exec->id }}">{{ $exec->name }} ({{ $exec->role->name ?? 'Executive' }})</option>
@@ -426,9 +429,9 @@
             </div>
 
             {{-- Transfer Reason (Required) --}}
-            <div class="space-y-1.5">
-                <label class="form-label font-bold text-slate-800">Transfer Reason <span class="text-rose-500">*</span></label>
-                <select name="transfer_reason" required class="form-input">
+            <div>
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Transfer Reason <span class="text-orange-500">*</span></label>
+                <select name="transfer_reason" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     <option value="">— Select Reason —</option>
                     <option value="No response from current executive">No Response from Current Executive</option>
                     <option value="Executive on leave / unavailable">Executive on Leave / Unavailable</option>
@@ -442,27 +445,25 @@
             </div>
 
             {{-- Optional Note --}}
-            <div class="space-y-1.5">
-                <label class="form-label">Additional Notes <span class="text-slate-400">(optional)</span></label>
-                <textarea name="transfer_note" rows="2" placeholder="Add context or special instructions for the new executive..." class="form-input resize-none"></textarea>
+            <div>
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Additional Notes <span class="text-slate-400">(optional)</span></label>
+                <textarea name="transfer_note" rows="2" placeholder="Add context or special instructions for the new executive..." class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px] resize-none"></textarea>
             </div>
 
             {{-- Transfer Guard Warning --}}
             @if($lead->transfer_count >= 2)
-            <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold flex items-start space-x-2">
-                <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5"></i>
-                <span>This lead has been transferred <strong>{{ $lead->transfer_count }} times</strong> already. Maximum 5 transfers allowed. Please consider escalating to Director instead.</span>
+            <div class="p-2 bg-rose-50 border border-rose-300 text-xs text-rose-800 font-semibold flex items-start space-x-2">
+                <span>⚠ This lead has been transferred <strong>{{ $lead->transfer_count }} times</strong> already. Maximum 5 transfers allowed. Please consider escalating to Director instead.</span>
             </div>
             @endif
 
             {{-- Actions --}}
-            <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
-                <button type="button" onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg border border-slate-200 text-xs transition">
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button type="button" onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded shadow-sm text-[13px] border border-slate-300">
                     Cancel
                 </button>
-                <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-xs text-xs transition flex items-center space-x-1.5">
-                    <i class="fa-solid fa-arrows-left-right text-xs"></i>
-                    <span>Transfer &amp; Notify Both Executives</span>
+                <button type="submit" class="bg-[#4A86BA] hover:bg-[#386b99] text-white font-bold py-1.5 px-6 rounded shadow text-[13px]">
+                    Transfer Lead
                 </button>
             </div>
         </form>

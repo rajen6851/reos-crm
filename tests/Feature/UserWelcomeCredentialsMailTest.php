@@ -30,6 +30,9 @@ class UserWelcomeCredentialsMailTest extends TestCase
             'name' => 'Admin',
             'slug' => 'admin',
         ]);
+        $this->attachPermissionsToRole($adminRole, ['manage-users']);
+
+        $this->attachPermissionsToRole($adminRole, ['manage-users']);
 
         $salesRole = Role::create([
             'company_id' => $company->id,
@@ -56,6 +59,9 @@ class UserWelcomeCredentialsMailTest extends TestCase
             'designation' => 'Executive',
         ]);
 
+        if ($response->status() !== 302) {
+            $response->dump();
+        }
         $response->assertRedirect(route('users.index'));
 
         Mail::assertSent(UserWelcomeCredentialsMail::class, function ($mail) {

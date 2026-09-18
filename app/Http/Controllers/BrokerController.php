@@ -14,7 +14,7 @@ use App\Services\LeadDistributionService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Gate;
 class BrokerController extends Controller
 {
     public function index()
@@ -113,14 +113,18 @@ class BrokerController extends Controller
                 ->sum('total_commission_amount') 
             : 0;
 
-        // Fetch ALL active Builder Companies and their PUBLIC Projects
-        $companies = Company::withoutGlobalScopes()->where('status', 'active')->with(['projects' => function ($q) {
-            $q->withoutGlobalScopes()->where('status', 'active')->where(function ($vq) {
-                $vq->where('visibility', 'public')->orWhereNull('visibility');
-            });
-        }])->get();
+        // Fetch only the Builder Company the broker is tied to, and its PUBLIC Projects
+        $companies = Company::withoutGlobalScopes()
+            ->where('id', $broker->company_id)
+            ->where('status', 'active')
+            ->with(['projects' => function ($q) {
+                $q->withoutGlobalScopes()->where('status', 'active')->where(function ($vq) {
+                    $vq->where('visibility', 'public')->orWhereNull('visibility');
+                });
+            }])->get();
 
         $projects = Project::withoutGlobalScopes()
+            ->where('company_id', $broker->company_id)
             ->where('status', 'active')
             ->where(function ($vq) {
                 $vq->where('visibility', 'public')->orWhereNull('visibility');
@@ -266,6 +270,7 @@ class BrokerController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:20',
             'commission_rate' => 'nullable|numeric|min:0|max:100',
+            'password' => 'required|string|min:6',
         ]);
 
         $brokerRole = \App\Models\Role::where(function ($q) use ($user) {
@@ -287,7 +292,7 @@ class BrokerController extends Controller
             'name' => $validated['contact_name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
-            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
         ]);
 
         $broker = Broker::create([
@@ -301,7 +306,7 @@ class BrokerController extends Controller
             'status' => 'active',
         ]);
 
-        $defaultBrokerPassword = 'password123';
+        $defaultBrokerPassword = $validated['password'];
 
         // Dispatch Welcome Email with Login Credentials
         try {
@@ -324,6 +329,7 @@ class BrokerController extends Controller
             'phone' => 'required|string|max:20',
             'commission_rate' => 'nullable|numeric|min:0|max:100',
             'status' => 'nullable|in:active,inactive,suspended',
+            'password' => 'nullable|string|min:6',
         ]);
 
         $broker->update([
@@ -335,11 +341,17 @@ class BrokerController extends Controller
         ]);
 
         if ($broker->user) {
-            $broker->user->update([
+            $userUpdates = [
                 'name' => $validated['contact_name'] ?? $validated['agency_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-            ]);
+            ];
+            
+            if (!empty($validated['password'])) {
+                $userUpdates['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            }
+            
+            $broker->user->update($userUpdates);
         }
 
         return redirect()->route('brokers.index')->with('success', "Partner Broker '{$broker->agency_name}' specs updated successfully!");

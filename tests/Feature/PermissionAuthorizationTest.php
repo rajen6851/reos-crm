@@ -24,7 +24,10 @@ class PermissionAuthorizationTest extends TestCase
         $company = Company::create(['name' => 'Perm Test Company', 'code' => 'PTC', 'slug' => 'perm-test']);
 
         $adminRole = Role::create(['name' => 'Admin', 'slug' => 'admin']);
+        $this->attachPermissionsToRole($adminRole, ['manage-users', 'approve-bookings']);
+        
         $salesRole = Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $this->attachPermissionsToRole($salesRole, ['manage-leads']);
 
         $adminUser = User::factory()->create(['company_id' => $company->id, 'role_id' => $adminRole->id]);
         $salesUser = User::factory()->create(['company_id' => $company->id, 'role_id' => $salesRole->id]);

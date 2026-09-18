@@ -17,6 +17,7 @@ use App\Services\LeadAssignmentService;
 use App\Services\LeadService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
@@ -436,6 +437,17 @@ class LeadController extends Controller
             'call_outcome'      => 'required|string',
             'notes'            => 'nullable|string',
             'next_followup_at'  => 'nullable|date',
+            'status'            => 'nullable|string',
+            'budget_max'        => 'nullable|numeric',
+            'sv_scheduled_at'   => 'nullable|date|required_if:status,READY TO VISIT',
+            'sv_project_id'     => 'nullable|exists:projects,id|required_if:status,READY TO VISIT',
+            'sv_assigned_to'    => 'nullable|exists:users,id',
+            'sv_broker_name'    => 'nullable|string',
+            'sv_broker_phone'   => 'nullable|string',
+            'sv_broker_company' => 'nullable|string',
+            'sv_visit_description' => 'nullable|string',
+            'sv_remark_1'       => 'nullable|string',
+            'sv_remark_2'       => 'nullable|string',
             'audio_recording'   => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,aac,flac|max:51200', // max 50MB
         ]);
 
@@ -449,7 +461,34 @@ class LeadController extends Controller
             default => 'connected',
         };
 
-        $notesContent = $validated['notes'] ? "[{$outcomeText}] " . $validated['notes'] : "[{$outcomeText}] Outcome logged.";
+        // Append Negotiation Details to Notes if Warm / Negotiation is selected
+        $finalNotes = $validated['notes'] ?? '';
+        if (isset($validated['status']) && ($validated['status'] === 'Warm / Negotiation' || $validated['status'] === 'negotiation' || $validated['status'] === 'WARM')) {
+            $negPrice = $request->input('neg_offered_price');
+            $negDate = $request->input('neg_expected_close_date');
+            $negRemarks = $request->input('neg_remarks');
+            
+            $negDetails = [];
+            if ($negPrice) $negDetails[] = "Offered Price: ₹" . number_format($negPrice);
+            if ($negDate) $negDetails[] = "Expected Closing: " . date('d M Y', strtotime($negDate));
+            if ($negRemarks) $negDetails[] = "Remarks: " . $negRemarks;
+            
+            if (!empty($negDetails)) {
+                $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- NEGOTIATION DETAILS ---\n" . implode("\n", $negDetails);
+            }
+        }
+        
+        // Append Converted/Lost details
+        if (isset($validated['status']) && $validated['status'] === 'Token Received') {
+            $bookAmt = $request->input('booking_amount');
+            $bookUnit = $request->input('booking_unit');
+            $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- BOOKING DETAILS ---\nAmount: ₹" . number_format($bookAmt) . "\nUnit: " . ($bookUnit ?: 'Not specified');
+        } elseif (isset($validated['status']) && $validated['status'] === 'Not Interested') {
+            $lostReason = $request->input('lost_reason');
+            $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- LOST REASON ---\n" . ($lostReason ?: 'No reason provided');
+        }
+
+        $notesContent = $finalNotes ? "[{$outcomeText}] " . $finalNotes : "[{$outcomeText}] Outcome logged.";
 
         // Handle audio recording upload
         $audioPath = null;
@@ -473,10 +512,16 @@ class LeadController extends Controller
             'next_followup_at'     => $validated['next_followup_at'] ?? null,
         ]);
 
+        // Update Budget if provided
+        if (isset($validated['budget_max'])) {
+            $lead->budget_max = $validated['budget_max'];
+            $lead->save();
+        }
+
         // Update last_activity_at — resets auto-transfer eligibility
         $assignmentService->updateLastActivity($lead);
 
-        if (!empty($validated['next_followup_at'])) {
+        if (!empty($validated['next_followup_at']) && (!isset($validated['status']) || ($validated['status'] !== 'Ready for Site Visit' && $validated['status'] !== 'Token Received' && $validated['status'] !== 'Not Interested'))) {
             FollowUp::create([
                 'company_id'   => Auth::user()->company_id,
                 'lead_id'      => $lead->id,
@@ -485,6 +530,60 @@ class LeadController extends Controller
                 'status'       => 'pending',
                 'notes'        => "Follow-up scheduled from call/visit outcome: {$outcomeText}",
             ]);
+        }
+
+        // Handle Pipeline Stage Update & Site Visit Scheduling
+        if (isset($validated['status'])) {
+            if ($validated['status'] === 'Ready for Site Visit' || $validated['status'] === 'READY TO VISIT' || $validated['status'] === 'site_visit_scheduled') {
+                $lead->status = 'site_visit';
+                
+                \App\Models\SiteVisit::create([
+                    'company_id' => Auth::user()->company_id,
+                    'lead_id' => $lead->id,
+                    'project_id' => $validated['sv_project_id'],
+                    'assigned_to_user_id' => $validated['sv_assigned_to'] ?? Auth::id(),
+                    'scheduled_at' => $validated['sv_scheduled_at'],
+                    'status' => 'scheduled',
+                    'notes' => 'Site visit scheduled from follow-up call. ' . $validated['notes'],
+                    'broker_name' => $validated['sv_broker_name'] ?? null,
+                    'broker_phone' => $validated['sv_broker_phone'] ?? null,
+                    'broker_company' => $validated['sv_broker_company'] ?? null,
+                    'visit_description' => $validated['sv_visit_description'] ?? null,
+                    'remark_1' => $validated['sv_remark_1'] ?? null,
+                    'remark_2' => $validated['sv_remark_2'] ?? null,
+                ]);
+                
+                // Notify the assigned executive if it's someone else
+                if (isset($validated['sv_assigned_to']) && $validated['sv_assigned_to'] != Auth::id()) {
+                    $svExecutive = User::find($validated['sv_assigned_to']);
+                    if ($svExecutive) {
+                        app(\App\Services\NotificationService::class)->notify(
+                            $svExecutive,
+                            'site_visit_assigned',
+                            "📅 Site Visit Assigned: {$lead->first_name}",
+                            "You have been assigned a site visit for {$lead->first_name} on " . date('d M Y, h:i A', strtotime($validated['sv_scheduled_at'])) . ". Please check your schedule.",
+                            url("/site-visits")
+                        );
+                    }
+                }
+            } elseif ($validated['status'] === 'Token Received') {
+                $lead->status = 'converted';
+            } elseif ($validated['status'] === 'Not Interested' || $validated['status'] === 'dropped') {
+                $lead->status = 'lost';
+                if ($request->has('lost_reason')) {
+                    $lead->lost_reason = $request->input('lost_reason');
+                }
+            } elseif ($validated['status'] === 'Warm / Negotiation' || $validated['status'] === 'WARM' || $validated['status'] === 'negotiation') {
+                $lead->status = 'negotiation';
+            } elseif ($validated['status'] === 'In Follow-up' || $validated['status'] === 'IN FOLLOWUP' || $validated['status'] === 'Meeting at Client Place') {
+                $lead->status = 'follow_up';
+            } elseif ($validated['status'] === 'Not Connected' || $validated['status'] === 'NOT CONNECTED') {
+                // If it's a new lead and we tried to call but didn't connect, move it to 'contacted'
+                if ($lead->status === 'new') {
+                    $lead->status = 'contacted';
+                }
+            }
+            $lead->save();
         }
 
         // Email Notification to Sales Managers & Admins when Sales Executive logs work
@@ -515,6 +614,230 @@ class LeadController extends Controller
         }
 
         return back()->with('success', $successMsg);
+    }
+
+    public function createSiteVisit(Lead $lead)
+    {
+        $projects = \App\Models\Project::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
+        $users = \App\Models\User::where('company_id', Auth::user()->company_id)->get();
+        $brokers = \App\Models\Broker::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
+        return view('leads.actions.site_visit', compact('lead', 'projects', 'users', 'brokers'));
+    }
+
+    public function createNegotiation(Lead $lead)
+    {
+        abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to start negotiations.');
+        return view('leads.actions.negotiation', compact('lead'));
+    }
+
+    public function createConvert(Lead $lead)
+    {
+        abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to record bookings.');
+        $projects = \App\Models\Project::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
+        $brokers = \App\Models\Broker::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
+        return view('leads.actions.convert', compact('lead', 'projects', 'brokers'));
+    }
+
+    public function createDrop(Lead $lead)
+    {
+        return view('leads.actions.drop', compact('lead'));
+    }
+    public function scheduleSiteVisit(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'sv_scheduled_at' => 'required|date',
+            'sv_project_id' => 'required|exists:projects,id',
+            'sv_assigned_to' => 'required|exists:users,id',
+            'pickup_location' => 'nullable|string',
+            'sv_broker_name' => 'nullable|string',
+            'sv_broker_phone' => 'nullable|string',
+            'sv_broker_company' => 'nullable|string',
+            'sv_visit_description' => 'nullable|string',
+            'remark_1' => 'nullable|string',
+            'remark_2' => 'nullable|string',
+            'inquiry_status' => 'required|string',
+            'next_followup_date' => 'required|date',
+            'followup_remark' => 'nullable|string',
+        ]);
+
+        $statusMap = [
+            'IN FOLLOWUP' => 'in_followup',
+            'UNDER NEGOTIATION' => 'negotiation',
+            'SITE VISIT' => 'site_visit',
+            'BOOKED' => 'converted'
+        ];
+        $lead->status = $statusMap[$validated['inquiry_status']] ?? 'site_visit';
+        $lead->save();
+
+        \App\Models\SiteVisit::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'project_id' => $validated['sv_project_id'],
+            'assigned_to_user_id' => $validated['sv_assigned_to'],
+            'scheduled_at' => $validated['sv_scheduled_at'],
+            'status' => 'scheduled',
+            'pickup_location' => $validated['pickup_location'] ?? null,
+            'notes' => 'Scheduled via Pipeline Action. ' . ($validated['sv_visit_description'] ?? ''),
+            'broker_name' => $validated['sv_broker_name'] ?? null,
+            'broker_phone' => $validated['sv_broker_phone'] ?? null,
+            'broker_company' => $validated['sv_broker_company'] ?? null,
+            'visit_description' => $validated['sv_visit_description'] ?? null,
+            'remark_1' => $validated['remark_1'] ?? null,
+            'remark_2' => $validated['remark_2'] ?? null,
+        ]);
+
+        \App\Models\LeadActivity::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
+            'activity_type' => 'site_visit_scheduled',
+            'description' => 'Site Visit logged/scheduled for ' . date('d M Y h:i A', strtotime($validated['sv_scheduled_at'])),
+        ]);
+
+        // Log the Followup Action
+        \App\Models\LeadActivity::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
+            'activity_type' => 'follow_up',
+            'description' => ($validated['followup_remark'] ?? 'Site visit logged. Follow-up scheduled.') . 
+                             ' (Next Follow-up: ' . date('d M Y h:i A', strtotime($validated['next_followup_date'])) . ')',
+        ]);
+
+        if ($validated['sv_assigned_to'] != Auth::id()) {
+            $svExecutive = \App\Models\User::find($validated['sv_assigned_to']);
+            if ($svExecutive) {
+                app(\App\Services\NotificationService::class)->notify(
+                    $svExecutive,
+                    'site_visit_assigned',
+                    "📅 Site Visit Assigned: {$lead->first_name}",
+                    "You have been assigned a site visit for {$lead->first_name} on " . date('d M Y h:i A', strtotime($validated['sv_scheduled_at'])) . ".",
+                    url("/site-visits")
+                );
+            }
+        }
+
+        return back()->with('success', 'Site Visit scheduled successfully.');
+    }
+
+    public function startNegotiation(Request $request, Lead $lead)
+    {
+        abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to start negotiations.');
+        $validated = $request->validate([
+            'neg_offered_price' => 'required|numeric',
+            'neg_expected_close_date' => 'required|date',
+            'neg_remarks' => 'nullable|string',
+        ]);
+
+        $lead->status = 'negotiation';
+        $lead->save();
+
+        \App\Models\LeadActivity::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
+            'activity_type' => 'negotiation_started',
+            'description' => "Negotiation started. Offered Price: ₹" . number_format($validated['neg_offered_price']) . ". Expected Close: " . date('d M Y', strtotime($validated['neg_expected_close_date'])) . ". Remarks: " . ($validated['neg_remarks'] ?? 'None'),
+        ]);
+
+        return back()->with('success', 'Negotiation started successfully.');
+    }
+
+    public function recordBooking(Request $request, Lead $lead)
+    {
+        abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to record bookings.');
+        $validated = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'booking_amount' => 'required|numeric',
+            'booking_unit' => 'required|string',
+            'total_unit_cost' => 'nullable|numeric',
+            'booking_date' => 'required|date',
+            'broker_id' => 'nullable|exists:brokers,id',
+        ]);
+
+        $lead->status = 'converted';
+        $lead->save();
+
+        \App\Models\Booking::create([
+            'company_id' => Auth::user()->company_id,
+            'booking_code' => 'BKG-' . strtoupper(Str::random(6)),
+            'lead_id' => $lead->id,
+            'customer_name' => trim($lead->first_name . ' ' . $lead->last_name),
+            'customer_email' => $lead->email,
+            'customer_phone' => $lead->phone,
+            'project_id' => $validated['project_id'],
+            'unit_id' => null, 
+            'unit_identifier' => $validated['booking_unit'],
+            'sales_user_id' => Auth::id(),
+            'broker_id' => $validated['broker_id'] ?? null,
+            'booking_amount' => $validated['booking_amount'],
+            'total_unit_cost' => $validated['total_unit_cost'] ?? 0,
+            'booking_date' => $validated['booking_date'],
+            'status' => 'pending_approval',
+            'approval_status' => 'pending'
+        ]);
+
+        \App\Models\LeadActivity::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
+            'activity_type' => 'lead_converted',
+            'description' => "Booking Recorded. Token: ₹" . number_format($validated['booking_amount']) . ". Unit: " . $validated['booking_unit'],
+        ]);
+
+        $managers = \App\Models\User::where('company_id', Auth::user()->company_id)
+            ->whereHas('role', function ($q) {
+                $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
+            })->get();
+
+        foreach ($managers as $manager) {
+            app(\App\Services\NotificationService::class)->notify(
+                $manager,
+                'lead_converted',
+                "🎉 Lead Converted!",
+                "Lead {$lead->first_name} has booked unit {$validated['booking_unit']} with a token of ₹" . number_format($validated['booking_amount']) . ".",
+                url("/leads/{$lead->id}")
+            );
+        }
+
+        return back()->with('success', 'Booking recorded successfully.');
+    }
+
+    public function dropLead(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'lost_reason' => 'required|string',
+            'lost_notes' => 'nullable|string',
+        ]);
+
+        $lead->status = 'lost';
+        $lead->lost_reason = $validated['lost_reason'];
+        $lead->save();
+
+        \App\Models\LeadActivity::create([
+            'company_id' => Auth::user()->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
+            'activity_type' => 'lead_lost',
+            'description' => "Lead marked as dropped. Reason: {$validated['lost_reason']}. Notes: " . ($validated['lost_notes'] ?? 'None'),
+        ]);
+
+        $managers = \App\Models\User::where('company_id', Auth::user()->company_id)
+            ->whereHas('role', function ($q) {
+                $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
+            })->get();
+
+        foreach ($managers as $manager) {
+            app(\App\Services\NotificationService::class)->notify(
+                $manager,
+                'lead_lost',
+                "❌ Lead Lost",
+                "Lead {$lead->first_name} was marked as lost due to: {$validated['lost_reason']}.",
+                url("/leads/{$lead->id}")
+            );
+        }
+
+        return back()->with('success', 'Lead marked as dropped.');
     }
 
     public function show($id, \App\Services\AiIntelligenceService $aiService)

@@ -33,10 +33,56 @@ class SiteVisitController extends Controller
             $query->where('assigned_to_manager_id', $user->id);
         }
 
+        // --- Apply Filters ---
+        if ($request->filled('source')) {
+            $query->where('source', $request->source);
+        }
+        if ($request->filled('assigned_by')) {
+            $query->where('assigned_to_user_id', $request->assigned_by);
+        }
+        if ($request->filled('project_id')) {
+            $query->where('interested_project_id', $request->project_id);
+        }
+        if ($request->filled('inquiry_status')) {
+            $query->where('status', $request->inquiry_status);
+        }
+        if ($request->filled('broker')) {
+            $query->where('broker_id', $request->broker);
+        }
+        
+        // Site Visit Specific Filters (Using whereHas to filter Leads that have site visits matching the criteria)
+        if ($request->filled('site_visited_by') || $request->filled('visit_from') || $request->filled('visit_to')) {
+            $query->whereHas('siteVisits', function ($q) use ($request) {
+                if ($request->filled('site_visited_by')) {
+                    $q->where('assigned_to_user_id', $request->site_visited_by);
+                }
+                if ($request->filled('visit_from')) {
+                    $q->whereDate('scheduled_at', '>=', $request->visit_from);
+                }
+                if ($request->filled('visit_to')) {
+                    $q->whereDate('scheduled_at', '<=', $request->visit_to);
+                }
+            });
+        }
+        
+        // City Filter (Assuming city is on Project)
+        if ($request->filled('city')) {
+            $query->whereHas('project', function ($q) use ($request) {
+                $q->where('city', $request->city);
+            });
+        }
+
         $siteVisits      = $query->latest()->get();
         $recentVisitLogs = $logsQuery->latest()->take(15)->get();
+        
+        $projects = \App\Models\Project::where('company_id', $user->company_id)->get();
+        $users = \App\Models\User::where('company_id', $user->company_id)->get();
+        $brokers = \App\Models\Broker::where('company_id', $user->company_id)->get();
+        
+        // Pluck unique cities/states/etc if we need dynamic filters for them
+        $cities = \App\Models\Project::where('company_id', $user->company_id)->whereNotNull('city')->pluck('city')->unique();
 
-        return view('site_visits.index', compact('siteVisits', 'recentVisitLogs'));
+        return view('site_visits.index', compact('siteVisits', 'recentVisitLogs', 'projects', 'users', 'brokers', 'cities'));
     }
 
     /**

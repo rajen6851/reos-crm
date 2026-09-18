@@ -103,6 +103,17 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/leads/{lead}/transfer', [LeadController::class, 'transfer'])->name('leads.transfer');
     Route::post('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.update-status');
     Route::post('/leads/{lead}/call', [LeadController::class, 'logCall'])->name('leads.log-call');
+    Route::get('/leads/{lead}/site-visit/create', [LeadController::class, 'createSiteVisit'])->name('leads.site-visit.create');
+    Route::post('/leads/{lead}/site-visit', [LeadController::class, 'scheduleSiteVisit'])->name('leads.site-visit');
+    
+    Route::get('/leads/{lead}/negotiate', [LeadController::class, 'createNegotiation'])->name('leads.negotiate.create');
+    Route::post('/leads/{lead}/negotiate', [LeadController::class, 'startNegotiation'])->name('leads.negotiate');
+    
+    Route::get('/leads/{lead}/convert', [LeadController::class, 'createConvert'])->name('leads.convert.create');
+    Route::post('/leads/{lead}/convert', [LeadController::class, 'recordBooking'])->name('leads.convert');
+    
+    Route::get('/leads/{lead}/lost', [LeadController::class, 'createDrop'])->name('leads.lost.create');
+    Route::post('/leads/{lead}/lost', [LeadController::class, 'dropLead'])->name('leads.lost');
     
     // Lead Distribution Rule Builder (Web UI)
     Route::resource('distribution-rules', \App\Http\Controllers\DistributionRuleController::class);

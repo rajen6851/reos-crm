@@ -35,6 +35,8 @@ class ChatTest extends TestCase
             'name' => 'Admin',
             'slug' => 'admin',
         ]);
+        
+        $this->attachPermissionsToRole($role, ['manage-users']);
 
         $this->user1 = User::create([
             'company_id' => $this->company->id,

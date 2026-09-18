@@ -526,8 +526,8 @@
                         <span x-show="!sidebarCollapsed" class="truncate">Follow-ups</span>
                     </a>
 
-                    <!-- Documents (Requires manage-leads or manage-projects) -->
-                    @if($u->hasPermission('manage-leads') || $u->hasPermission('manage-projects'))
+                    <!-- Documents (Requires Company Admin or Founder) -->
+                    @if($u->isCompanyAdmin() || $u->isCompanyFounder() || $u->isSaaSFounder())
                     <a href="{{ route('documents.index') }}" :title="sidebarCollapsed ? 'Documents' : ''"
                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('documents.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                         <i class="fa-regular fa-file-lines text-sm w-4 text-center {{ request()->routeIs('documents.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>

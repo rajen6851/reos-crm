@@ -281,6 +281,9 @@ class PermissionController extends Controller
             // Reports & Settings
             ['name' => 'View System Reports & Analytics', 'slug' => 'view-reports', 'module' => 'Reports', 'description' => 'Access executive sales reports, conversion analytics, and audit logs'],
             ['name' => 'Edit Company Settings & Branding', 'slug' => 'company-settings', 'module' => 'Settings', 'description' => 'Modify builder company tax info, address, logo, and settings'],
+            
+            // Documents Repository
+            ['name' => 'Manage Digital File Repository', 'slug' => 'manage-documents', 'module' => 'Documents', 'description' => 'Access, upload, and delete company private digital files'],
         ];
 
         foreach ($defaultPermissions as $perm) {

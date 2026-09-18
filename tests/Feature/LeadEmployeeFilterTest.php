@@ -17,6 +17,8 @@ class LeadEmployeeFilterTest extends TestCase
     {
         $company = Company::create(['name' => 'Emp Filter Realty', 'code' => 'EFR', 'slug' => 'emp-filter-realty']);
         $adminRole = Role::create(['company_id' => $company->id, 'name' => 'Admin', 'slug' => 'admin']);
+        $this->attachPermissionsToRole($adminRole, ['manage-leads']);
+        
         $salesRole = Role::create(['company_id' => $company->id, 'name' => 'Sales Executive', 'slug' => 'sales_executive']);
 
         $admin = User::create([

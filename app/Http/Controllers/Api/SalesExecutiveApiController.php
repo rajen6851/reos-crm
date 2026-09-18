@@ -761,9 +761,25 @@ class SalesExecutiveApiController extends Controller
             'call_status' => 'required|in:connected,not_connected,busy,callback_required,missed_call',
             'duration_seconds' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
+            'status' => 'nullable|string',
+            'budget_max' => 'nullable|numeric',
+            'sv_scheduled_at' => 'nullable|date|required_if:status,READY TO VISIT',
+            'sv_project_id' => 'nullable|exists:projects,id|required_if:status,READY TO VISIT',
+            'sv_assigned_to' => 'nullable|exists:users,id',
+            'sv_broker_name' => 'nullable|string',
+            'sv_broker_phone' => 'nullable|string',
+            'sv_broker_company' => 'nullable|string',
+            'sv_visit_description' => 'nullable|string',
+            'sv_remark_1' => 'nullable|string',
+            'sv_remark_2' => 'nullable|string',
             'next_followup_at' => 'nullable|date',
             'audio_recording' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm,aac,flac|max:51200',
         ]);
+
+        if (isset($validated['budget_max'])) {
+            $lead->budget_max = $validated['budget_max'];
+            $lead->save();
+        }
 
         $statusLabel = match ($validated['call_status']) {
             'connected' => 'Call Connected',
@@ -781,13 +797,40 @@ class SalesExecutiveApiController extends Controller
             $audioName = $audio->getClientOriginalName();
         }
 
+        // Append Negotiation Details to Notes if Warm / Negotiation is selected
+        $finalNotes = $validated['notes'] ?? '';
+        if (isset($validated['status']) && ($validated['status'] === 'Warm / Negotiation' || $validated['status'] === 'negotiation' || $validated['status'] === 'WARM')) {
+            $negPrice = $request->input('neg_offered_price');
+            $negDate = $request->input('neg_expected_close_date');
+            $negRemarks = $request->input('neg_remarks');
+            
+            $negDetails = [];
+            if ($negPrice) $negDetails[] = "Offered Price: ₹" . number_format($negPrice);
+            if ($negDate) $negDetails[] = "Expected Closing: " . date('d M Y', strtotime($negDate));
+            if ($negRemarks) $negDetails[] = "Remarks: " . $negRemarks;
+            
+            if (!empty($negDetails)) {
+                $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- NEGOTIATION DETAILS ---\n" . implode("\n", $negDetails);
+            }
+        }
+        
+        // Append Converted/Lost details
+        if (isset($validated['status']) && $validated['status'] === 'Token Received') {
+            $bookAmt = $request->input('booking_amount');
+            $bookUnit = $request->input('booking_unit');
+            $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- BOOKING DETAILS ---\nAmount: ₹" . number_format($bookAmt) . "\nUnit: " . ($bookUnit ?: 'Not specified');
+        } elseif (isset($validated['status']) && $validated['status'] === 'Not Interested') {
+            $lostReason = $request->input('lost_reason');
+            $finalNotes .= ($finalNotes ? "\n\n" : "") . "--- LOST REASON ---\n" . ($lostReason ?: 'No reason provided');
+        }
+
         $call = Call::create([
             'company_id' => $user->company_id,
             'lead_id' => $lead->id,
             'user_id' => $user->id,
             'call_type' => 'outbound',
             'call_outcome' => $validated['call_status'],
-            'notes' => $validated['notes'] ?? null,
+            'notes' => $finalNotes ?: null,
             'audio_recording_path' => $audioPath,
             'audio_recording_name' => $audioName,
             'call_duration_seconds' => $validated['duration_seconds'] ?? 0,
@@ -800,10 +843,10 @@ class SalesExecutiveApiController extends Controller
             'lead_id' => $lead->id,
             'user_id' => $user->id,
             'activity_type' => 'call_logged',
-            'description' => "[$statusLabel] Duration: " . ($validated['duration_seconds'] ?? 0) . "s. Notes: " . ($validated['notes'] ?? 'None'),
+            'description' => "[$statusLabel] Duration: " . ($validated['duration_seconds'] ?? 0) . "s.\nNotes: " . ($finalNotes ?: 'None'),
         ]);
 
-        if (!empty($validated['next_followup_at'])) {
+        if (!empty($validated['next_followup_at']) && (!isset($validated['status']) || ($validated['status'] !== 'Ready for Site Visit' && $validated['status'] !== 'Token Received' && $validated['status'] !== 'Not Interested'))) {
             FollowUp::create([
                 'company_id' => $user->company_id,
                 'lead_id' => $lead->id,
@@ -812,11 +855,83 @@ class SalesExecutiveApiController extends Controller
                 'notes' => "Auto-scheduled after call status: $statusLabel",
                 'status' => 'pending',
             ]);
-
-            if (in_array($lead->status, ['new', 'assigned', 'contacted'])) {
-                $lead->update(['status' => 'follow_up']);
-            }
         }
+
+        // Handle Pipeline Stage Update & Site Visit Scheduling
+        if (isset($validated['status'])) {
+            if ($validated['status'] === 'Ready for Site Visit' || $validated['status'] === 'READY TO VISIT' || $validated['status'] === 'site_visit_scheduled') {
+                $lead->status = 'site_visit';
+                
+                \App\Models\SiteVisit::create([
+                    'company_id' => $user->company_id,
+                    'lead_id' => $lead->id,
+                    'project_id' => $validated['sv_project_id'],
+                    'assigned_to_user_id' => $validated['sv_assigned_to'] ?? $user->id,
+                    'scheduled_at' => $validated['sv_scheduled_at'],
+                    'status' => 'scheduled',
+                    'notes' => 'Site visit scheduled from API call log. ' . ($validated['notes'] ?? ''),
+                    'broker_name' => $validated['sv_broker_name'] ?? null,
+                    'broker_phone' => $validated['sv_broker_phone'] ?? null,
+                    'broker_company' => $validated['sv_broker_company'] ?? null,
+                    'visit_description' => $validated['sv_visit_description'] ?? null,
+                    'remark_1' => $validated['sv_remark_1'] ?? null,
+                    'remark_2' => $validated['sv_remark_2'] ?? null,
+                ]);
+                
+                // Notify the assigned executive if it's someone else
+                if (isset($validated['sv_assigned_to']) && $validated['sv_assigned_to'] != $user->id) {
+                    $svExecutive = User::find($validated['sv_assigned_to']);
+                    if ($svExecutive) {
+                        app(\App\Services\NotificationService::class)->notify(
+                            $svExecutive,
+                            'site_visit_assigned',
+                            "📅 Site Visit Assigned: {$lead->first_name}",
+                            "You have been assigned a site visit for {$lead->first_name} on " . date('d M Y, h:i A', strtotime($validated['sv_scheduled_at'])) . ". Please check your schedule.",
+                            url("/site-visits")
+                        );
+                    }
+                }
+            } elseif ($validated['status'] === 'Token Received') {
+                $lead->status = 'converted';
+            } elseif ($validated['status'] === 'Not Interested' || $validated['status'] === 'dropped') {
+                $lead->status = 'lost';
+                if ($request->has('lost_reason')) {
+                    $lead->lost_reason = $request->input('lost_reason');
+                }
+            } elseif ($validated['status'] === 'Warm / Negotiation' || $validated['status'] === 'WARM' || $validated['status'] === 'negotiation') {
+                $lead->status = 'negotiation';
+            } elseif ($validated['status'] === 'In Follow-up' || $validated['status'] === 'IN FOLLOWUP' || $validated['status'] === 'Meeting at Client Place') {
+                $lead->status = 'follow_up';
+            } elseif ($validated['status'] === 'Not Connected' || $validated['status'] === 'NOT CONNECTED') {
+                if ($lead->status === 'new') {
+                    $lead->status = 'contacted';
+                }
+            }
+            $lead->save();
+        }
+        // Email / Push Notification to Sales Managers & Admins when Sales Executive logs work
+        $managers = User::where('company_id', $user->company_id)
+            ->whereHas('role', function ($q) {
+                $q->whereIn('slug', ['admin', 'company_admin', 'manager', 'sales_manager', 'founder', 'director']);
+            })
+            ->where('id', '!=', $user->id)
+            ->get();
+
+        $execName     = $user->name;
+        $customerName = trim($lead->first_name . ' ' . $lead->last_name);
+        $audioNote    = $audioPath ? " 🎙️ Audio recording attached." : "";
+        $outcomeText  = $statusLabel;
+
+        foreach ($managers as $manager) {
+            app(\App\Services\NotificationService::class)->notify(
+                $manager,
+                'sales_activity_logged',
+                "📞 Activity Update from {$execName} on {$customerName}",
+                "Sales Executive {$execName} logged work on lead '{$customerName}' ({$lead->lead_code}). Outcome: {$outcomeText}. Remarks: " . ($finalNotes ?: 'None') . ".{$audioNote} Please review on REOS to direct next steps.",
+                url("/leads/{$lead->id}")
+            );
+        }
+
 
         return response()->json([
             'status' => 'success',

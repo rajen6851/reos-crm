@@ -350,6 +350,7 @@ class BrokerApiController extends Controller
         $user = $request->user();
 
         $projects = Project::withoutGlobalScopes()
+            ->where('company_id', $user->company_id)
             ->where('status', 'active')
             ->where(function ($q) {
                 $q->where('visibility', 'public')->orWhereNull('visibility');

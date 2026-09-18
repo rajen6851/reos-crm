@@ -32,7 +32,12 @@ class FollowUpController extends Controller
 
         $pendingFollowUps = $query->latest('updated_at')->get();
         $recentCalls = $callsQuery->latest()->take(20)->get();
+        
+        $projects = \App\Models\Project::where('company_id', $user->company_id)->where('status', 'active')->get();
+        $salesStaff = \App\Models\User::where('company_id', $user->company_id)->whereHas('role', function ($q) {
+            $q->whereIn('slug', ['sales_executive', 'manager', 'sales_manager']);
+        })->get();
 
-        return view('follow_ups.index', compact('pendingFollowUps', 'recentCalls'));
+        return view('follow_ups.index', compact('pendingFollowUps', 'recentCalls', 'projects', 'salesStaff'));
     }
 }

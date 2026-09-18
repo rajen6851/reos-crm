@@ -21,7 +21,9 @@ class UserApprovalWorkflowTest extends TestCase
         // Seed roles
         Role::create(['name' => 'Founder', 'slug' => 'founder']);
         Role::create(['name' => 'Director', 'slug' => 'director']);
-        Role::create(['name' => 'Admin', 'slug' => 'admin']);
+        $adminRole = Role::create(['name' => 'Admin', 'slug' => 'admin']);
+        $this->attachPermissionsToRole($adminRole, ['manage-users', 'manage-projects']);
+        
         Role::create(['name' => 'Sales Executive', 'slug' => 'sales_executive']);
     }
 

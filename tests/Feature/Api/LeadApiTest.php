@@ -16,8 +16,12 @@ class LeadApiTest extends TestCase
     {
         $company = Company::create(['name' => 'API Realty', 'code' => 'APR', 'slug' => 'api-realty', 'status' => 'active']);
 
+        $role = \App\Models\Role::create(['company_id' => $company->id, 'name' => 'Sales Executive', 'slug' => 'sales_executive']);
+        $this->attachPermissionsToRole($role, ['manage-leads']);
+
         $user = User::create([
             'company_id' => $company->id,
+            'role_id' => $role->id,
             'name' => 'API Sales Agent',
             'email' => 'salesagent@reos.com',
             'phone' => '9999900001',

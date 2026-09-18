@@ -8,7 +8,9 @@ use App\Models\LeadSource;
 use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;
-use App\Services\LeadSources\LeadSourceManager;
+use App\Models\DistributionRule;
+use App\Models\DistributionRuleMember;
+use App\Models\LeadActivity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -69,6 +71,20 @@ class LeadSourceIntegrationTest extends TestCase
             'pincode' => '400001',
             'project_type' => 'residential',
             'status' => 'active',
+        ]);
+
+        $rule = DistributionRule::create([
+            'company_id' => $this->company->id,
+            'name' => 'Default Round Robin',
+            'priority' => 1,
+            'distribution_method' => 'round_robin',
+            'fallback_behavior' => 'redistribute',
+            'is_active' => true,
+        ]);
+
+        DistributionRuleMember::create([
+            'distribution_rule_id' => $rule->id,
+            'user_id' => $this->executive->id,
         ]);
     }
 
@@ -238,9 +254,17 @@ class LeadSourceIntegrationTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true, 'is_duplicate' => true]);
 
+        // Assert no new lead is created with that email
         $newLead = Lead::where('email', 'dup@test.com')->first();
-        $this->assertNotNull($newLead);
-        $this->assertTrue($newLead->is_duplicate);
-        $this->assertEquals($existingLead->id, $newLead->duplicate_of_lead_id);
+        $this->assertNull($newLead);
+        
+        // Assert LeadActivity was logged for the duplicate submission
+        $activity = LeadActivity::where('lead_id', $existingLead->id)
+            ->where('activity_type', 'updated')
+            ->orderByDesc('id')
+            ->first();
+            
+        $this->assertNotNull($activity);
+        $this->assertStringContainsString('Duplicate form submission', $activity->description);
     }
 }

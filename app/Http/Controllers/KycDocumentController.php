@@ -57,8 +57,8 @@ class KycDocumentController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isBroker()) {
-            return redirect()->route('dashboard')->with('error', 'Brokers do not have access to company private drive.');
+        if (!($user->isCompanyAdmin() || $user->isCompanyFounder() || $user->isSaaSFounder())) {
+            return redirect()->route('dashboard')->with('error', 'Only Company Admin and Founder can access the Document Repository.');
         }
 
         $query = KycDocument::latest();
@@ -127,8 +127,8 @@ class KycDocumentController extends Controller
 
         $user = Auth::user();
 
-        if ($user->isBroker()) {
-            return back()->with('error', 'Brokers cannot upload files to company drive.');
+        if (!($user->isCompanyAdmin() || $user->isCompanyFounder() || $user->isSaaSFounder())) {
+            return back()->with('error', 'Only Company Admin and Founder can upload files to the company drive.');
         }
 
         $file = $request->file('document_file');
@@ -156,7 +156,9 @@ class KycDocumentController extends Controller
     {
         $user = Auth::user();
 
-        Gate::authorize('manage-users');
+        if (!($user->isCompanyAdmin() || $user->isCompanyFounder() || $user->isSaaSFounder())) {
+            return back()->with('error', 'Only Company Admin and Founder can delete files from the company drive.');
+        }
 
         $doc = KycDocument::where(function ($q) use ($user) {
             if (!$user->isSaaSFounder()) {

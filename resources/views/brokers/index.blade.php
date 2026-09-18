@@ -376,9 +376,15 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Commission Rate (%) *</label>
-                        <input type="number" step="0.01" min="0" max="100" name="commission_rate" value="2.50" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Commission Rate (%) *</label>
+                            <input type="number" step="0.01" min="0" max="100" name="commission_rate" value="2.50" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Login Password *</label>
+                            <input type="text" name="password" required placeholder="Enter password" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] focus:outline-none focus:border-[#4F46E5]">
+                        </div>
                     </div>
                 </div>
             </form>
@@ -452,9 +458,15 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Commission Rate (%) *</label>
-                        <input type="number" step="0.01" min="0" max="100" id="edit_commission_rate" name="commission_rate" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Commission Rate (%) *</label>
+                            <input type="number" step="0.01" min="0" max="100" id="edit_commission_rate" name="commission_rate" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">New Password</label>
+                            <input type="text" name="password" placeholder="Leave blank to keep current" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs text-[#0F172A] focus:outline-none focus:border-[#4F46E5]">
+                        </div>
                     </div>
                 </div>
             </form>

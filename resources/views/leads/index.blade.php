@@ -304,10 +304,33 @@
                                 <i class="fa-brands fa-whatsapp text-emerald-600"></i>
                                 <span>WhatsApp</span>
                             </a>
-                            <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 hover:bg-slate-100 transition flex items-center space-x-1">
+                            <button onclick="openCallModal({{ json_encode($lead) }}, '{{ addslashes($lead->first_name . ' ' . $lead->last_name) }}')" class="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 hover:bg-slate-100 transition flex items-center space-x-1">
                                 <i class="fa-solid fa-phone text-blue-600"></i>
                                 <span>Call Log</span>
                             </button>
+                            <!-- Quick Actions Dropdown (Mobile) -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" @click.away="open = false" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 transition flex items-center space-x-1">
+                                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                                    <span>Action</span>
+                                </button>
+                                
+                                <div x-show="open" x-cloak class="absolute bottom-full right-0 mb-1 w-44 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 text-left py-1">
+                                    <a href="{{ route('leads.site-visit.create', $lead->id) }}" class="block w-full text-left px-3 py-2 text-[10px] font-bold text-slate-700 hover:bg-indigo-50">
+                                        <i class="fa-solid fa-map-location-dot w-4 text-indigo-500"></i> Site Visit
+                                    </a>
+                                    <a href="{{ route('leads.negotiate.create', $lead->id) }}" class="block w-full text-left px-3 py-2 text-[10px] font-bold text-slate-700 hover:bg-amber-50">
+                                        <i class="fa-solid fa-handshake-angle w-4 text-amber-500"></i> Negotiate
+                                    </a>
+                                    <a href="{{ route('leads.convert.create', $lead->id) }}" class="block w-full text-left px-3 py-2 text-[10px] font-bold text-slate-700 hover:bg-emerald-50">
+                                        <i class="fa-solid fa-money-check-dollar w-4 text-emerald-500"></i> Booking
+                                    </a>
+                                    <div class="h-px bg-slate-100 my-1"></div>
+                                    <a href="{{ route('leads.lost.create', $lead->id) }}" class="block w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50">
+                                        <i class="fa-solid fa-thumbs-down w-4"></i> Drop
+                                    </a>
+                                </div>
+                            </div>
                             @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
                             <form method="POST" action="{{ route('leads.destroy', $lead->id) }}" onsubmit="return confirm('Delete lead {{ $lead->lead_code }}?');">
                                 @csrf
@@ -436,9 +459,9 @@
                                     $allowedForUser = match($lead->status) {
                                         'new' => ['new', 'contacted', 'lost'],
                                         'contacted' => ['contacted', 'follow_up', 'site_visit', 'interested', 'lost'],
-                                        'follow_up' => ['follow_up', 'site_visit', 'interested', 'negotiation', 'lost'],
-                                        'site_visit' => ['site_visit', 'interested', 'negotiation', 'lost'],
-                                        'interested' => ['interested', 'negotiation', 'lost'],
+                                        'follow_up' => ['follow_up', 'site_visit', 'interested', 'lost'],
+                                        'site_visit' => ['site_visit', 'interested', 'lost'],
+                                        'interested' => ['interested', 'lost'],
                                         'negotiation' => ['negotiation', 'lost'],
                                         default => [$lead->status],
                                     };
@@ -460,14 +483,40 @@
                                     <span>Details</span>
                                 </a>
 
-                                <button onclick="openCallModal({{ $lead->id }}, '{{ $lead->first_name }} {{ $lead->last_name }}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
+                                <button onclick="openCallModal({{ json_encode($lead) }}, '{{ addslashes($lead->first_name . ' ' . $lead->last_name) }}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
                                     <i class="fa-solid fa-phone text-blue-600"></i>
                                     <span>Call Log</span>
                                 </button>
+                                
+                                <!-- Quick Actions Dropdown -->
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" @click.away="open = false" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
+                                        <i class="fa-solid fa-bolt text-amber-500"></i>
+                                        <span>Action</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+                                    </button>
+                                    
+                                    <div x-show="open" x-cloak class="absolute right-0 mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-20 text-left py-1">
+                                        <a href="{{ route('leads.site-visit.create', $lead->id) }}" class="block w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center">
+                                            <i class="fa-solid fa-map-location-dot w-5 text-indigo-500"></i> Schedule Site Visit
+                                        </a>
+                                        @if(!auth()->user()->isSales())
+                                        <a href="{{ route('leads.negotiate.create', $lead->id) }}" class="block w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-amber-50 hover:text-amber-700 flex items-center">
+                                            <i class="fa-solid fa-handshake-angle w-5 text-amber-500"></i> Start Negotiation
+                                        </a>
+                                        <a href="{{ route('leads.convert.create', $lead->id) }}" class="block w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center">
+                                            <i class="fa-solid fa-money-check-dollar w-5 text-emerald-500"></i> Record Booking
+                                        </a>
+                                        @endif
+                                        <div class="h-px bg-slate-100 my-1"></div>
+                                        <a href="{{ route('leads.lost.create', $lead->id) }}" class="block w-full text-left px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center">
+                                            <i class="fa-solid fa-thumbs-down w-5"></i> Drop Lead
+                                        </a>
+                                    </div>
+                                </div>
 
                                 <button onclick="openHistoryModal({{ json_encode($lead) }})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
-                                    <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
-                                    <span>History</span>
+                                    <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
                                 </button>
 
                                 @if(auth()->user()->isCompanyAdmin() || auth()->user()->isSaaSFounder())
@@ -494,42 +543,44 @@
 
     <!-- Create Lead Modal -->
     <div id="createLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-        <div class="bg-white w-full max-w-lg p-5 rounded-2xl space-y-4 border border-slate-200 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 class="text-sm font-bold text-[#0F172A] flex items-center space-x-2">
-                    <i class="fa-solid fa-user-plus text-blue-600"></i>
-                    <span>Add New Customer Lead</span>
-                </h3>
-                <button onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+        <div class="bg-white w-full max-w-lg overflow-hidden shadow-2xl border border-slate-300">
+            <!-- Header -->
+            <div class="flex justify-between items-start px-5 py-4 bg-[#4A86BA] text-white relative">
+                <div>
+                    <h3 class="text-xl font-bold mb-1">Add New Customer Lead</h3>
+                    <div class="text-[13px] font-semibold text-blue-100">Enter primary details to create a lead</div>
+                </div>
+                <button onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
             </div>
-            <form method="POST" action="{{ route('leads.store') }}" class="space-y-3 text-xs">
+
+            <form method="POST" action="{{ route('leads.store') }}" class="p-5 text-sm space-y-4">
                 @csrf
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">First Name *</label>
-                        <input type="text" name="first_name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">First Name <span class="text-orange-500">*</span></label>
+                        <input type="text" name="first_name" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Last Name</label>
-                        <input type="text" name="last_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Phone Number *</label>
-                        <input type="text" name="phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Email</label>
-                        <input type="email" name="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Last Name</label>
+                        <input type="text" name="last_name" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Project Interest</label>
-                        <select name="interested_project_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Phone Number <span class="text-orange-500">*</span></label>
+                        <input type="text" name="phone" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                    </div>
+                    <div>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Email</label>
+                        <input type="email" name="email" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Project Interest</label>
+                        <select name="interested_project_id" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                             <option value="">Select Project</option>
                             @foreach($projects as $proj)
                                 <option value="{{ $proj->id }}">{{ $proj->name }}</option>
@@ -537,8 +588,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Lead Source</label>
-                        <select name="source_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium">
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Lead Source</label>
+                        <select name="source_id" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                             <option value="">Select Source</option>
                             @foreach($sources as $src)
                                 <option value="{{ $src->id }}">{{ $src->name }}</option>
@@ -547,110 +598,98 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
-                    <button type="button" onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs">Save Lead</button>
+                <div class="flex items-center justify-end space-x-3 pt-2">
+                    <button type="button" onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded shadow-sm text-[13px] border border-slate-300">Cancel</button>
+                    <button type="submit" class="bg-[#4A86BA] hover:bg-[#386b99] text-white font-bold py-1.5 px-6 rounded shadow text-[13px]">Save Lead</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Call Outcome Modal — with Audio Recording Upload -->
+    <!-- Follow-up Modal -->
     <div id="callLogModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
-            <!-- Header -->
-            <div class="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-blue-50">
-                <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                        <i class="fa-solid fa-phone text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-[#0F172A]">Log Call for <span id="callModalLeadName" class="text-blue-600"></span></h3>
-                        <p class="text-[10px] text-slate-500 font-medium">Record outcome, notes &amp; attach call audio</p>
+        <div class="bg-white w-full max-w-3xl overflow-hidden shadow-2xl border border-slate-300">
+            <!-- Header (Blue like the screenshot) -->
+            <div class="flex justify-between items-start px-5 py-4 bg-[#4A86BA] text-white relative">
+                <div>
+                    <h3 class="text-xl font-bold mb-2">Follow-up</h3>
+                    <div class="flex items-center space-x-6 text-[13px] font-semibold">
+                        <div>Customer Name: <span id="callModalLeadName"></span></div>
+                        <div>Phone No. <span id="callModalLeadPhone"></span></div>
                     </div>
                 </div>
-                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
             </div>
 
-            <form id="callLogForm" method="POST" action="" enctype="multipart/form-data" class="p-5 space-y-4 text-xs">
+            <form id="callLogForm" method="POST" action="" class="p-5 text-sm" x-data="{ pipelineStage: 'IN FOLLOWUP' }">
                 @csrf
+                <input type="hidden" name="call_outcome" value="connected">
 
-                <!-- Call Outcome -->
-                <div class="space-y-1.5">
-                    <label class="block text-slate-700 font-bold">Call / Visit Outcome <span class="text-rose-500">*</span></label>
-                    <select name="call_outcome" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold text-xs">
-                        <option value="connected">Connected &amp; Spoke</option>
-                        <option value="spoke_interested">Connected — High Interest</option>
-                        <option value="site_visit_conducted">Site Visit Conducted</option>
-                        <option value="interested_after_visit">Interested After Site Visit</option>
-                        <option value="scheduled_site_visit">Site Visit Scheduled</option>
-                        <option value="busy_callback">Busy / Callback Requested</option>
-                        <option value="no_answer">No Answer / Switched Off</option>
-                        <option value="not_connected">Not Connected</option>
-                    </select>
-                </div>
-
-                <!-- Next Follow-up -->
-                <div class="space-y-1.5">
-                    <label class="block text-slate-700 font-bold">Next Follow-up Date &amp; Time</label>
-                    <input type="datetime-local" name="next_followup_at" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-xs">
-                </div>
-
-                <!-- Remarks -->
-                <div class="space-y-1.5">
-                    <label class="block text-slate-700 font-bold">Remarks &amp; Notes</label>
-                    <textarea name="notes" rows="2" placeholder="Enter notes from call..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-medium resize-none"></textarea>
-                </div>
-
-                <!-- Audio Recording Upload -->
-                <div class="space-y-1.5">
-                    <label class="block text-slate-700 font-bold">
-                        <i class="fa-solid fa-microphone text-blue-500 mr-1"></i>
-                        Call Recording <span class="text-slate-400 font-normal">(optional)</span>
-                    </label>
-
-                    <!-- Drop Zone -->
-                    <div id="audioDropZone"
-                         onclick="document.getElementById('audioFileInput').click()"
-                         ondragover="event.preventDefault(); this.classList.add('border-blue-400','bg-blue-50')"
-                         ondragleave="this.classList.remove('border-blue-400','bg-blue-50')"
-                         ondrop="handleAudioDrop(event)"
-                         class="cursor-pointer border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-150">
-                        <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-lg mb-1"></i>
-                        <p class="text-slate-500 font-medium text-[11px]">Click or drag &amp; drop audio file here</p>
-                        <p class="text-slate-400 text-[10px] mt-0.5">MP3, WAV, OGG, M4A, WebM, AAC — Max 50 MB</p>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <!-- Inquiry Status -->
+                    <div>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Inquiry Status <span class="text-orange-500">*</span></label>
+                        <select name="status" x-model="pipelineStage" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                            <option value="Meeting at Client Place">Meeting at Client Place</option>
+                            <option value="Not Interested">Not Interested</option>
+                            <option value="WARM">WARM</option>
+                            <option value="IN FOLLOWUP">IN FOLLOWUP</option>
+                            <option value="READY TO VISIT">READY TO VISIT</option>
+                            <option value="NOT CONNECTED">NOT CONNECTED</option>
+                        </select>
                     </div>
-
-                    <input type="file" id="audioFileInput" name="audio_recording"
-                           accept=".mp3,.wav,.ogg,.m4a,.webm,.aac,.flac"
-                           class="hidden"
-                           onchange="handleAudioSelect(this)">
-
-                    <!-- Audio Preview (hidden by default) -->
-                    <div id="audioPreviewBox" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-music text-white text-xs"></i>
-                                </div>
-                                <div>
-                                    <div id="audioFileName" class="font-bold text-emerald-800 text-[11px] truncate max-w-[180px]"></div>
-                                    <div id="audioFileSize" class="text-[10px] text-emerald-600"></div>
-                                </div>
-                            </div>
-                            <button type="button" onclick="clearAudioFile()" class="text-rose-400 hover:text-rose-600 font-bold text-sm">&times;</button>
-                        </div>
-                        <audio id="audioPreviewPlayer" controls class="w-full rounded-lg" style="height:32px"></audio>
+                    <!-- Next Followup Date -->
+                    <div>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Next Followup Date <span class="text-orange-500">*</span></label>
+                        <input type="datetime-local" name="next_followup_at" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                    </div>
+                    <!-- Budget Upto -->
+                    <div>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Budget Upto</label>
+                        <select name="budget_max" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                            <option value="">Select Budget Upto</option>
+                            <option value="1500000">15 Lacs</option>
+                            <option value="3000000">30 Lacs</option>
+                            <option value="5000000">50 Lacs</option>
+                            <option value="10000000">1 Crore</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="document.getElementById('callLogModal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg border border-slate-200 text-xs">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-xs text-xs flex items-center space-x-1.5">
-                        <i class="fa-solid fa-floppy-disk text-xs"></i>
-                        <span>Save Call Log</span>
+                <!-- Remarks & Save Button -->
+                <div class="flex items-end space-x-3 mb-6">
+                    <div class="grow">
+                        <textarea name="notes" rows="3" class="w-full bg-white border border-slate-300 p-2 focus:outline-none focus:border-blue-500 text-[13px] resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="bg-[#4A86BA] hover:bg-[#386b99] text-white font-bold py-1.5 px-6 rounded shadow shrink-0 mb-4">
+                        Save
                     </button>
+                </div>
+
+                <!-- Recent Follow Up Detail Table -->
+                <div class="bg-[#DCEBF6] font-bold text-center text-[#1F2937] py-1 text-[14px]">
+                    Recent Follow Up Detail
+                </div>
+                <div class="max-h-40 overflow-y-auto bg-slate-100 p-0 border border-t-0 border-slate-200">
+                    <table class="w-full text-left text-[12px] text-slate-700">
+                        <thead class="bg-slate-200 text-slate-800 font-bold sticky top-0 border-b border-slate-300">
+                            <tr>
+                                <th class="py-2 px-3 text-center w-10">S/No.</th>
+                                <th class="py-2 px-3">Type</th>
+                                <th class="py-2 px-3">Followup Date</th>
+                                <th class="py-2 px-3">Remark</th>
+                                <th class="py-2 px-3">Next Schedule date</th>
+                                <th class="py-2 px-3">Status</th>
+                                <th class="py-2 px-3">CreatedBy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalHistoryLogsContainer" class="divide-y divide-slate-300 bg-white">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-[11px] text-red-500 font-semibold mt-4">
+                    *ccoa: customer click on ad, *ccoaa: customer click on ad again (open lead &Rightarrow; dump lead)
                 </div>
             </form>
         </div>
@@ -710,10 +749,36 @@
         form.submit();
     }
 
-    function openCallModal(leadId, leadName) {
-        document.getElementById('callLogForm').action = "/leads/" + leadId + "/call";
-        document.getElementById('callModalLeadName').innerText = leadName;
-        clearAudioFile(); // reset audio state on open
+    function openCallModal(lead, leadName) {
+        document.getElementById('callLogForm').action = "/leads/" + lead.id + "/call";
+        document.getElementById('callModalLeadName').textContent = leadName || (lead.first_name + ' ' + (lead.last_name || ''));
+        document.getElementById('callModalLeadPhone').textContent = lead.phone || 'N/A';
+        
+        const container = document.getElementById('modalHistoryLogsContainer');
+        if (container) {
+            container.innerHTML = '';
+            const calls = lead.calls || [];
+            if(calls.length === 0) {
+                container.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-slate-400 italic">No previous call logs recorded.</td></tr>';
+            } else {
+                calls.forEach((c, index) => {
+                    const dateFormatted = c.created_at ? new Date(c.created_at).toLocaleString() : '';
+                    const nextSchedule = c.next_followup_at ? new Date(c.next_followup_at).toLocaleString() : '-';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 text-center">${index + 1}</td>
+                        <td class="py-2 px-3 text-slate-800">Lead</td>
+                        <td class="py-2 px-3">${dateFormatted}</td>
+                        <td class="py-2 px-3 font-semibold text-slate-900">${c.notes || c.description || ''}</td>
+                        <td class="py-2 px-3 text-slate-800">${nextSchedule}</td>
+                        <td class="py-2 px-3 text-slate-800 font-semibold uppercase">${c.lead_status_snapshot || (c.activity_type ? c.activity_type.replace(/_/g, ' ') : lead.status)}</td>
+                        <td class="py-2 px-3 text-slate-800 font-bold uppercase">${c.user ? c.user.name : 'SYSTEM'}</td>
+                    `;
+                    container.appendChild(tr);
+                });
+            }
+        }
+        
         document.getElementById('callLogModal').classList.remove('hidden');
     }
 
@@ -722,50 +787,6 @@
             showAudioPreview(input.files[0]);
         }
     }
-
-    function handleAudioDrop(event) {
-        event.preventDefault();
-        var dropZone = document.getElementById('audioDropZone');
-        dropZone.classList.remove('border-blue-400', 'bg-blue-50');
-        var file = event.dataTransfer.files[0];
-        if (!file) return;
-        var allowed = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm', 'audio/aac', 'audio/flac', 'audio/x-m4a'];
-        if (!allowed.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|m4a|webm|aac|flac)$/i)) {
-            alert('Invalid file type. Please upload MP3, WAV, OGG, M4A, WebM, AAC or FLAC.');
-            return;
-        }
-        // Transfer to file input
-        var dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        document.getElementById('audioFileInput').files = dataTransfer.files;
-        showAudioPreview(file);
-    }
-
-    function showAudioPreview(file) {
-        var maxSize = 50 * 1024 * 1024; // 50MB
-        if (file.size > maxSize) {
-            alert('File too large. Maximum allowed size is 50 MB.');
-            clearAudioFile();
-            return;
-        }
-        document.getElementById('audioFileName').textContent = file.name;
-        document.getElementById('audioFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-        var url = URL.createObjectURL(file);
-        var player = document.getElementById('audioPreviewPlayer');
-        player.src = url;
-        document.getElementById('audioPreviewBox').classList.remove('hidden');
-        document.getElementById('audioDropZone').classList.add('hidden');
-    }
-
-    function clearAudioFile() {
-        document.getElementById('audioFileInput').value = '';
-        document.getElementById('audioPreviewPlayer').src = '';
-        document.getElementById('audioFileName').textContent = '';
-        document.getElementById('audioFileSize').textContent = '';
-        document.getElementById('audioPreviewBox').classList.add('hidden');
-        document.getElementById('audioDropZone').classList.remove('hidden');
-    }
-
 
     function openHistoryModal(lead) {
         document.getElementById('historyCustomerName').innerText = (lead.first_name || '') + ' ' + (lead.last_name || '') + ' (' + lead.lead_code + ')';

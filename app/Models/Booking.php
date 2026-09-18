@@ -21,6 +21,7 @@ class Booking extends Model
         'customer_phone',
         'project_id',
         'unit_id',
+        'unit_identifier',
         'sales_user_id',
         'broker_id',
         'cost_sheet_id',
