@@ -28,18 +28,51 @@ class AttendanceApiController extends Controller
         return response()->json(['status' => 'success', 'data' => $query->latest('date')->paginate(31)]);
     }
 
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // in meters
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $earthRadius * $c;
+    }
+
     public function clockIn(Request $request)
     {
         abort_if($request->user()->isBroker(), 403, 'Attendance is available for internal staff only.');
         $validated = $request->validate([
             'work_location' => 'required|in:office,field_visit,wfh',
+            'project_id' => 'required_if:work_location,field_visit|exists:projects,id',
             'selfie' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'notes' => 'nullable|string|max:500',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'latitude' => 'required_unless:work_location,wfh|numeric',
+            'longitude' => 'required_unless:work_location,wfh|numeric',
             'address' => 'nullable|string|max:500',
         ]);
         $user = $request->user();
+
+        // Geofencing Check
+        if ($validated['work_location'] === 'field_visit') {
+            $project = \App\Models\Project::where('company_id', $user->company_id)->findOrFail($validated['project_id']);
+            if ($project->latitude && $project->longitude) {
+                $distance = $this->calculateDistance($validated['latitude'], $validated['longitude'], $project->latitude, $project->longitude);
+                if ($distance > 500) {
+                    return response()->json(['status' => 'error', 'message' => 'You are too far from the project location. Distance: ' . round($distance) . 'm. Maximum allowed is 500m.'], 403);
+                }
+            }
+        } elseif ($validated['work_location'] === 'office') {
+            $company = $user->company;
+            $officeLat = $company->settings['latitude'] ?? null;
+            $officeLon = $company->settings['longitude'] ?? null;
+            if ($officeLat && $officeLon) {
+                $distance = $this->calculateDistance($validated['latitude'], $validated['longitude'], $officeLat, $officeLon);
+                if ($distance > 500) {
+                    return response()->json(['status' => 'error', 'message' => 'You are too far from the office location. Distance: ' . round($distance) . 'm. Maximum allowed is 500m.'], 403);
+                }
+            }
+        }
+
         $attendance = Attendance::firstOrCreate(
             ['company_id' => $user->company_id, 'user_id' => $user->id, 'date' => now()->toDateString()],
             [
