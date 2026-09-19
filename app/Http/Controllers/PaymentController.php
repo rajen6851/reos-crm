@@ -12,8 +12,10 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        \Illuminate\Support\Facades\Gate::authorize('view-financials');
-        $payments = Payment::with(['booking.lead', 'booking.unit.project', 'booking.project'])
+        $canView = auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder' || auth()->user()->isManager() || auth()->user()->can('view-financials');
+        abort_unless($canView, 403, 'Unauthorized action.');
+        
+        $payments = Payment::with(['booking.lead', 'booking.unit.project', 'booking.project', 'recordedBy'])
             ->latest('payment_date')
             ->get();
 
@@ -30,6 +32,19 @@ class PaymentController extends Controller
         $manualPaymentsCount = Payment::where('payment_method', '!=', 'razorpay')->count();
 
         return view('payments.index', compact('payments', 'bookings', 'totalCollected', 'razorpayPaymentsCount', 'manualPaymentsCount'));
+    }
+
+    public function clearPayment(Request $request, Payment $payment)
+    {
+        $canView = auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder' || auth()->user()->isManager() || auth()->user()->can('view-financials');
+        abort_unless($canView, 403, 'Unauthorized action.');
+
+        $payment->update([
+            'status' => 'cleared',
+            'cleared_at' => now(),
+        ]);
+
+        return back()->with('success', "Payment {$payment->receipt_number} has been marked as CLEARED.");
     }
 
     public function generateSchedules(Request $request, $bookingId)

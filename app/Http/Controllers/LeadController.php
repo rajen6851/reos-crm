@@ -30,7 +30,7 @@ class LeadController extends Controller
 
         Gate::authorize('manage-leads');
 
-        $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user', 'latestDistributionLog.rule']);
+        $query = Lead::with(['assignedTo', 'assignedManager', 'broker', 'brokerLead', 'project', 'source', 'assignments.assignedTo', 'calls.user', 'activities', 'latestDistributionLog.rule']);
 
         // Privacy Isolation: Executives see assigned leads; Managers see leads in their manager pool
         if ($user->isSales()) {
@@ -633,9 +633,14 @@ class LeadController extends Controller
     public function createConvert(Lead $lead)
     {
         abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to record bookings.');
+        if ($lead->status === 'converted') {
+            return redirect()->route('leads.show', $lead->id)->with('error', 'This lead is already converted.');
+        }
+
         $projects = \App\Models\Project::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
         $brokers = \App\Models\Broker::where('company_id', Auth::user()->company_id)->where('status', 'active')->get();
-        return view('leads.actions.convert', compact('lead', 'projects', 'brokers'));
+        $units = \App\Models\Unit::with('building')->where('company_id', Auth::user()->company_id)->where('status', 'available')->get();
+        return view('leads.actions.convert', compact('lead', 'projects', 'brokers', 'units'));
     }
 
     public function createDrop(Lead $lead)
@@ -746,17 +751,24 @@ class LeadController extends Controller
     public function recordBooking(Request $request, Lead $lead)
     {
         abort_if(Auth::user()->isSales(), 403, 'Sales Executives are not authorized to record bookings.');
+        
+        if ($lead->status === 'converted') {
+            return redirect()->route('leads.show', $lead->id)->with('error', 'This lead has already been converted to a booking.');
+        }
+
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
             'booking_amount' => 'required|numeric',
-            'booking_unit' => 'required|string',
+            'unit_id' => 'required|exists:units,id',
             'total_unit_cost' => 'nullable|numeric',
             'booking_date' => 'required|date',
             'broker_id' => 'nullable|exists:brokers,id',
         ]);
 
-        $lead->status = 'converted';
-        $lead->save();
+        app(\App\Services\LeadService::class)->updateStatus($lead, 'converted', 'Converted to booking via Lead conversion action.', Auth::user());
+        
+        $unit = \App\Models\Unit::with('building')->find($validated['unit_id']);
+        $unitIdentifier = ($unit->building->name ?? 'Tower') . ' - ' . $unit->unit_number . ' (' . $unit->unit_type . ')';
 
         \App\Models\Booking::create([
             'company_id' => Auth::user()->company_id,
@@ -766,8 +778,8 @@ class LeadController extends Controller
             'customer_email' => $lead->email,
             'customer_phone' => $lead->phone,
             'project_id' => $validated['project_id'],
-            'unit_id' => null, 
-            'unit_identifier' => $validated['booking_unit'],
+            'unit_id' => $unit->id, 
+            'unit_identifier' => $unitIdentifier,
             'sales_user_id' => Auth::id(),
             'broker_id' => $validated['broker_id'] ?? null,
             'booking_amount' => $validated['booking_amount'],
@@ -777,12 +789,24 @@ class LeadController extends Controller
             'approval_status' => 'pending'
         ]);
 
+        \App\Models\Payment::create([
+            'company_id' => Auth::user()->company_id,
+            'booking_id' => $booking->id,
+            'receipt_number' => 'RCT-' . strtoupper(Str::random(6)),
+            'amount' => $validated['booking_amount'],
+            'payment_date' => $validated['booking_date'],
+            'payment_method' => 'cash', // default manual method
+            'status' => 'pending_clearance',
+            'recorded_by_user_id' => Auth::id(),
+            'notes' => 'Initial Booking Token'
+        ]);
+
         \App\Models\LeadActivity::create([
             'company_id' => Auth::user()->company_id,
             'lead_id' => $lead->id,
             'user_id' => Auth::id(),
             'activity_type' => 'lead_converted',
-            'description' => "Booking Recorded. Token: ₹" . number_format($validated['booking_amount']) . ". Unit: " . $validated['booking_unit'],
+            'description' => "Booking Recorded. Token: ₹" . number_format($validated['booking_amount']) . ". Unit: " . $unitIdentifier,
         ]);
 
         $managers = \App\Models\User::where('company_id', Auth::user()->company_id)
@@ -795,7 +819,7 @@ class LeadController extends Controller
                 $manager,
                 'lead_converted',
                 "🎉 Lead Converted!",
-                "Lead {$lead->first_name} has booked unit {$validated['booking_unit']} with a token of ₹" . number_format($validated['booking_amount']) . ".",
+                "Lead {$lead->first_name} has booked unit {$unitIdentifier} with a token of ₹" . number_format($validated['booking_amount']) . ".",
                 url("/leads/{$lead->id}")
             );
         }

@@ -891,21 +891,26 @@ class SalesExecutiveApiController extends Controller
                         );
                     }
                 }
-            } elseif ($validated['status'] === 'Token Received') {
-                $lead->status = 'converted';
+            $newStatus = $lead->status;
+            if ($validated['status'] === 'Token Received') {
+                $newStatus = 'converted';
             } elseif ($validated['status'] === 'Not Interested' || $validated['status'] === 'dropped') {
-                $lead->status = 'lost';
+                $newStatus = 'lost';
                 if ($request->has('lost_reason')) {
                     $lead->lost_reason = $request->input('lost_reason');
                 }
             } elseif ($validated['status'] === 'Warm / Negotiation' || $validated['status'] === 'WARM' || $validated['status'] === 'negotiation') {
-                $lead->status = 'negotiation';
+                $newStatus = 'negotiation';
             } elseif ($validated['status'] === 'In Follow-up' || $validated['status'] === 'IN FOLLOWUP' || $validated['status'] === 'Meeting at Client Place') {
-                $lead->status = 'follow_up';
+                $newStatus = 'follow_up';
             } elseif ($validated['status'] === 'Not Connected' || $validated['status'] === 'NOT CONNECTED') {
                 if ($lead->status === 'new') {
-                    $lead->status = 'contacted';
+                    $newStatus = 'contacted';
                 }
+            }
+
+            if ($newStatus !== $lead->status) {
+                app(\App\Services\LeadService::class)->updateStatus($lead, $newStatus, "Status updated via Mobile App log.", $user);
             }
             $lead->save();
         }

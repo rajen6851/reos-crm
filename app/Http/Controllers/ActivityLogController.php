@@ -23,17 +23,17 @@ class ActivityLogController extends Controller
             $teamUsers = User::withoutGlobalScopes()->with('role')->get();
         } else {
             $query = LeadActivity::with(['lead', 'user'])->latest();
-            $teamUsers = User::where('company_id', $user->company_id)
-                ->when($user->isManager(), function ($q) use ($user) {
-                    $q->where(function ($q) use ($user) {
-                        $q->whereKey($user->id)
-                            ->orWhere('reporting_manager_id', $user->id);
-                    });
-                })
-                ->with('role')
-                ->get();
-
-            if ($user->isManager()) {
+            
+            $teamUsersQuery = User::where('company_id', $user->company_id)->with('role');
+            
+            if ($user->isCompanyAdmin() || $user->isDirector() || $user->isCompanyFounder()) {
+                $teamUsers = $teamUsersQuery->get();
+                // No additional query filters needed because TenantScope automatically filters by company_id
+            } elseif ($user->isManager()) {
+                $teamUsers = $teamUsersQuery->where(function ($q) use ($user) {
+                    $q->whereKey($user->id)->orWhere('reporting_manager_id', $user->id);
+                })->get();
+                
                 $teamUserIds = $teamUsers->pluck('id');
                 $query->where(function ($q) use ($user, $teamUserIds) {
                     $q->whereIn('user_id', $teamUserIds)
@@ -43,6 +43,8 @@ class ActivityLogController extends Controller
                         });
                 });
             } else {
+                $teamUsers = $teamUsersQuery->where('id', $user->id)->get();
+                
                 $query->where(function ($q) use ($user) {
                     $q->where('user_id', $user->id)
                         ->orWhereHas('lead', function ($leadQuery) use ($user) {

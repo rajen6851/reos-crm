@@ -139,6 +139,63 @@
         </div>
     </div>
 
+    <!-- My Earnings & Commissions -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            <div>
+                <h2 class="text-sm font-bold text-[#0F172A] flex items-center space-x-2">
+                    <i class="fa-solid fa-money-bill-wave text-emerald-600"></i>
+                    <span>My Earnings & Commissions</span>
+                </h2>
+                <p class="text-xs text-slate-500 font-medium">Track your earned commissions from successful referral bookings</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
+                    <tr>
+                        <th class="p-3.5">Booking / Project</th>
+                        <th class="p-3.5">Customer Name</th>
+                        <th class="p-3.5">Commission Amount</th>
+                        <th class="p-3.5">Generated Date</th>
+                        <th class="p-3.5 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-800">
+                    @forelse($commissions as $c)
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="p-3.5 font-bold text-slate-900">
+                            <div>{{ $c->booking->booking_code ?? 'Booking' }}</div>
+                            <div class="text-[10px] text-blue-600 font-mono font-normal">{{ $c->booking->project->name ?? 'Project' }}</div>
+                        </td>
+                        <td class="p-3.5 font-mono font-bold text-slate-900">{{ $c->booking->customer_name ?? 'N/A' }}</td>
+                        <td class="p-3.5 font-semibold text-emerald-700">₹{{ number_format($c->total_commission_amount) }}</td>
+                        <td class="p-3.5 font-mono text-slate-500">{{ date('d M Y', strtotime($c->created_at)) }}</td>
+                        <td class="p-3.5 text-right">
+                            @if($c->status === 'approved' || $c->status === 'paid')
+                                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
+                                    {{ $c->status }}
+                                </span>
+                            @else
+                                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+                                    {{ $c->status }}
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-xs text-slate-400 font-medium">
+                            No commissions generated yet. When your referred leads book a property, your earnings will appear here!
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Public Properties Catalog Grid -->
     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">

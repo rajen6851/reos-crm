@@ -138,9 +138,11 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
     Route::post('/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('bookings.approve');
     Route::post('/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{booking}/co-applicants', [CoApplicantController::class, 'store'])->name('bookings.co-applicants.store');
     Route::delete('/co-applicants/{coApplicant}', [CoApplicantController::class, 'destroy'])->name('co-applicants.destroy');
     Route::post('/bookings/{booking}/generate-schedules', [PaymentController::class, 'generateSchedules'])->name('bookings.generate-schedules');
@@ -150,6 +152,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/agreements/{agreement}/skip', [BookingController::class, 'requestAgreementSkip'])->name('agreements.skip');
     Route::post('/agreements/{agreement}/approve-skip', [BookingController::class, 'approveAgreementSkip'])->name('agreements.approve-skip');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::post('/payments/{payment}/clear', [PaymentController::class, 'clearPayment'])->name('payments.clear');
     Route::get('/payments/schedules/{schedule}/demand-letter', [PaymentController::class, 'viewDemandLetter'])->name('payments.schedules.demand-letter');
     Route::get('/payments/{payment}/download-receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.download-receipt');
     Route::get('/bookings/{booking}/download-receipt', [PaymentController::class, 'downloadBookingReceipt'])->name('bookings.download-receipt');

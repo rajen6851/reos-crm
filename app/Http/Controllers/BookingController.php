@@ -123,7 +123,9 @@ class BookingController extends Controller
             'status' => 'confirmed',
         ]);
 
-        $booking->unit->update(['status' => 'booked']);
+        if ($booking->unit) {
+            $booking->unit->update(['status' => 'booked']);
+        }
 
         // Fire Booking Confirmed Event
         event(new BrokerBookingConfirmed($booking));
@@ -184,6 +186,31 @@ class BookingController extends Controller
         \App\Services\AuditLogService::log('booking_rejected', "Booking {$booking->booking_code} was rejected. Unit and lead unlocked.", $booking);
 
         return back()->with('success', "Booking {$booking->booking_code} REJECTED. Unit released back to Available.");
+    }
+
+    public function cancel(Request $request, Booking $booking)
+    {
+        $canManage = auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder' || auth()->user()->isManager() || auth()->user()->can('manage-bookings');
+        abort_unless($canManage, 403, 'Unauthorized action.');
+
+        $validated = $request->validate([
+            'cancellation_reason' => 'required|string|max:500'
+        ]);
+
+        $booking->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => $validated['cancellation_reason']
+        ]);
+
+        if ($booking->unit) {
+            $booking->unit->update(['status' => 'available']);
+        }
+
+        if ($booking->lead) {
+            $booking->lead->update(['status' => 'negotiation']);
+        }
+
+        return back()->with('success', 'Booking has been cancelled and unit released.');
     }
 
     public function requestAgreementSkip(Request $request, Agreement $agreement)
@@ -297,5 +324,23 @@ class BookingController extends Controller
         $balanceRemaining = max(0, $unitPrice - $totalPaid);
 
         return view('bookings.show', compact('booking', 'totalPaid', 'unitPrice', 'balanceRemaining'));
+    }
+
+    public function update(Request $request, Booking $booking)
+    {
+        $canManage = auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder' || auth()->user()->isManager() || auth()->user()->can('manage-bookings');
+        abort_unless($canManage, 403, 'Unauthorized action.');
+
+        $validated = $request->validate([
+            'unit_identifier' => 'nullable|string|max:100',
+            'project_id' => 'nullable|exists:projects,id',
+            'customer_name' => 'nullable|string|max:255',
+            'customer_email' => 'nullable|email|max:255',
+            'customer_phone' => 'nullable|string|max:20',
+        ]);
+
+        $booking->update($validated);
+
+        return back()->with('success', 'Booking details updated successfully.');
     }
 }

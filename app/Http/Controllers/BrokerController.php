@@ -113,6 +113,15 @@ class BrokerController extends Controller
                 ->sum('total_commission_amount') 
             : 0;
 
+                    // Fetch ALL active Builder Companies and their PUBLIC Projects
+        // $companies = Company::withoutGlobalScopes()->where('status', 'active')->with(['projects' => function ($q) {
+        //     $q->withoutGlobalScopes()->where('status', 'active')->where(function ($vq) {
+        //         $vq->where('visibility', 'public')->orWhereNull('visibility');
+        //     });
+        // }])->get();
+        // Fetch only the Builder Company the broker is tied to, and its PUBLIC Projects
+    
+
         // Fetch only the Builder Company the broker is tied to, and its PUBLIC Projects
         $companies = Company::withoutGlobalScopes()
             ->where('id', $broker->company_id)

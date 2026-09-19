@@ -48,9 +48,9 @@
                         <th class="p-4">Receipt / Customer</th>
                         <th class="p-4">Project & Unit</th>
                         <th class="p-4">Amount Paid</th>
-                        <th class="p-4">Payment Method</th>
-                        <th class="p-4">Payment Date</th>
-                        <th class="p-4 text-right">Tax Invoice PDF</th>
+                        <th class="p-4">Method & Date</th>
+                        <th class="p-4">Status & Collected By</th>
+                        <th class="p-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -68,17 +68,42 @@
                             ₹{{ number_format($p->amount) }}
                         </td>
                         <td class="p-4 text-xs">
-                            <span class="px-3 py-1 font-bold rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                                <i class="fa-solid fa-bolt text-emerald-600 mr-1"></i>{{ strtoupper($p->payment_method ?? 'Razorpay') }}
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 block w-max mb-1">
+                                {{ strtoupper($p->payment_method ?? 'Razorpay') }}
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-mono">
+                                {{ $p->payment_date ? \Carbon\Carbon::parse($p->payment_date)->format('d M Y, h:i A') : 'N/A' }}
                             </span>
                         </td>
-                        <td class="p-4 text-xs text-slate-600 font-mono">
-                            {{ $p->payment_date ? \Carbon\Carbon::parse($p->payment_date)->format('d M Y, h:i A') : 'N/A' }}
+                        <td class="p-4 text-xs">
+                            @if($p->status === 'cleared')
+                                <span class="px-2 py-1 font-bold rounded text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                    <i class="fa-solid fa-check-circle mr-1"></i>CLEARED
+                                </span>
+                            @else
+                                <span class="px-2 py-1 font-bold rounded text-[10px] bg-amber-50 text-amber-600 border border-amber-200">
+                                    <i class="fa-solid fa-clock mr-1"></i>PENDING
+                                </span>
+                            @endif
+                            
+                            <div class="mt-1 text-[10px] font-medium text-slate-500">
+                                <i class="fa-solid fa-user-tag mr-1"></i>{{ $p->recordedBy->name ?? 'System' }}
+                            </div>
                         </td>
-                        <td class="p-4 text-right">
-                            <a href="{{ route('payments.download-receipt', $p->id) }}" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-xs border border-indigo-200 shadow-2xs transition inline-flex items-center space-x-1">
-                                <i class="fa-solid fa-file-pdf mr-1"></i>
-                                <span>Download PDF</span>
+                        <td class="p-4 text-right flex items-center justify-end space-x-2">
+                            @if($p->status !== 'cleared' && (auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder' || auth()->user()->isManager()))
+                            <form method="POST" action="{{ route('payments.clear', $p->id) }}" class="inline m-0">
+                                @csrf
+                                <button type="submit" onclick="return confirm('Confirm payment has been cleared to company bank?')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[11px] border border-emerald-200 shadow-2xs transition inline-flex items-center space-x-1">
+                                    <i class="fa-solid fa-check-double"></i>
+                                    <span>Clear</span>
+                                </button>
+                            </form>
+                            @endif
+                            
+                            <a href="{{ route('payments.download-receipt', $p->id) }}" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[11px] border border-indigo-200 shadow-2xs transition inline-flex items-center space-x-1">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>PDF</span>
                             </a>
                         </td>
                     </tr>
@@ -97,23 +122,31 @@
                             ₹{{ number_format($b->booking_amount) }}
                         </td>
                         <td class="p-4 text-xs">
-                            <span class="px-3 py-1 font-bold rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                                <i class="fa-solid fa-bolt text-emerald-600 mr-1"></i>RAZORPAY INDIA ACTIVE
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 block w-max mb-1">
+                                ONLINE
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-mono">
+                                {{ $b->booking_date ? \Carbon\Carbon::parse($b->booking_date)->format('d M Y, h:i A') : 'N/A' }}
                             </span>
                         </td>
-                        <td class="p-4 text-xs text-slate-600 font-mono">
-                            {{ $b->booking_date ? \Carbon\Carbon::parse($b->booking_date)->format('d M Y, h:i A') : 'N/A' }}
+                        <td class="p-4 text-xs">
+                            <span class="px-2 py-1 font-bold rounded text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                <i class="fa-solid fa-check-circle mr-1"></i>CLEARED
+                            </span>
+                            <div class="mt-1 text-[10px] font-medium text-slate-500">
+                                <i class="fa-solid fa-bolt text-indigo-500 mr-1"></i>Gateway
+                            </div>
                         </td>
                         <td class="p-4 text-right">
                             <a href="{{ route('bookings.download-receipt', $b->id) }}" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-xs border border-indigo-200 shadow-2xs transition inline-flex items-center space-x-1">
                                 <i class="fa-solid fa-file-pdf mr-1"></i>
-                                <span>Download PDF</span>
+                                <span>Download</span>
                             </a>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-slate-500 font-medium text-xs">No completed payments recorded yet.</td>
+                        <td colspan="7" class="p-6 text-center text-slate-500 font-medium text-xs">No completed payments recorded yet.</td>
                     </tr>
                     @endforelse
                     @endforelse

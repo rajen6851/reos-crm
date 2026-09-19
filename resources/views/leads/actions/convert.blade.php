@@ -44,8 +44,16 @@
                     </div>
 
                     <div>
-                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Unit Number / Identifer <span class="text-orange-500">*</span></label>
-                        <input type="text" name="booking_unit" required placeholder="e.g. Tower A, Flat 402" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Available Unit <span class="text-orange-500">*</span></label>
+                        <select name="unit_id" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
+                            <option value="">Select a Unit...</option>
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->id }}" data-project="{{ $unit->project_id }}">
+                                    {{ $unit->building->name ?? 'Tower' }} - {{ $unit->unit_number }} ({{ $unit->unit_type }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Units filter automatically by project selection.</p>
                     </div>
                 </div>
             </div>
@@ -147,4 +155,33 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const projectSelect = document.querySelector('select[name="project_id"]');
+        const unitSelect = document.querySelector('select[name="unit_id"]');
+        const allUnitOptions = Array.from(unitSelect.querySelectorAll('option:not([value=""])'));
+
+        function filterUnits() {
+            const selectedProject = projectSelect.value;
+            
+            // Hide all options first
+            allUnitOptions.forEach(opt => opt.style.display = 'none');
+            unitSelect.value = ""; // Reset selection
+            
+            if (selectedProject) {
+                // Show options matching the project
+                const matchedOptions = allUnitOptions.filter(opt => opt.getAttribute('data-project') === selectedProject);
+                matchedOptions.forEach(opt => opt.style.display = '');
+            }
+        }
+
+        projectSelect.addEventListener('change', filterUnits);
+        
+        // Initial filter on load (if a project is pre-selected)
+        if (projectSelect.value) {
+            filterUnits();
+        }
+    });
+</script>
 @endsection

@@ -96,6 +96,19 @@ class BookingService
             // 4. Update Unit Status atomically
             $unit->update(['status' => 'booking_pending']);
 
+            // Create pending payment for the token amount
+            \App\Models\Payment::create([
+                'company_id' => $user->company_id,
+                'booking_id' => $booking->id,
+                'receipt_number' => 'RCT-' . strtoupper(Str::random(6)),
+                'amount' => $data['booking_amount'],
+                'payment_date' => now(),
+                'payment_method' => 'cash',
+                'status' => 'pending_clearance',
+                'recorded_by_user_id' => $user->id,
+                'notes' => 'Initial Booking Token'
+            ]);
+
             // 5. Create Lead Activity Log
             LeadActivity::create([
                 'company_id' => $user->company_id,
