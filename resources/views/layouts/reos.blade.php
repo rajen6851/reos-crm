@@ -653,7 +653,7 @@
                         @endif
 
                         <!-- Push Notifications -->
-                        @if(Route::has('notifications.index') && ($isFounder || $isAdmin))
+                        @if(Route::has('notifications.index') && ($isCompanyFounder || $isDirector || $isAdmin))
                             <a href="{{ route('notifications.index') }}" :title="sidebarCollapsed ? 'Notifications' : ''"
                                 class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('notifications.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
                                 <i
@@ -689,7 +689,7 @@
                         @endif
 
                         <!-- Lead Distribution -->
-                        @if($isFounder || $isAdmin)
+                        @if($isCompanyFounder || $isDirector || $isAdmin)
                             <a href="{{ route('distribution-rules.index') }}"
                                 :title="sidebarCollapsed ? 'Lead Distribution' : ''"
                                 class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('distribution-rules.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
