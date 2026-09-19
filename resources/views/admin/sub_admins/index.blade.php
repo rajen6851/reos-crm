@@ -201,11 +201,21 @@
                 </div>
                 <div>
                     <label class="form-label">Password <span class="text-rose-500">*</span></label>
-                    <input type="password" name="password" required placeholder="••••••••" class="form-input">
+                <div class="relative">
+                    <input type="password" name="password" required placeholder="••••••••" class="form-input w-full">
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
                 </div>
                 <div class="md:col-span-2">
                     <label class="form-label">Confirm Password <span class="text-rose-500">*</span></label>
-                    <input type="password" name="password_confirmation" required placeholder="••••••••" class="form-input">
+                <div class="relative">
+                    <input type="password" name="password_confirmation" required placeholder="••••••••" class="form-input w-full">
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
                 </div>
             </div>
 
@@ -271,6 +281,16 @@
                         <option value="1">Active</option>
                         <option value="0">Suspended / Inactive</option>
                     </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">New Password <span class="text-slate-400 font-normal">(Leave blank to keep current)</span></label>
+                <div class="relative">
+                    <input type="password" id="edit_password" name="password" placeholder="••••••••" class="form-input w-full">
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
             </div>
 

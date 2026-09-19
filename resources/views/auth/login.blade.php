@@ -55,8 +55,13 @@
                     <div class="flex justify-between items-center mb-1.5">
                         <label for="password" class="font-bold text-slate-700">Password</label>
                     </div>
-                    <input id="password" type="password" name="password" required
-                        class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+                    <div class="relative">
+                        <input id="password" type="password" name="password" required
+                            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+                        <button type="button" class="absolute inset-y-0 right-0 px-4 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-1">

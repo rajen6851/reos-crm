@@ -452,7 +452,6 @@
                     <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-[#4F46E5] flex items-center justify-center font-extrabold text-sm shrink-0">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </div>
-                    @endif
                     <div>
                         <h3 class="section-heading text-lg">Edit Builder Specs</h3>
                         <p class="body-text text-xs text-[#64748B]">Update profile & plan settings</p>
@@ -510,6 +509,7 @@
         </div>
     </div>
 </div>
+    @endif
 
 <script>
     function openEditCompanyModal(company) {

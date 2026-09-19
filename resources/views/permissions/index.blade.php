@@ -50,7 +50,7 @@
         </button>
         @endif
 
-        @if(auth()->user()->company_id || auth()->user()->isCompanyAdmin() || auth()->user()->isDirectorOrFounder())
+        {{-- @if(auth()->user()->company_id || auth()->user()->isCompanyAdmin() || auth()->user()->isDirectorOrFounder())
         <button type="button" @click="activeMainTab = 'company_roles'"
             :class="activeMainTab === 'company_roles' ? 'bg-[#0F172A] text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100 font-semibold'"
             class="px-4 py-2 text-xs rounded-lg transition flex items-center space-x-2 cursor-pointer">
@@ -64,7 +64,7 @@
             <i class="fa-solid fa-users-gear text-xs"></i>
             <span>{{ auth()->user()->isSaaSAdmin() ? '3.' : '2.' }} Staff Access Inspector</span>
         </button>
-        @endif
+        @endif --}}
     </div>
 
     <!-- TAB 1: SAAS SUB-ADMIN PLATFORM PERMISSIONS (Only visible when activeMainTab === 'saas_platform') -->

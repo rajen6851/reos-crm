@@ -94,13 +94,25 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Password *</label>
-                            <input type="password" name="password" required
-                                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600">
+                            <div class="relative">
+                                <input type="password" name="password" required
+                                    class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 pl-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+                                <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                <button type="button" class="absolute inset-y-0 right-0 px-4 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Confirm Password *</label>
-                            <input type="password" name="password_confirmation" required
-                                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600">
+                            <div class="relative">
+                                <input type="password" name="password_confirmation" required
+                                    class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 pl-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+                                <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                <button type="button" class="absolute inset-y-0 right-0 px-4 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

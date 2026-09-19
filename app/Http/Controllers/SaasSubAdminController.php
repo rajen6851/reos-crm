@@ -135,18 +135,25 @@ class SaasSubAdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8',
             'is_active' => 'required|boolean',
             'saas_permissions' => 'nullable|array',
             'saas_permissions.*' => 'string',
         ]);
 
-        $user->update([
+        $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
             'is_active' => $validated['is_active'],
             'saas_permissions' => $validated['saas_permissions'] ?? [],
-        ]);
+        ];
+
+        if (!empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($updateData);
 
         return back()->with('success', "SaaS Sub-Admin '{$user->name}' updated successfully!");
     }
