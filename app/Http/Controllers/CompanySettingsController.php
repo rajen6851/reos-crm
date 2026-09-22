@@ -38,6 +38,9 @@ class CompanySettingsController extends Controller
             'address' => 'nullable|string|max:500',
             'rera_number' => 'nullable|string|max:100',
             'gstin' => 'nullable|string|max:50',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'attendance_radius_km' => 'nullable|numeric',
         ]);
 
         $settings = $company->settings ?? [];
@@ -46,6 +49,15 @@ class CompanySettingsController extends Controller
         }
         if (isset($validated['gstin'])) {
             $settings['gstin'] = $validated['gstin'];
+        }
+        if (isset($validated['latitude'])) {
+            $settings['latitude'] = $validated['latitude'];
+        }
+        if (isset($validated['longitude'])) {
+            $settings['longitude'] = $validated['longitude'];
+        }
+        if (isset($validated['attendance_radius_km'])) {
+            $settings['attendance_radius_km'] = $validated['attendance_radius_km'];
         }
 
         $company->update([

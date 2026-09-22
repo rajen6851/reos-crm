@@ -53,22 +53,21 @@ class AttendanceApiController extends Controller
         $user = $request->user();
 
         // Geofencing Check
-        if ($validated['work_location'] === 'field_visit') {
-            $project = \App\Models\Project::where('company_id', $user->company_id)->findOrFail($validated['project_id']);
-            if ($project->latitude && $project->longitude) {
-                $distance = $this->calculateDistance($validated['latitude'], $validated['longitude'], $project->latitude, $project->longitude);
-                if ($distance > 500) {
-                    return response()->json(['status' => 'error', 'message' => 'You are too far from the project location. Distance: ' . round($distance) . 'm. Maximum allowed is 500m.'], 403);
-                }
-            }
-        } elseif ($validated['work_location'] === 'office') {
+        if (in_array($validated['work_location'], ['office', 'field_visit'])) {
             $company = $user->company;
-            $officeLat = $company->settings['latitude'] ?? null;
-            $officeLon = $company->settings['longitude'] ?? null;
-            if ($officeLat && $officeLon) {
-                $distance = $this->calculateDistance($validated['latitude'], $validated['longitude'], $officeLat, $officeLon);
-                if ($distance > 500) {
-                    return response()->json(['status' => 'error', 'message' => 'You are too far from the office location. Distance: ' . round($distance) . 'm. Maximum allowed is 500m.'], 403);
+            $baseLat = $company->settings['latitude'] ?? null;
+            $baseLon = $company->settings['longitude'] ?? null;
+            $radiusKm = $company->settings['attendance_radius_km'] ?? 30; // default 30 km
+
+            if ($baseLat && $baseLon) {
+                $distance = $this->calculateDistance($validated['latitude'], $validated['longitude'], $baseLat, $baseLon);
+                $distanceKm = $distance / 1000;
+
+                if ($distanceKm > (float) $radiusKm) {
+                    return response()->json([
+                        'status' => 'error', 
+                        'message' => "Aap allowed location ke bahar hain. Distance: " . round($distanceKm, 2) . "km. Maximum allowed is {$radiusKm}km."
+                    ], 403);
                 }
             }
         }

@@ -64,6 +64,35 @@
                 <textarea id="address" name="address" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">{{ old('address', $company->address ?? 'Plot No. 42, Real Estate Enclave, Financial District, Jubilee Hills') }}</textarea>
             </div>
 
+            <div class="border-b border-slate-100 pb-3 mt-6">
+                <h2 class="text-lg font-bold text-slate-900">Attendance & GPS Settings</h2>
+                <p class="text-xs text-slate-500">Configure base location and allowed radius for employee attendance verification.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="latitude" class="block text-slate-700 mb-1 font-bold">Base Latitude</label>
+                    <input id="latitude" name="latitude" type="text" value="{{ old('latitude', $company->settings['latitude'] ?? '') }}" placeholder="e.g. 22.7196" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                </div>
+
+                <div>
+                    <label for="longitude" class="block text-slate-700 mb-1 font-bold">Base Longitude</label>
+                    <input id="longitude" name="longitude" type="text" value="{{ old('longitude', $company->settings['longitude'] ?? '') }}" placeholder="e.g. 75.8577" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                </div>
+
+                <div>
+                    <label for="attendance_radius_km" class="block text-slate-700 mb-1 font-bold">Allowed Radius (in KM)</label>
+                    <input id="attendance_radius_km" name="attendance_radius_km" type="number" step="0.1" value="{{ old('attendance_radius_km', $company->settings['attendance_radius_km'] ?? '30') }}" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-bold focus:outline-none focus:border-indigo-600">
+                </div>
+            </div>
+
+            <div class="flex justify-start">
+                <button type="button" id="detect-location-btn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition border border-slate-300 flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Detect My Current Location</span>
+                </button>
+            </div>
+
             <div class="flex justify-end pt-2">
                 <button type="submit" class="px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     Save Company Settings
@@ -72,4 +101,33 @@
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('detect-location-btn').addEventListener('click', function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+    }
+    
+    btn.innerHTML = 'Detecting...';
+    btn.disabled = true;
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        },
+        (error) => {
+            alert('Unable to retrieve your location. Please check browser permissions.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    );
+});
+</script>
 @endsection
