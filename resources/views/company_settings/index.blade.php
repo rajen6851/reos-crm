@@ -112,6 +112,10 @@ document.getElementById('detect-location-btn').addEventListener('click', functio
         return;
     }
     
+    // Custom Popup Before Requesting
+    const userAgreed = confirm("📍 Hum aapki current location fetch kar rahe hain.\n\nKripya dhyan dein:\n1. Agar browser aapse permission maange, toh 'Allow' par click karein.\n2. Agar location fail hoti hai, toh hum automatically network location use karenge.\n\nContinue karein?");
+    if (!userAgreed) return;
+
     btn.innerHTML = 'Detecting...';
     btn.disabled = true;
     
@@ -123,9 +127,30 @@ document.getElementById('detect-location-btn').addEventListener('click', functio
             btn.disabled = false;
         },
         (error) => {
-            alert('Unable to retrieve your location. Please check browser permissions.');
+            let errorMsg = 'Unable to retrieve location.\n';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg += "Error 1: User denied the request for Geolocation. (Browser or OS blocked it)";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg += "Error 2: Location information is unavailable. (Desktop PC without GPS/Wi-Fi)";
+                    break;
+                case error.TIMEOUT:
+                    errorMsg += "Error 3: The request to get user location timed out.";
+                    break;
+                default:
+                    errorMsg += "Error 0: An unknown error occurred. " + error.message;
+                    break;
+            }
+            alert(errorMsg);
+            console.error(error);
             btn.innerHTML = originalText;
             btn.disabled = false;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
         }
     );
 });
