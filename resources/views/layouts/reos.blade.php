@@ -574,13 +574,14 @@
                         @endif
 
                         <!-- HRMS (All Internal Staff) -->
-                        <!-- @if(Route::has('hrms.index') && !$isBroker)
+                        @if(Route::has('hrms.index') && !$isBroker)
                             <a href="{{ route('hrms.index') }}" :title="sidebarCollapsed ? 'HRMS' : ''"
-                               class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                <i class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                <i
+                                    class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                                 <span x-show="!sidebarCollapsed" class="truncate">HRMS</span>
                             </a>
-                            @endif -->
+                        @endif
 
                         <!-- Support Desk (All internal staff) -->
                         @if(Route::has('support-tickets.index'))
@@ -594,12 +595,12 @@
 
                         <!-- Team Chat (All internal staff) -->
                         <!-- @if(Route::has('chat.index'))
-                            <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''"
-                               class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                <i class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                                <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
-                            </a>
-                            @endif -->
+                                <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''"
+                                   class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                    <i class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                    <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
+                                </a>
+                                @endif -->
                     </div>
                 @endif
 
@@ -681,11 +682,11 @@
                                 <span x-show="!sidebarCollapsed" class="truncate">Settings</span>
                             </a>
                             <!-- <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''"
-                                        class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                        <i
-                                            class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                                        <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
-                                    </a> -->
+                                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                                <i
+                                                    class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                                <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
+                                            </a> -->
                         @endif
 
                         <!-- Lead Distribution -->

@@ -106,6 +106,64 @@ class HrmsController extends Controller
         $user = auth()->user();
         $today = date('Y-m-d');
 
+        $validated = $request->validate([
+            'work_location' => 'required|string|in:office,field_visit,wfh',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
+
+        // Geofencing Check
+        if (in_array($validated['work_location'], ['office', 'field_visit'])) {
+            $company = $user->company;
+            $baseLat = $company->settings['latitude'] ?? null;
+            $baseLon = $company->settings['longitude'] ?? null;
+            $radiusKm = $company->settings['attendance_radius_km'] ?? 30; // default 30 km
+
+            if ($baseLat && $baseLon && !empty($validated['latitude']) && !empty($validated['longitude'])) {
+                // Haversine distance
+                $earthRadius = 6371000;
+                $latFrom = deg2rad($validated['latitude']);
+                $lonFrom = deg2rad($validated['longitude']);
+                $latTo = deg2rad($baseLat);
+                $lonTo = deg2rad($baseLon);
+
+                $latDelta = $latTo - $latFrom;
+                $lonDelta = $lonTo - $lonFrom;
+
+                $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) + cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+                $distanceKm = ($angle * $earthRadius) / 1000;
+
+                if ($distanceKm > (float) $radiusKm) {
+                    return redirect()->back()->with('error', "You are outside the allowed location. Distance: " . round($distanceKm, 2) . "km. Maximum allowed is {$radiusKm}km.");
+                }
+            }
+        }
+
+        $address = null;
+        // Reverse Geocoding via OpenStreetMap (100% Free)
+        if (!empty($validated['latitude']) && !empty($validated['longitude'])) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withHeaders([
+                    'User-Agent' => 'REOS-CRM-Attendance-System/1.0'
+                ])->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'json',
+                    'lat' => $validated['latitude'],
+                    'lon' => $validated['longitude'],
+                    'zoom' => 18,
+                    'addressdetails' => 1
+                ]);
+                
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (!empty($data['display_name'])) {
+                        $address = $data['display_name'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('OSM Geocoding failed: ' . $e->getMessage());
+            }
+        }
+
         $attendance = Attendance::firstOrCreate(
             [
                 'company_id' => $user->company_id,
@@ -114,8 +172,11 @@ class HrmsController extends Controller
             ],
             [
                 'clock_in' => date('H:i:s'),
-                'work_location' => $request->input('work_location', 'office'),
+                'work_location' => $validated['work_location'],
                 'status' => 'present',
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'address' => $address,
             ]
         );
 

@@ -72,6 +72,30 @@ class AttendanceApiController extends Controller
             }
         }
 
+        // Reverse Geocoding via OpenStreetMap (100% Free for Unlimited Users)
+        if (empty($validated['address']) && !empty($validated['latitude']) && !empty($validated['longitude'])) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withHeaders([
+                    'User-Agent' => 'REOS-CRM-Attendance-System/1.0'
+                ])->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'json',
+                    'lat' => $validated['latitude'],
+                    'lon' => $validated['longitude'],
+                    'zoom' => 18,
+                    'addressdetails' => 1
+                ]);
+                
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (!empty($data['display_name'])) {
+                        $validated['address'] = $data['display_name'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('OSM Geocoding failed: ' . $e->getMessage());
+            }
+        }
+
         $attendance = Attendance::firstOrCreate(
             ['company_id' => $user->company_id, 'user_id' => $user->id, 'date' => now()->toDateString()],
             [

@@ -162,8 +162,10 @@
             <!-- Action Form -->
             <div class="pt-4 border-t border-slate-800 space-y-3">
                 @if(!$myTodayAttendance || !$myTodayAttendance->clock_in)
-                <form action="{{ route('hrms.clock-in') }}" method="POST" class="space-y-3">
+                <form id="web-clock-in-form" action="{{ route('hrms.clock-in') }}" method="POST" class="space-y-3">
                     @csrf
+                    <input type="hidden" name="latitude" id="clock-in-lat">
+                    <input type="hidden" name="longitude" id="clock-in-lon">
                     <div>
                         <label class="label-text text-slate-300 text-[11px] mb-1">Work Location Tag</label>
                         <select name="work_location" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-[#4F46E5]">
@@ -172,11 +174,40 @@
                             <option value="wfh">Work From Home</option>
                         </select>
                     </div>
-                    <button type="submit" class="w-full py-3 bg-[#059669] hover:bg-emerald-700 text-white btn-text rounded-xl shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer">
+                    <button type="button" id="clock-in-btn" class="w-full py-3 bg-[#059669] hover:bg-emerald-700 text-white btn-text rounded-xl shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer">
                         <i class="fa-solid fa-stopwatch text-sm"></i>
                         <span>Start Shift (Clock-In)</span>
                     </button>
                 </form>
+                
+                <script>
+                    document.getElementById('clock-in-btn').addEventListener('click', function() {
+                        const btn = this;
+                        const originalText = btn.innerHTML;
+                        
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Getting Location...</span>';
+                        btn.disabled = true;
+
+                        if (!navigator.geolocation) {
+                            alert('Geolocation is not supported by your browser.');
+                            document.getElementById('web-clock-in-form').submit();
+                            return;
+                        }
+
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                document.getElementById('clock-in-lat').value = position.coords.latitude;
+                                document.getElementById('clock-in-lon').value = position.coords.longitude;
+                                document.getElementById('web-clock-in-form').submit();
+                            },
+                            (error) => {
+                                alert("Failed to get location. Submitting without GPS.");
+                                document.getElementById('web-clock-in-form').submit();
+                            },
+                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        );
+                    });
+                </script>
                 @else
                 <form action="{{ route('hrms.clock-out') }}" method="POST">
                     @csrf
@@ -223,9 +254,21 @@
                                 <span class="table-text">{{ $att->user->name ?? 'Staff User' }}</span>
                             </td>
                             <td class="py-2.5 px-3">
-                                <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-[#0F172A] border border-[#E2E8F0] uppercase">
-                                    {{ str_replace('_', ' ', $att->work_location) }}
-                                </span>
+                                <div class="flex items-center space-x-1 mb-1">
+                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-[#0F172A] border border-[#E2E8F0] uppercase">
+                                        {{ str_replace('_', ' ', $att->work_location) }}
+                                    </span>
+                                    @if($att->latitude && $att->longitude)
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ $att->latitude }},{{ $att->longitude }}" target="_blank" class="text-[#4F46E5] hover:text-[#312E81]" title="View on Map">
+                                        <i class="fa-solid fa-map-location-dot"></i>
+                                    </a>
+                                    @endif
+                                </div>
+                                @if($att->address)
+                                    <div class="text-[9px] text-slate-500 leading-tight max-w-[150px] truncate" title="{{ $att->address }}">
+                                        <i class="fa-solid fa-location-dot text-indigo-400 mr-0.5"></i> {{ $att->address }}
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-2.5 px-3 font-mono text-emerald-700 font-bold">
                                 {{ $att->clock_in ? date('h:i A', strtotime($att->clock_in)) : '-' }}
