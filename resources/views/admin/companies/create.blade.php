@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Onboard New Builder Company – REOS SuperAdmin')
+@section('title', 'Onboard New Builder Company â€“ UrbanProperty SuperAdmin')
 
 @section('content')
 <div class="space-y-8 max-w-5xl mx-auto">
@@ -18,7 +18,7 @@
 
         <div class="flex items-center space-x-3">
             <a href="{{ route('admin.saas-subscriptions') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 transition">
-                ← Cancel & Return
+                â† Cancel & Return
             </a>
         </div>
     </div>
@@ -134,7 +134,7 @@
                     <div class="space-y-1">
                         <div class="flex justify-between items-center w-full">
                             <span class="font-black text-slate-900 text-sm">{{ $pl->name }}</span>
-                            <span class="font-mono font-bold text-emerald-700 text-sm">₹{{ number_format($pl->price) }}/mo</span>
+                            <span class="font-mono font-bold text-emerald-700 text-sm">â‚¹{{ number_format($pl->price) }}/mo</span>
                         </div>
                         <p class="text-xs text-slate-500">Users: {{ $pl->max_users ?? 'Unlimited' }} | Projects: {{ $pl->max_projects ?? 'Unlimited' }} | Leads: {{ $pl->max_leads_per_month ?? 'Unlimited' }}/mo</p>
                     </div>
@@ -221,7 +221,7 @@
             const btnText = document.getElementById('btnText');
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
-            btnText.innerText = '⏳ Onboarding Builder Company...';
+            btnText.innerText = 'â³ Onboarding Builder Company...';
 
             return true;
         }
@@ -298,7 +298,7 @@
                         <td class="p-4 text-xs font-bold">
                             @if($comp->subscriptionPlan)
                                 <span class="text-emerald-700 font-mono font-bold">{{ $comp->subscriptionPlan->name }}</span>
-                                <div class="text-[10px] text-slate-500">₹{{ number_format($comp->subscriptionPlan->price) }}/mo</div>
+                                <div class="text-[10px] text-slate-500">â‚¹{{ number_format($comp->subscriptionPlan->price) }}/mo</div>
                             @else
                                 <span class="text-amber-700 font-bold">No Plan Assigned</span>
                             @endif

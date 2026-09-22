@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', "Broker {$broker->agency_name} – Profile & Ledger – REOS")
+@section('title', "Broker {$broker->agency_name} â€“ Profile & Ledger â€“ UrbanProperty")
 
 @section('content')
 <div class="max-w-6xl mx-auto space-y-6">
@@ -8,12 +8,12 @@
     <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2.5">
-                <a href="{{ route('brokers.index') }}" class="text-xs font-semibold text-slate-500 hover:text-indigo-600">← Back to Brokers Directory</a>
-                <span class="text-slate-300">•</span>
+                <a href="{{ route('brokers.index') }}" class="text-xs font-semibold text-slate-500 hover:text-indigo-600">â† Back to Brokers Directory</a>
+                <span class="text-slate-300">â€¢</span>
                 <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold text-[11px]">{{ $broker->broker_code }}</span>
             </div>
             <h1 class="text-2xl font-bold text-slate-900 tracking-tight mt-1">{{ $broker->agency_name }}</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Contact: <strong class="text-slate-800">{{ $broker->user->name ?? 'N/A' }}</strong> • Phone: <span class="font-mono text-slate-800 font-bold">{{ $broker->phone }}</span> • Email: <span class="font-mono text-slate-800">{{ $broker->email }}</span></p>
+            <p class="text-xs text-slate-500 mt-0.5">Contact: <strong class="text-slate-800">{{ $broker->user->name ?? 'N/A' }}</strong> â€¢ Phone: <span class="font-mono text-slate-800 font-bold">{{ $broker->phone }}</span> â€¢ Email: <span class="font-mono text-slate-800">{{ $broker->email }}</span></p>
         </div>
 
         <div class="flex items-center space-x-2.5">
@@ -39,12 +39,12 @@
 
         <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
             <span class="text-[11px] font-medium text-slate-500">Total Commission</span>
-            <div class="text-xl font-bold font-mono text-amber-600 mt-0.5">₹{{ number_format($totalCommissions) }}</div>
+            <div class="text-xl font-bold font-mono text-amber-600 mt-0.5">â‚¹{{ number_format($totalCommissions) }}</div>
         </div>
 
         <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
             <span class="text-[11px] font-medium text-slate-500">Approved Commission</span>
-            <div class="text-xl font-bold font-mono text-emerald-600 mt-0.5">₹{{ number_format($approvedCommissions) }}</div>
+            <div class="text-xl font-bold font-mono text-emerald-600 mt-0.5">â‚¹{{ number_format($approvedCommissions) }}</div>
         </div>
     </div>
 
@@ -112,7 +112,7 @@
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3.5 px-4 font-mono font-bold text-slate-900">{{ $comm->booking->booking_code ?? 'N/A' }}</td>
                             <td class="py-3.5 px-4 font-mono font-bold text-slate-800">{{ $comm->commission_rate }}%</td>
-                            <td class="py-3.5 px-4 font-mono font-bold text-emerald-700">₹{{ number_format($comm->total_commission_amount) }}</td>
+                            <td class="py-3.5 px-4 font-mono font-bold text-emerald-700">â‚¹{{ number_format($comm->total_commission_amount) }}</td>
                             <td class="py-3.5 px-4">
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     {{ $comm->status }}

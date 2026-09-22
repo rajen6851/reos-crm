@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Team Chat – REOS Real Estate Operating System')
+@section('title', 'Team Chat â€“ UrbanProperty Real Estate Operating System')
 
 @section('content')
 <div class="h-[calc(100vh-80px)] flex flex-col" x-data="chatApp()" x-init="initChat()">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Team Chat</span>
             </div>
             <h1 class="page-heading flex items-center gap-2">
@@ -204,7 +204,7 @@
                     <div @click="startDirectChat({{ $user->id }})" class="p-3 hover:bg-emerald-50 rounded-xl cursor-pointer flex items-center justify-between transition">
                         <div>
                             <p class="text-xs font-bold text-slate-800">{{ $user->name }}</p>
-                            <p class="text-[10px] text-slate-500">{{ $user->role ? $user->role->name : 'User' }} • {{ $user->email }}</p>
+                            <p class="text-[10px] text-slate-500">{{ $user->role ? $user->role->name : 'User' }} â€¢ {{ $user->email }}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
                     </div>

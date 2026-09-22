@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Brokers Directory - REOS')
+@section('title', 'Brokers Directory - UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
@@ -67,11 +67,11 @@
                         </div>
                         <div class="text-[11px] text-[#64748B] mt-0.5">
                             Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
-                                💬 <em>"{{ $approval->reason }}"</em>
+                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -333,7 +333,7 @@
                         <p class="body-text text-xs text-[#64748B]">Add channel partner agency credentials</p>
                     </div>
                 </div>
-                <button type="button" onclick="document.getElementById('addBrokerModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
+                <button type="button" onclick="document.getElementById('addBrokerModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Drawer Form Body (Scrollable) -->
@@ -414,7 +414,7 @@
                         <p class="body-text text-xs text-[#64748B]">Update agency profile & commission terms</p>
                     </div>
                 </div>
-                <button type="button" onclick="document.getElementById('editBrokerModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
+                <button type="button" onclick="document.getElementById('editBrokerModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Drawer Form Body (Scrollable) -->

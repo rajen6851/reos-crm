@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('title', 'Dashboard')
 
@@ -76,7 +76,7 @@
                 <span>Revenue</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalRevenue) }}</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">â‚¹{{ number_format($totalRevenue) }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+14.5%)</div>
         </div>
 
@@ -212,11 +212,11 @@
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
                         <tr>
                             <th class="p-3 w-8"><input type="checkbox" class="rounded border-slate-300"></th>
-                            <th class="p-3">Customer Name <span class="text-[9px] text-slate-400">↕</span></th>
-                            <th class="p-3">Phone <span class="text-[9px] text-slate-400">↕</span></th>
-                            <th class="p-3">Property Name <span class="text-[9px] text-slate-400">↕</span></th>
-                            <th class="p-3">Assigned Agent <span class="text-[9px] text-slate-400">↕</span></th>
-                            <th class="p-3">Status <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Customer Name <span class="text-[9px] text-slate-400">â†•</span></th>
+                            <th class="p-3">Phone <span class="text-[9px] text-slate-400">â†•</span></th>
+                            <th class="p-3">Property Name <span class="text-[9px] text-slate-400">â†•</span></th>
+                            <th class="p-3">Assigned Agent <span class="text-[9px] text-slate-400">â†•</span></th>
+                            <th class="p-3">Status <span class="text-[9px] text-slate-400">â†•</span></th>
                             <th class="p-3 text-center">Action</th>
                         </tr>
                     </thead>

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Enterprise Audit Trail & Activity Logs - REOS')
+@section('title', 'Enterprise Audit Trail & Activity Logs - UrbanProperty')
 
 @section('content')
 <div class="space-y-8">
@@ -101,7 +101,7 @@
                                         <i class="fa-solid fa-magnifying-glass text-indigo-600 mr-1"></i><span>View Payload Diff</span>
                                     </button>
                                 @else
-                                    <span class="text-[11px] text-slate-400 font-medium">— No Mutation Payload</span>
+                                    <span class="text-[11px] text-slate-400 font-medium">â€” No Mutation Payload</span>
                                 @endif
                             </td>
                         </tr>
@@ -123,7 +123,7 @@
                     <h3 class="text-lg font-black text-slate-900">Audit Trail Payload Data Diff</h3>
                     <p id="modal_event_title" class="text-xs text-amber-900 font-mono font-bold"></p>
                 </div>
-                <button onclick="document.getElementById('payloadModal').classList.add('hidden')" class="text-slate-500 hover:text-slate-900 font-bold text-lg">✕</button>
+                <button onclick="document.getElementById('payloadModal').classList.add('hidden')" class="text-slate-500 hover:text-slate-900 font-bold text-lg">âœ•</button>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs">

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'CRM Sales Pipeline & Leads – REOS')
+@section('title', 'CRM Sales Pipeline & Leads â€“ UrbanProperty')
 
 @section('content')
 
@@ -11,7 +11,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-blue-600">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-slate-900 font-bold">Leads & Sales Pipeline</span>
             </div>
             <div class="flex items-center space-x-3">
@@ -70,7 +70,7 @@
                     <i class="fa-solid fa-file-csv text-emerald-600 text-base"></i>
                     <span>Bulk Import Leads (CSV)</span>
                 </h3>
-                <button onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                <button onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
             </div>
 
             <form action="{{ route('leads.import-csv') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
@@ -93,7 +93,7 @@
 
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
                     <button type="button" onclick="document.getElementById('importCsvModal').classList.add('hidden')" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg border border-slate-200">Cancel</button>
-                    <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-xs">Start Import →</button>
+                    <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-xs">Start Import â†’</button>
                 </div>
             </form>
         </div>
@@ -162,8 +162,8 @@
                     @if(!auth()->user()->isSales())
                     <div class="relative w-full md:w-64">
                         <select name="assigned_to_user_id" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold text-xs transition cursor-pointer">
-                            <option value="">👤 Filter by Employee / Staff</option>
-                            <option value="unassigned" {{ request('assigned_to_user_id') === 'unassigned' ? 'selected' : '' }}>⚠️ Unassigned Leads</option>
+                            <option value="">ðŸ‘¤ Filter by Employee / Staff</option>
+                            <option value="unassigned" {{ request('assigned_to_user_id') === 'unassigned' ? 'selected' : '' }}>âš ï¸ Unassigned Leads</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('assigned_to_user_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->role?->name ?? 'Staff' }})
@@ -550,7 +550,7 @@
                     <h3 class="text-xl font-bold mb-1">Add New Customer Lead</h3>
                     <div class="text-[13px] font-semibold text-blue-100">Enter primary details to create a lead</div>
                 </div>
-                <button onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+                <button onclick="document.getElementById('createLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
             </div>
 
             <form method="POST" action="{{ route('leads.store') }}" class="p-5 text-sm space-y-4">
@@ -618,7 +618,7 @@
                         <div>Phone No. <span id="callModalLeadPhone"></span></div>
                     </div>
                 </div>
-                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+                <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
             </div>
 
             <form id="callLogForm" method="POST" action="" class="p-5 text-sm" x-data="{ pipelineStage: 'IN FOLLOWUP' }">
@@ -700,7 +700,7 @@
         <div class="bg-white w-full max-w-xl max-h-[80vh] overflow-y-auto p-6 rounded-3xl space-y-4 border border-slate-100 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 class="text-sm font-bold text-[#0F172A]">Activity History: <span id="historyCustomerName" class="text-blue-600"></span></h3>
-                <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="text-slate-400 font-bold">✕</button>
+                <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="text-slate-400 font-bold">âœ•</button>
             </div>
             <div id="historyTimelineContent" class="space-y-2.5">
                 <!-- Timeline entries injected via JS -->

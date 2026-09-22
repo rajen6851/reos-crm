@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Team Activity Log - REOS')
+@section('title', 'Team Activity Log - UrbanProperty')
 
 @section('content')
 <div class="space-y-8">

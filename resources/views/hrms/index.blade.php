@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'HRMS & Staff Attendance System – REOS')
+@section('title', 'HRMS & Staff Attendance System â€“ UrbanProperty')
 
 @section('content')
 <div class="space-y-6 pb-12">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">HRMS & Attendance</span>
             </div>
             <h1 class="page-heading text-2xl">
@@ -418,7 +418,7 @@
                                     <form action="{{ route('hrms.leave-requests.status', $lr->id) }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded text-[10px]">✕</button>
+                                        <button type="submit" class="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded text-[10px]">âœ•</button>
                                     </form>
                                 </div>
                                 @else
@@ -465,7 +465,7 @@
                                 @endif
                             </td>
                             <td class="py-2.5 px-3 font-mono font-bold text-[#4F46E5]">{{ $slip->month }}</td>
-                            <td class="py-2.5 px-3 font-mono font-bold text-[#059669]">₹{{ number_format($slip->net_salary) }}</td>
+                            <td class="py-2.5 px-3 font-mono font-bold text-[#059669]">â‚¹{{ number_format($slip->net_salary) }}</td>
                             <td class="py-2.5 px-3 text-right">
                                 <a href="{{ route('hrms.salary-slips.show', $slip->id) }}" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-[#047857] font-bold text-[10px] rounded border border-emerald-200 transition inline-flex items-center space-x-1">
                                     <i class="fa-solid fa-file-invoice"></i>
@@ -492,7 +492,7 @@
     <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
             <h3 class="section-heading text-base">Apply for Staff Leave</h3>
-            <button onclick="document.getElementById('applyLeaveModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            <button onclick="document.getElementById('applyLeaveModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
         </div>
 
         <form action="{{ route('hrms.leave-requests.store') }}" method="POST" class="space-y-3 text-xs">
@@ -536,7 +536,7 @@
     <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
             <h3 class="section-heading text-base">Generate Salary Slip</h3>
-            <button onclick="document.getElementById('generateSalarySlipModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            <button onclick="document.getElementById('generateSalarySlipModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
         </div>
 
         <form action="{{ route('hrms.salary-slips.store') }}" method="POST" class="space-y-3 text-xs">
@@ -557,22 +557,22 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="form-label">Basic Salary (₹) *</label>
+                    <label class="form-label">Basic Salary (â‚¹) *</label>
                     <input type="number" name="basic_salary" required value="35000" class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">Allowances (₹)</label>
+                    <label class="form-label">Allowances (â‚¹)</label>
                     <input type="number" name="allowances" value="5000" class="form-input">
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="form-label">Sales Commission (₹)</label>
+                    <label class="form-label">Sales Commission (â‚¹)</label>
                     <input type="number" name="commission_earned" value="10000" class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">Deductions (₹)</label>
+                    <label class="form-label">Deductions (â‚¹)</label>
                     <input type="number" name="deductions" value="2000" class="form-input">
                 </div>
             </div>

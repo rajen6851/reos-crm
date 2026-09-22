@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'SaaS Pending Approvals – REOS Platform')
+@section('title', 'SaaS Pending Approvals â€“ UrbanProperty Platform')
 
 @section('content')
 <div class="space-y-6">
@@ -71,7 +71,7 @@
                                 <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border {{ $req->action_badge }}">
                                     {{ $req->action_label }}
                                 </span>
-                                <div class="text-[10px] text-slate-400 mt-1 font-mono">Req #{{ $req->id }} • {{ $req->created_at->diffForHumans() }}</div>
+                                <div class="text-[10px] text-slate-400 mt-1 font-mono">Req #{{ $req->id }} â€¢ {{ $req->created_at->diffForHumans() }}</div>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="font-bold text-slate-900">{{ $req->target_name ?? 'N/A' }}</div>

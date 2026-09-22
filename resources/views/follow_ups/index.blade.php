@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Follow-ups & Sales Tasks – REOS')
+@section('title', 'Follow-ups & Sales Tasks â€“ UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '' }">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Follow-ups & Tasks</span>
             </div>
             <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Follow-ups & Sales Executive Tasks</h1>
@@ -170,7 +170,7 @@
                     <div>Phone No. <span id="callModalLeadPhone"></span></div>
                 </div>
             </div>
-            <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+            <button onclick="document.getElementById('callLogModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
         </div>
         <form id="callLogForm" method="POST" action="" class="p-5 text-sm" x-data="{ pipelineStage: 'IN FOLLOWUP' }">
             @csrf
@@ -251,7 +251,7 @@
     <div class="bg-white w-full max-w-lg p-6 rounded-3xl space-y-4 border border-[#E2E8F0] shadow-2xl max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
             <h3 class="text-base font-extrabold text-[#0F172A]">Activity History Timeline</h3>
-            <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-[#0F172A] font-bold hover:bg-slate-200 flex items-center justify-center">✕</button>
+            <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-[#0F172A] font-bold hover:bg-slate-200 flex items-center justify-center">âœ•</button>
         </div>
         <div id="historyLogsContainer" class="space-y-3 text-xs">
             <!-- Populated via JS -->

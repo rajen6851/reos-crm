@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'System Alerts & Notifications - REOS')
+@section('title', 'System Alerts & Notifications - UrbanProperty')
 
 @section('content')
 <div class="space-y-8" x-data="{ showBroadcastModal: false, title: '', message: '', target: 'all' }">
@@ -79,12 +79,12 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-2"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> 1-Click Quick Presets</label>
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-                    <button type="button" @click="title = 'Happy Holi from REOS!'; message = 'Wishing you, your family, and team a colorful, safe & prosperous Holi!'"
+                    <button type="button" @click="title = 'Happy Holi from UrbanProperty!'; message = 'Wishing you, your family, and team a colorful, safe & prosperous Holi!'"
                         class="p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl transition text-left flex items-center space-x-2">
                         <i class="fa-solid fa-sun text-pink-500"></i>
                         <span>Happy Holi</span>
                     </button>
-                    <button type="button" @click="title = 'Happy Diwali from REOS!'; message = 'May this festival of lights bring prosperity, joy, and success to your real estate business!'"
+                    <button type="button" @click="title = 'Happy Diwali from UrbanProperty!'; message = 'May this festival of lights bring prosperity, joy, and success to your real estate business!'"
                         class="p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl transition text-left flex items-center space-x-2">
                         <i class="fa-solid fa-lightbulb text-amber-500"></i>
                         <span>Happy Diwali</span>
@@ -118,7 +118,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Notification Title</label>
-                    <input type="text" name="title" x-model="title" required placeholder="e.g. Happy Holi Greetings from REOS!" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
+                    <input type="text" name="title" x-model="title" required placeholder="e.g. Happy Holi Greetings from UrbanProperty!" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                 </div>
 
                 <div>

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'SaaS Subscriptions & Tenant Control – REOS SuperAdmin')
+@section('title', 'SaaS Subscriptions & Tenant Control â€“ UrbanProperty SuperAdmin')
 
 @section('content')
 <div class="space-y-8 max-w-7xl mx-auto">
@@ -10,7 +10,7 @@
             <div class="space-y-1">
                 <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                    <span>›</span>
+                    <span>â€º</span>
                     <span class="text-[#0F172A] font-bold">SaaS Subscriptions</span>
                 </div>
                 <h1 class="page-heading text-2xl font-extrabold text-slate-900 tracking-tight">SaaS Subscription Plans & Tenant Companies</h1>
@@ -18,11 +18,11 @@
             </div>
             <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 flex items-center space-x-3 shrink-0">
                 <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-lg font-bold">
-                    ₹
+                    â‚¹
                 </div>
                 <div>
                     <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Monthly MRR</div>
-                    <div class="text-xl font-bold text-emerald-700 font-mono">₹{{ number_format($totalPlatformRevenue, 2) }}</div>
+                    <div class="text-xl font-bold text-emerald-700 font-mono">â‚¹{{ number_format($totalPlatformRevenue, 2) }}</div>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
                         <td class="p-4 text-xs font-bold">
                             @if($comp->subscriptionPlan)
                                 <span class="text-emerald-700 font-mono font-bold">{{ $comp->subscriptionPlan->name }}</span>
-                                <div class="text-[10px] text-slate-500">₹{{ number_format($comp->subscriptionPlan->price) }}/mo</div>
+                                <div class="text-[10px] text-slate-500">â‚¹{{ number_format($comp->subscriptionPlan->price) }}/mo</div>
                             @else
                                 <span class="text-amber-700 font-bold">No Plan Assigned</span>
                             @endif
@@ -157,7 +157,7 @@
                                 <select name="subscription_plan_id" class="bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-600">
                                     @foreach($subscriptionPlans as $pl)
                                     <option value="{{ $pl->id }}" {{ ($comp->subscription_plan_id == $pl->id) ? 'selected' : '' }}>
-                                        {{ $pl->name }} (₹{{ number_format($pl->price) }})
+                                        {{ $pl->name }} (â‚¹{{ number_format($pl->price) }})
                                     </option>
                                     @endforeach
                                 </select>
@@ -199,7 +199,7 @@
             </div>
 
             <div>
-                <label class="block font-bold text-slate-700 mb-1">Monthly Price (₹) *</label>
+                <label class="block font-bold text-slate-700 mb-1">Monthly Price (â‚¹) *</label>
                 <input type="number" name="price" step="0.01" required placeholder="24999"
                     class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600">
             </div>
@@ -240,7 +240,7 @@
     <div class="p-6 md:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-black text-slate-900">REOS Platform SaaS Plans & Quotas Master</h2>
+                <h2 class="text-xl font-black text-slate-900">UrbanProperty Platform SaaS Plans & Quotas Master</h2>
                 <p class="text-xs text-slate-500">Configured subscription packages and user/lead entitlements</p>
             </div>
         </div>
@@ -251,7 +251,7 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h4 class="font-black text-slate-900 text-lg">{{ $plan->name }}</h4>
-                        <div class="text-2xl font-black text-emerald-700 font-mono mt-0.5">₹{{ number_format($plan->price) }} <span class="text-xs text-slate-500 font-sans font-normal">/{{ $plan->billing_cycle }}</span></div>
+                        <div class="text-2xl font-black text-emerald-700 font-mono mt-0.5">â‚¹{{ number_format($plan->price) }} <span class="text-xs text-slate-500 font-sans font-normal">/{{ $plan->billing_cycle }}</span></div>
                     </div>
                     
                     <form action="{{ route('admin.saas-plans.destroy', $plan->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete the {{ $plan->name }} plan?');">

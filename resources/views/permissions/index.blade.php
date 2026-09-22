@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('title', 'Permissions & Access Control Center')
 
@@ -269,7 +269,7 @@
         </div>
     </div>
 
-    {{-- ─── COMPANY STAFF CONTROL PANEL (Director / Admin / Founder) ─────────────── --}}
+    {{-- â”€â”€â”€ COMPANY STAFF CONTROL PANEL (Director / Admin / Founder) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
     {{-- Mirrors the SaaS Sub-Admin Panel but for company-level staff management      --}}
     @if(!auth()->user()->isSaaSAdmin() && (auth()->user()->isDirectorOrFounder() || auth()->user()->isCompanyAdmin()))
     <div x-show="activeMainTab === 'company_roles'" class="space-y-0" x-cloak>
@@ -283,7 +283,7 @@
                         <span>Company Staff Access Control</span>
                     </h2>
                     <p class="text-xs text-slate-500 font-medium mt-0.5">
-                        Manage individual staff members — reassign roles and toggle account access.
+                        Manage individual staff members â€” reassign roles and toggle account access.
                     </p>
                 </div>
                 <a href="{{ route('users.index') }}"
@@ -371,8 +371,8 @@
                                 <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wide block mb-1">Account Status</label>
                                 <select name="is_active" required
                                         class="w-full bg-white border border-slate-200 text-xs font-bold rounded-lg px-2.5 py-1.5 text-slate-800 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
-                                    <option value="1" {{ $isActive ? 'selected' : '' }}>✅ Active</option>
-                                    <option value="0" {{ !$isActive ? 'selected' : '' }}>🚫 Disabled</option>
+                                    <option value="1" {{ $isActive ? 'selected' : '' }}>âœ… Active</option>
+                                    <option value="0" {{ !$isActive ? 'selected' : '' }}>ðŸš« Disabled</option>
                                 </select>
                             </div>
                         </div>
@@ -463,7 +463,7 @@
                                     <div class="bg-white max-w-md w-full rounded-xl p-5 border border-slate-200 shadow-2xl text-left space-y-4">
                                         <div class="flex justify-between items-center pb-3 border-b border-slate-200">
                                             <h3 class="text-sm font-bold text-[#0F172A]">Edit Access: {{ $staff->name }}</h3>
-                                            <button onclick="document.getElementById('editStaffModal-{{ $staff->id }}').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                                            <button onclick="document.getElementById('editStaffModal-{{ $staff->id }}').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
                                         </div>
 
                                         <form action="{{ route('permissions.users.update', $staff->id) }}" method="POST" class="space-y-3 text-xs">

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Customer Management Directory - REOS')
+@section('title', 'Customer Management Directory - UrbanProperty')
 
 @section('content')
 <div class="space-y-6">
@@ -93,7 +93,7 @@
                                     $cleanPhone = '91' . $cleanPhone;
                                 }
                             @endphp
-                            <a href="https://wa.me/{{ $cleanPhone }}?text=Hello%20{{ urlencode($c->name) }},%20thank%20you%20for%20choosing%20REOS!" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs inline-flex items-center space-x-1 transition">
+                            <a href="https://wa.me/{{ $cleanPhone }}?text=Hello%20{{ urlencode($c->name) }},%20thank%20you%20for%20choosing%20UrbanProperty!" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs inline-flex items-center space-x-1 transition">
                                 <i class="fa-brands fa-whatsapp text-white mr-1 text-sm"></i><span>WhatsApp</span>
                             </a>
                             @endif

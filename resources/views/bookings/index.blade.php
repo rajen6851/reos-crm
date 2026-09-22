@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Bookings & Contracts – REOS')
+@section('title', 'Bookings & Contracts â€“ UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '' }">
@@ -57,11 +57,11 @@
                         </div>
                         <div class="text-[11px] text-[#64748B] mt-0.5">
                             Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
-                                💬 <em>"{{ $approval->reason }}"</em>
+                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -166,7 +166,7 @@
                                 <div class="text-[11px] text-[#64748B]"><i class="fa-solid fa-building text-[#4F46E5] mr-1"></i>{{ $booking->project->name ?? '' }}</div>
                             </td>
                             <td class="p-3.5 font-mono font-extrabold text-[#059669]">
-                                ₹{{ number_format($unitCost) }}
+                                â‚¹{{ number_format($unitCost) }}
                             </td>
                             <td class="p-3.5">
                                 @if($booking->approval_status === 'approved' || $booking->status === 'approved' || $booking->status === 'confirmed')
@@ -214,7 +214,7 @@
         <div class="bg-white w-full max-w-lg p-6 rounded-3xl space-y-4 border border-[#E2E8F0] shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 class="text-base font-extrabold text-[#0F172A]">Initiate Unit Booking Lock</h3>
-                <button onclick="document.getElementById('createBookingModal').classList.add('hidden')" class="text-slate-400 font-bold">✕</button>
+                <button onclick="document.getElementById('createBookingModal').classList.add('hidden')" class="text-slate-400 font-bold">âœ•</button>
             </div>
 
             <form method="POST" action="{{ route('bookings.store') }}" class="space-y-3 text-xs">
@@ -232,18 +232,18 @@
                     <label class="block text-[#475569] mb-1 font-bold">Unit Lock Selection *</label>
                     <select name="unit_id" required class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-[#0F172A] font-bold focus:outline-none focus:border-[#4F46E5]">
                         @foreach($availableUnits as $unit)
-                            <option value="{{ $unit->id }}">Unit {{ $unit->unit_number }} ({{ $unit->unit_type }}) - ₹{{ number_format($unit->price ?? $unit->final_price ?? 7800000) }}</option>
+                            <option value="{{ $unit->id }}">Unit {{ $unit->unit_number }} ({{ $unit->unit_type }}) - â‚¹{{ number_format($unit->price ?? $unit->final_price ?? 7800000) }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[#475569] mb-1 font-bold">Token Advance Amount (₹) *</label>
+                        <label class="block text-[#475569] mb-1 font-bold">Token Advance Amount (â‚¹) *</label>
                         <input type="number" name="booking_amount" required value="100000" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
                     </div>
                     <div>
-                        <label class="block text-[#475569] mb-1 font-bold">Total Agreement Cost (₹) *</label>
+                        <label class="block text-[#475569] mb-1 font-bold">Total Agreement Cost (â‚¹) *</label>
                         <input type="number" name="agreement_value" required value="7500000" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl p-2.5 text-[#0F172A] font-mono font-bold focus:outline-none focus:border-[#4F46E5]">
                     </div>
                 </div>

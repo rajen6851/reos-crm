@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $project->name }} – Project Showcase</title>
+    <title>{{ $project->name }} â€“ Project Showcase</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
                     <h1 class="text-base font-extrabold text-slate-900 leading-tight">{{ $project->name }}</h1>
                     <p class="text-xs text-slate-500 font-medium">
                         By <span
-                            class="text-indigo-600 font-semibold">{{ $project->company->name ?? 'REOS Developer' }}</span>
+                            class="text-indigo-600 font-semibold">{{ $project->company->name ?? 'UrbanProperty Developer' }}</span>
                     </p>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                     <span>{{ session('inquiry_success') }}</span>
                 </div>
                 <button onclick="this.parentElement.remove()"
-                    class="text-emerald-600 hover:text-emerald-900 font-bold ml-4">✕</button>
+                    class="text-emerald-600 hover:text-emerald-900 font-bold ml-4">âœ•</button>
             </div>
         @endif
 
@@ -74,7 +74,7 @@
                             Partner</span>
                         <span class="font-bold text-slate-900 text-xs">{{ $broker->agency_name ?? $broker->name }}</span>
                         @if($broker->phone)
-                            <span class="text-slate-500"> • {{ $broker->phone }}</span>
+                            <span class="text-slate-500"> â€¢ {{ $broker->phone }}</span>
                         @endif
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                 <span class="text-emerald-700 font-semibold block text-[11px]">Starting Price</span>
                 <div class="text-sm md:text-base font-extrabold text-emerald-900 font-mono">
                     @if($minPrice && $minPrice > 0)
-                        ₹{{ number_format($minPrice / 100000, 2) }} Lakhs*
+                        â‚¹{{ number_format($minPrice / 100000, 2) }} Lakhs*
                     @else
                         Request Price Quote
                     @endif
@@ -193,7 +193,7 @@
                                 </span>
                                 <a href="#inquireForm"
                                     onclick="setInterestedUnitType('{{ $bld->units->first()->unit_type ?? '' }}')"
-                                    class="text-indigo-600 hover:text-indigo-800 font-bold text-xs">Inquire Tower →</a>
+                                    class="text-indigo-600 hover:text-indigo-800 font-bold text-xs">Inquire Tower â†’</a>
                             </div>
                         </div>
                     @endforeach
@@ -312,8 +312,8 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-8 py-4 text-center text-xs text-slate-500">
         <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span>© {{ date('Y') }} {{ $project->company->name ?? 'REOS' }}. All Rights Reserved.</span>
-            <span class="text-[11px] text-slate-400 font-mono">Powered by REOS Real Estate OS</span>
+            <span>Â© {{ date('Y') }} {{ $project->company->name ?? 'UrbanProperty' }}. All Rights Reserved.</span>
+            <span class="text-[11px] text-slate-400 font-mono">Powered by UrbanProperty Real Estate OS</span>
         </div>
     </footer>
 

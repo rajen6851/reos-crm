@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Support Tickets & Helpdesk - REOS')
+@section('title', 'Support Tickets & Helpdesk - UrbanProperty')
 
 @section('content')
 <div class="space-y-6" x-data="{ showModal: false }">
@@ -10,7 +10,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Support Tickets</span>
             </div>
             <h1 class="page-heading text-2xl font-extrabold text-slate-900">Customer & Team Support Desk</h1>
@@ -126,7 +126,7 @@
                                 };
                             @endphp
                             <span class="px-2.5 py-1 rounded-full border {{ $sBadge }}">
-                                ● {{ strtoupper(str_replace('_', ' ', $t->status)) }}
+                                â— {{ strtoupper(str_replace('_', ' ', $t->status)) }}
                             </span>
                         </td>
                         <td class="p-4 text-xs text-slate-500 font-mono">
@@ -134,7 +134,7 @@
                         </td>
                         <td class="p-4 text-right">
                             <a href="{{ route('support-tickets.show', $t->id) }}" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 border border-slate-200 text-xs font-bold transition inline-block">
-                                View & Reply ➔
+                                View & Reply âž”
                             </a>
 
                             @if(auth()->user()->isCompanyAdmin() || auth()->user()->role?->slug === 'founder')
@@ -169,7 +169,7 @@
         <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-6" @click.stop>
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h3 class="text-xl font-black text-slate-900">Raise New Support Ticket</h3>
-                <button type="button" @click="showModal = false" onclick="closeSupportModal()" class="p-2 text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">✕</button>
+                <button type="button" @click="showModal = false" onclick="closeSupportModal()" class="p-2 text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">âœ•</button>
             </div>
 
             <form action="{{ route('support-tickets.store') }}" method="POST" class="space-y-4">
@@ -185,7 +185,7 @@
                             <option value="{{ $comp->id }}">{{ $comp->name }}</option>
                         @endforeach
                     </select>
-                    <p class="text-[11px] text-indigo-700 font-medium">आप स्वतंत्र ब्रोकर हैं — आप जिस कंपनी को चुनेंगे, टिकट सीधे उसी कंपनी के सपोर्ट एडमिन को प्राप्त होगा।</p>
+                    <p class="text-[11px] text-indigo-700 font-medium">à¤†à¤ª à¤¸à¥à¤µà¤¤à¤‚à¤¤à¥à¤° à¤¬à¥à¤°à¥‹à¤•à¤° à¤¹à¥ˆà¤‚ â€” à¤†à¤ª à¤œà¤¿à¤¸ à¤•à¤‚à¤ªà¤¨à¥€ à¤•à¥‹ à¤šà¥à¤¨à¥‡à¤‚à¤—à¥‡, à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥€à¤§à¥‡ à¤‰à¤¸à¥€ à¤•à¤‚à¤ªà¤¨à¥€ à¤•à¥‡ à¤¸à¤ªà¥‹à¤°à¥à¤Ÿ à¤à¤¡à¤®à¤¿à¤¨ à¤•à¥‹ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤¹à¥‹à¤—à¤¾à¥¤</p>
                 </div>
                 @else
                 <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-950 space-y-1">
@@ -194,9 +194,9 @@
                     </div>
                     <div class="font-bold flex items-center space-x-2 text-indigo-800">
                         <i class="fa-solid fa-building text-indigo-600"></i>
-                        <span>{{ auth()->user()->company->name ?? 'REOS Central' }} Support & Operations Team</span>
+                        <span>{{ auth()->user()->company->name ?? 'UrbanProperty Central' }} Support & Operations Team</span>
                     </div>
-                    <p class="text-[11px] text-indigo-700 font-medium">यह टिकट सबमिट होने के बाद आपकी कंपनी के सपोर्ट मैनेजर्स व एडमिन को रिज़ॉल्यूशन के लिए तुरंत दिखेगा।</p>
+                    <p class="text-[11px] text-indigo-700 font-medium">à¤¯à¤¹ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¬à¤®à¤¿à¤Ÿ à¤¹à¥‹à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦ à¤†à¤ªà¤•à¥€ à¤•à¤‚à¤ªà¤¨à¥€ à¤•à¥‡ à¤¸à¤ªà¥‹à¤°à¥à¤Ÿ à¤®à¥ˆà¤¨à¥‡à¤œà¤°à¥à¤¸ à¤µ à¤à¤¡à¤®à¤¿à¤¨ à¤•à¥‹ à¤°à¤¿à¤œà¤¼à¥‰à¤²à¥à¤¯à¥‚à¤¶à¤¨ à¤•à¥‡ à¤²à¤¿à¤ à¤¤à¥à¤°à¤‚à¤¤ à¤¦à¤¿à¤–à¥‡à¤—à¤¾à¥¤</p>
                 </div>
                 @endif
 

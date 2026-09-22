@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', "{$lead->first_name} {$lead->last_name} – Lead Details")
+@section('title', "{$lead->first_name} {$lead->last_name} â€“ Lead Details")
 
 @section('content')
 <div class="space-y-6 pb-12">
@@ -9,9 +9,9 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-blue-600">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <a href="{{ route('leads.index') }}" class="hover:text-blue-600">Leads</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-slate-900 font-bold">{{ $lead->first_name }} {{ $lead->last_name }}</span>
             </div>
             <h1 class="text-xl font-bold text-[#0F172A] tracking-tight flex items-center space-x-2.5">
@@ -60,7 +60,7 @@
                     <div class="space-y-1.5">
                         <h2 class="text-2xl font-bold text-[#0F172A] tracking-tight">{{ $lead->first_name }} {{ $lead->last_name }}</h2>
                         <p class="text-xs font-medium text-slate-500">
-                            {{ $aiScore['label'] }} Priority Lead – Active Property Buyer
+                            {{ $aiScore['label'] }} Priority Lead â€“ Active Property Buyer
                         </p>
                         <div class="pt-1 flex items-center space-x-2">
                             <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 uppercase flex items-center space-x-1">
@@ -76,7 +76,7 @@
                     <!-- Budget Range Highlight -->
                     <div class="text-left sm:text-right shrink-0">
                         <div class="text-2xl md:text-3xl font-bold font-mono text-emerald-600">
-                            ₹{{ number_format($lead->budget_min ?? 7500000) }} – ₹{{ number_format($lead->budget_max ?? 12500000) }}
+                            â‚¹{{ number_format($lead->budget_min ?? 7500000) }} â€“ â‚¹{{ number_format($lead->budget_max ?? 12500000) }}
                         </div>
                         <div class="text-[11px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">Customer Budget Range</div>
                     </div>
@@ -151,7 +151,7 @@
                         </div>
                         <div class="space-y-0.5 flex-1">
                             <div class="font-bold text-slate-900">{{ $act->description }}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">{{ $act->created_at->format('d M Y, h:i A') }} • by {{ $act->user->name ?? 'System' }}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">{{ $act->created_at->format('d M Y, h:i A') }} â€¢ by {{ $act->user->name ?? 'System' }}</div>
                         </div>
                     </div>
                     @empty
@@ -312,7 +312,7 @@
                 <h3 class="text-xl font-bold mb-1">Edit Lead Details</h3>
                 <div class="text-[13px] font-semibold text-blue-100">Update primary details for this lead</div>
             </div>
-            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
         </div>
 
         <form action="{{ route('leads.update', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
@@ -342,7 +342,7 @@
             </div>
 
             <div>
-                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Max Budget (₹)</label>
+                <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Max Budget (â‚¹)</label>
                 <input type="number" name="budget_max" value="{{ $lead->budget_max }}" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
             </div>
 
@@ -363,7 +363,7 @@
                 <h3 class="text-xl font-bold mb-1">Re-assign Sales Executive</h3>
                 <div class="text-[13px] font-semibold text-blue-100">Change assigned executive for this lead</div>
             </div>
-            <button onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+            <button onclick="document.getElementById('changeAgentModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
         </div>
 
         <form action="{{ route('leads.assign', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
@@ -386,9 +386,9 @@
 </div>
 @endsection
 
-{{-- ═══════════════════════════════════════════════════════════════════════════ --}}
-{{-- MODAL 3: TRANSFER LEAD (Manager/Admin only — with reason + note)           --}}
-{{-- ═══════════════════════════════════════════════════════════════════════════ --}}
+{{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{-- MODAL 3: TRANSFER LEAD (Manager/Admin only â€” with reason + note)           --}}
+{{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
 <div id="transferLeadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
     <div class="bg-white w-full max-w-lg overflow-hidden shadow-2xl border border-slate-300">
         <!-- Header -->
@@ -397,7 +397,7 @@
                 <h3 class="text-xl font-bold mb-1">Transfer Lead</h3>
                 <div class="text-[13px] font-semibold text-blue-100">{{ $lead->lead_code }} &bull; {{ $lead->first_name }} {{ $lead->last_name }}</div>
             </div>
-            <button onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">✕</button>
+            <button onclick="document.getElementById('transferLeadModal').classList.add('hidden')" class="text-white hover:text-slate-200 text-lg absolute right-4 top-3">âœ•</button>
         </div>
 
         <form action="{{ route('leads.transfer', $lead->id) }}" method="POST" class="p-5 text-sm space-y-4">
@@ -421,7 +421,7 @@
             <div>
                 <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Transfer To <span class="text-orange-500">*</span></label>
                 <select name="new_assignee_id" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
-                    <option value="">— Select Sales Executive —</option>
+                    <option value="">â€” Select Sales Executive â€”</option>
                     @foreach(\App\Models\User::where('company_id', $lead->company_id)->where('id', '!=', $lead->assigned_to_user_id)->whereHas('role', function($q){ $q->whereIn('slug', ['sales_executive', 'executive', 'sales']); })->orderBy('name')->get() as $exec)
                     <option value="{{ $exec->id }}">{{ $exec->name }} ({{ $exec->role->name ?? 'Executive' }})</option>
                     @endforeach
@@ -432,10 +432,10 @@
             <div>
                 <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Transfer Reason <span class="text-orange-500">*</span></label>
                 <select name="transfer_reason" required class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
-                    <option value="">— Select Reason —</option>
+                    <option value="">â€” Select Reason â€”</option>
                     <option value="No response from current executive">No Response from Current Executive</option>
                     <option value="Executive on leave / unavailable">Executive on Leave / Unavailable</option>
-                    <option value="Executive overloaded — workload balancing">Executive Overloaded — Workload Balancing</option>
+                    <option value="Executive overloaded â€” workload balancing">Executive Overloaded â€” Workload Balancing</option>
                     <option value="Customer requested different executive">Customer Requested Different Executive</option>
                     <option value="Executive resigned / left company">Executive Resigned / Left Company</option>
                     <option value="Geographic re-routing">Geographic Re-Routing</option>
@@ -453,7 +453,7 @@
             {{-- Transfer Guard Warning --}}
             @if($lead->transfer_count >= 2)
             <div class="p-2 bg-rose-50 border border-rose-300 text-xs text-rose-800 font-semibold flex items-start space-x-2">
-                <span>⚠ This lead has been transferred <strong>{{ $lead->transfer_count }} times</strong> already. Maximum 5 transfers allowed. Please consider escalating to Director instead.</span>
+                <span>âš  This lead has been transferred <strong>{{ $lead->transfer_count }} times</strong> already. Maximum 5 transfers allowed. Please consider escalating to Director instead.</span>
             </div>
             @endif
 

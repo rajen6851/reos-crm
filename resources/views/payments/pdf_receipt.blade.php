@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -133,7 +133,7 @@
         <table>
             <tr>
                 <td>
-                    <div class="company-title">{{ $payment->booking->company->name ?? 'REOS Real Estate Developers' }}</div>
+                    <div class="company-title">{{ $payment->booking->company->name ?? 'UrbanProperty Real Estate Developers' }}</div>
                     <span class="badge">Official Payment Receipt & Tax Invoice</span>
                 </td>
                 <td class="invoice-details">
@@ -186,7 +186,7 @@
                 <td>{{ strtoupper($payment->payment_method ?? 'Razorpay Gateway') }}</td>
                 <td style="font-family: monospace;">{{ $payment->transaction_reference ?? ('TXN-' . strtoupper(substr(md5($payment->id), 0, 10))) }}</td>
                 <td style="text-align: right; font-weight: bold; font-size: 15px; color: #0f172a;">
-                    ₹{{ number_format($payment->amount) }}
+                    â‚¹{{ number_format($payment->amount) }}
                 </td>
             </tr>
         </tbody>
@@ -194,19 +194,19 @@
 
     <div class="amount-box">
         <div class="amount-title">Total Amount Received</div>
-        <div class="amount-value">₹{{ number_format($payment->amount) }}</div>
+        <div class="amount-value">â‚¹{{ number_format($payment->amount) }}</div>
         <div style="font-size: 10px; color: #047857; margin-top: 4px; font-weight: bold;">Status: PAYMENT VERIFIED & CONFIRMED</div>
     </div>
 
     <div class="stamp-box">
         Authorized Signature / Digital Seal<br>
-        <strong>{{ $payment->booking->company->name ?? 'REOS Operating System' }}</strong>
+        <strong>{{ $payment->booking->company->name ?? 'UrbanProperty Operating System' }}</strong>
     </div>
 
     <div class="clear"></div>
 
     <div class="footer">
-        This is a computer-generated official payment receipt. Generated via REOS - Real Estate Operating System.<br>
+        This is a computer-generated official payment receipt. Generated via UrbanProperty - Real Estate Operating System.<br>
         Thank you for your business!
     </div>
 

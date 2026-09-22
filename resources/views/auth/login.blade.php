@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login – REOS Real Estate Operating System</title>
+    <title>Login â€“ UrbanProperty Real Estate Operating System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,9 +18,9 @@
         <!-- Logo Header -->
         <div class="text-center space-y-2">
             <div class="inline-flex w-12 h-12 rounded-2xl overflow-hidden shadow-xs border border-[#E2E8F0] bg-white items-center justify-center p-0.5 mb-1">
-                <img src="{{ asset('images/logo.jpg') }}" alt="REOS Logo" class="w-full h-full object-cover rounded-xl">
+                <img src="{{ asset('images/logo.jpg') }}" alt="UrbanProperty Logo" class="w-full h-full object-cover rounded-xl">
             </div>
-            <h2 class="text-2xl font-extrabold text-[#0F172A] tracking-tight">Sign In to REOS</h2>
+            <h2 class="text-2xl font-extrabold text-[#0F172A] tracking-tight">Sign In to UrbanProperty</h2>
             <p class="text-xs text-[#64748B]">Real Estate Operating System SaaS Workspace</p>
         </div>
 
@@ -72,7 +72,7 @@
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-sm transition">
-                    Sign In to Dashboard →
+                    Sign In to Dashboard â†’
                 </button>
             </form>
 

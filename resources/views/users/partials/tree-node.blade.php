@@ -1,4 +1,4 @@
-@foreach($users as $user)
+﻿@foreach($users as $user)
     <li class="relative pl-6 py-2 border-l border-slate-300 last:border-l-0 before:content-[''] before:absolute before:w-4 before:h-[1px] before:bg-slate-300 before:left-0 before:top-5" x-data="{ expanded: true }">
         <div class="flex items-center space-x-2 relative z-10">
             @if($user->children->count() > 0)

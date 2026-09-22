@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#F8FAFC]">
 
 <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'REOS – Real Estate Operating System SaaS')</title>
+    <title>@yield('title', 'UrbanProperty â€“ Real Estate Operating System SaaS')</title>
 
     <!-- Google Fonts Plus Jakarta Sans, Manrope & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,30 +102,30 @@
         }
     </style>
 
-    <!-- REOS CRM Global Frontend Console Logger & Interceptors -->
+    <!-- UrbanProperty CRM Global Frontend Console Logger & Interceptors -->
     <script>
         window.ReosLogger = {
-            prefix: '[REOS CRM]',
+            prefix: '[UrbanProperty CRM]',
             info: function (msg, data = '') {
-                console.log(`%c${this.prefix} [INFO] ℹ️ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
+                console.log(`%c${this.prefix} [INFO] â„¹ï¸ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
             },
             success: function (msg, data = '') {
-                console.log(`%c${this.prefix} [SUCCESS] ✅ ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
+                console.log(`%c${this.prefix} [SUCCESS] âœ… ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
             },
             warn: function (msg, data = '') {
-                console.warn(`%c${this.prefix} [WARN] ⚠️ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
+                console.warn(`%c${this.prefix} [WARN] âš ï¸ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
             },
             error: function (msg, err = '') {
-                console.error(`%c${this.prefix} [ERROR] ❌ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
+                console.error(`%c${this.prefix} [ERROR] âŒ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
             },
             ajax: function (method, url, status, duration, data = '') {
                 const color = status >= 200 && status < 300 ? '#059669' : '#DC2626';
-                console.log(`%c${this.prefix} [AJAX] 🌐 ${method} ${url} → ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
+                console.log(`%c${this.prefix} [AJAX] ðŸŒ ${method} ${url} â†’ ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
             }
         };
 
         // System Startup Log
-        window.ReosLogger.info('Browser Console Logging Engine Online', { app: 'REOS SaaS CRM', timestamp: new Date().toISOString() });
+        window.ReosLogger.info('Browser Console Logging Engine Online', { app: 'UrbanProperty SaaS CRM', timestamp: new Date().toISOString() });
 
         // Global Fetch Interceptor for AJAX Logging
         (function () {
@@ -162,7 +162,7 @@
             const form = event.target;
             const formId = form.id ? `#${form.id}` : (form.name ? `[name="${form.name}"]` : 'form');
             const action = form.action || window.location.href;
-            window.ReosLogger.info(`Form Submitted: ${formId} → ${action}`);
+            window.ReosLogger.info(`Form Submitted: ${formId} â†’ ${action}`);
         }, true);
     </script>
 
@@ -390,7 +390,7 @@
                 $isPlatformOnlyHeaderUser = auth()->user()->isSaaSFounder() || auth()->user()->isSaaSSubAdmin();
             @endphp
 
-            <!-- + Quick Add ▾ Button (Royal Blue with Chevron) -->
+            <!-- + Quick Add â–¾ Button (Royal Blue with Chevron) -->
             @if(!$isPlatformOnlyHeaderUser)
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.outside="open = false"
@@ -454,7 +454,7 @@
                     <i class="fa-solid fa-house-chimney text-white text-sm"></i>
                 </div>
                 <div x-show="!sidebarCollapsed" class="flex items-center space-x-1.5 truncate">
-                    <span class="font-extrabold text-lg tracking-tight text-white">REOS <span
+                    <span class="font-extrabold text-lg tracking-tight text-white">UrbanProperty <span
                             class="text-blue-400">CRM</span></span>
                 </div>
             </div>
@@ -538,7 +538,7 @@
                     </div>
                 @endif
 
-                <!-- SECTION 3: OPERATIONS (Internal Staff Only — not Broker, not SaaS-only admins) -->
+                <!-- SECTION 3: OPERATIONS (Internal Staff Only â€” not Broker, not SaaS-only admins) -->
                 @if(!$isBroker && !$isSaasPlatformOnly && !($isSaasAdmin && !$isAdmin && !$isDirector && !$isManager && !$isSales))
                     <div class="space-y-1">
                         <div x-show="!sidebarCollapsed"
@@ -847,7 +847,7 @@
                         : strtoupper(substr(auth()->user()->name, 0, 2));
                 @endphp
 
-                {{-- Clickable Profile Card → goes to Profile Edit page --}}
+                {{-- Clickable Profile Card â†’ goes to Profile Edit page --}}
                 <a href="{{ route('profile.edit') }}" title="Edit My Profile"
                     class="group flex items-center space-x-3 px-2 py-2 rounded-lg hover:bg-[#1E294A] transition cursor-pointer">
                     <div class="relative shrink-0">
@@ -903,7 +903,7 @@
                         <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
                         <span>{{ session('success') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-emerald-800 font-bold">✕</button>
+                    <button onclick="this.parentElement.remove()" class="text-emerald-800 font-bold">âœ•</button>
                 </div>
             @endif
 
@@ -914,7 +914,7 @@
                         <i class="fa-solid fa-triangle-exclamation text-[#DC2626] text-sm"></i>
                         <span>{{ session('error') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-rose-800 font-bold">✕</button>
+                    <button onclick="this.parentElement.remove()" class="text-rose-800 font-bold">âœ•</button>
                 </div>
             @endif
 
@@ -925,7 +925,7 @@
                         <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
                         <span>{{ session('warning') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-amber-800 font-bold">✕</button>
+                    <button onclick="this.parentElement.remove()" class="text-amber-800 font-bold">âœ•</button>
                 </div>
             @endif
 
@@ -938,7 +938,7 @@
                             <span>Please resolve the following validation errors:</span>
                         </div>
                         <button onclick="this.closest('.mb-6').remove()"
-                            class="text-rose-400 hover:text-rose-700 font-bold">✕</button>
+                            class="text-rose-400 hover:text-rose-700 font-bold">âœ•</button>
                     </div>
                     <ul class="list-disc list-inside space-y-1 text-slate-700 pl-1">
                         @foreach ($errors->all() as $error)
@@ -1012,7 +1012,7 @@
                 // Foreground Notification Toast
                 messaging.onMessage((payload) => {
                     window.ReosLogger.info('Foreground Push Message Received', payload);
-                    const title = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'REOS Alert');
+                    const title = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'UrbanProperty Alert');
                     const body = payload.notification ? payload.notification.body : (payload.data ? payload.data.body : '');
 
                     // Display sleek toast notification
@@ -1026,7 +1026,7 @@
                             <h4 class="text-xs font-bold truncate">${title}</h4>
                             <p class="text-[11px] text-slate-300 truncate">${body}</p>
                         </div>
-                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold ml-2">✕</button>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold ml-2">âœ•</button>
                     `;
                     document.body.appendChild(toast);
                     setTimeout(() => { if (toast) toast.remove(); }, 6000);

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Executive Reports & Analytics - REOS')
+@section('title', 'Executive Reports & Analytics - UrbanProperty')
 
 @section('content')
 <div class="space-y-6">
@@ -8,7 +8,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Reports & Analytics</span>
             </div>
             <h1 class="page-heading text-2xl">Executive Sales & Analytics Report</h1>
@@ -47,7 +47,7 @@
         </div>
         <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Token Revenue Collected</div>
-            <div class="text-3xl font-bold text-purple-600 font-mono mt-2">₹{{ number_format($totalRevenue) }}</div>
+            <div class="text-3xl font-bold text-purple-600 font-mono mt-2">â‚¹{{ number_format($totalRevenue) }}</div>
             <div class="text-xs text-purple-700 font-bold mt-1">Token Payments</div>
         </div>
     </div>
@@ -58,7 +58,7 @@
             <h2 class="text-lg font-bold text-slate-900">Sales Executive Performance Breakdown</h2>
             @can('manage-users')
             <a href="{{ route('users.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">
-                + Add / Manage Executives →
+                + Add / Manage Executives â†’
             </a>
             @endcan
         </div>

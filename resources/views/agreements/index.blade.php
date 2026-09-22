@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Legal Agreements & Skip Approvals – REOS')
+@section('title', 'Legal Agreements & Skip Approvals â€“ UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '', statusFilter: 'all' }">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Legal Agreements</span>
             </div>
             <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Buyer Agreements & Director Skip Approvals</h1>
@@ -150,7 +150,7 @@
     <div class="bg-white w-full max-w-md p-6 rounded-3xl space-y-4 border border-[#E2E8F0] shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
             <h3 class="text-base font-extrabold text-[#0F172A]">Upload Legal Agreement PDF</h3>
-            <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-[#0F172A] font-bold hover:bg-slate-200 flex items-center justify-center">✕</button>
+            <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-[#0F172A] font-bold hover:bg-slate-200 flex items-center justify-center">âœ•</button>
         </div>
 
         <form id="uploadForm" method="POST" action="" enctype="multipart/form-data" class="space-y-4 text-xs">

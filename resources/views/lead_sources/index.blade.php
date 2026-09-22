@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Lead Integration Engine & Webhooks - REOS')
+@section('title', 'Lead Integration Engine & Webhooks - UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto">
@@ -9,9 +9,9 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <a href="{{ route('company-settings.index') }}" class="hover:text-[#2563EB]">Settings</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Lead Sources Integration Engine</span>
             </div>
             <div class="flex items-center space-x-3">
@@ -19,7 +19,7 @@
                     <i class="fa-solid fa-plug"></i>
                 </div>
                 <div>
-                    <h1 class="page-heading text-xl font-extrabold text-slate-900 tracking-tight">REOS Lead Integration Engine</h1>
+                    <h1 class="page-heading text-xl font-extrabold text-slate-900 tracking-tight">UrbanProperty Lead Integration Engine</h1>
                     <p class="body-text text-xs text-slate-500 font-medium">Multi-tenant webhook pipeline for Meta Ads, Google Ads, 99acres, MagicBricks, Housing.com & Custom APIs.</p>
                 </div>
             </div>
@@ -138,7 +138,7 @@
                     <i class="fa-solid fa-list-check text-indigo-600"></i>
                     <span>Configured Webhook Endpoints & Integrations</span>
                 </h2>
-                <p class="text-xs text-slate-500">Live Webhook URLs and company-scoped credentials connected to REOS.</p>
+                <p class="text-xs text-slate-500">Live Webhook URLs and company-scoped credentials connected to UrbanProperty.</p>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg">
@@ -368,7 +368,7 @@ function updateFormFields(selectedType) {
 
 function copyWebhookUrl(url) {
     navigator.clipboard.writeText(url).then(() => {
-        alert('✅ Webhook URL copied to clipboard!');
+        alert('âœ… Webhook URL copied to clipboard!');
     }).catch(err => {
         alert('Failed to copy URL: ' + err);
     });
@@ -386,10 +386,10 @@ function testSourceConnection(sourceId) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('✅ Connection Test Successful: ' + data.message);
+            alert('âœ… Connection Test Successful: ' + data.message);
             window.location.reload();
         } else {
-            alert('❌ Connection Test Failed: ' + data.message);
+            alert('âŒ Connection Test Failed: ' + data.message);
         }
     })
     .catch(err => {

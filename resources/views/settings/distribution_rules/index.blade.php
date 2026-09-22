@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
@@ -6,7 +6,7 @@
     <!-- Page Header -->
     <div class="sm:flex sm:justify-between sm:items-center mb-8">
         <div class="mb-4 sm:mb-0">
-            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold tracking-tight">Lead Distribution Engine ✨</h1>
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold tracking-tight">Lead Distribution Engine âœ¨</h1>
             <p class="text-sm text-slate-500 mt-1">Manage and automate how incoming leads are distributed among your team.</p>
         </div>
         <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">

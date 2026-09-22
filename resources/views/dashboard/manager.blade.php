@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('title', 'Manager Command Center')
 
@@ -117,7 +117,7 @@
                 <div class="space-y-1.5">
                     <div class="flex justify-between items-center">
                         <span class="font-mono font-bold text-indigo-700 text-xs">{{ $bk->booking_code }}</span>
-                        <span class="font-mono font-bold text-emerald-700">₹{{ number_format($bk->booking_amount) }} Token</span>
+                        <span class="font-mono font-bold text-emerald-700">â‚¹{{ number_format($bk->booking_amount) }} Token</span>
                     </div>
                     <div class="font-bold text-slate-900 text-sm">{{ $bk->customer_name }}</div>
                     <div class="text-xs text-slate-500">Unit {{ $bk->unit->unit_number ?? 'N/A' }} in {{ $bk->project->name ?? 'Project' }}</div>

@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('title', 'SaaS Master Control')
 
@@ -60,7 +60,7 @@
                 <span>Platform MRR</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalPlatformRevenue) }}</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">â‚¹{{ number_format($totalPlatformRevenue) }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+18.4% MRR)</div>
         </div>
 
@@ -100,7 +100,7 @@
                 <span>Gross GMV</span>
                 <i class="fa-solid fa-indian-rupee-sign text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalGrossBookingValue) }}</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">â‚¹{{ number_format($totalGrossBookingValue) }}</div>
             <div class="text-xs font-semibold text-emerald-600">{{ $totalPlatformBookings }} Bookings</div>
         </div>
 
@@ -176,7 +176,7 @@
             <div class="flex items-center justify-center space-x-6 text-xs font-semibold text-slate-600 pt-1">
                 <div class="flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-xs bg-[#0F172A]"></span>
-                    <span>Platform MRR (₹)</span>
+                    <span>Platform MRR (â‚¹)</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-xs bg-[#2563EB]"></span>
@@ -216,7 +216,7 @@
                             </div>
                             <div class="flex items-center space-x-2 font-mono">
                                 <span class="font-bold text-slate-900">{{ $subscribedCount }} Builders</span>
-                                <span class="text-slate-400 text-[10px]">(₹{{ number_format($plan->price) }}/mo)</span>
+                                <span class="text-slate-400 text-[10px]">(â‚¹{{ number_format($plan->price) }}/mo)</span>
                             </div>
                         </div>
                         @endforeach
@@ -421,7 +421,7 @@
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [
                     {
-                        label: 'Platform MRR (₹)',
+                        label: 'Platform MRR (â‚¹)',
                         data: [4999, 4999, 9998, 9998, 14997, 14997, 19996, 19996, 19998, 24997, 29996, 34995],
                         backgroundColor: '#0F172A'
                     },

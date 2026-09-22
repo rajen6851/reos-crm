@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'CRM Interactive Schedule Calendar – REOS')
+@section('title', 'CRM Interactive Schedule Calendar â€“ UrbanProperty')
 
 @section('content')
 <!-- Include FullCalendar v6 CDN -->
@@ -12,9 +12,9 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span>Applications</span>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Calendar</span>
             </div>
             <h1 class="page-heading text-2xl">Calendar & Event Schedule</h1>
@@ -107,7 +107,7 @@
     <div class="bg-white max-w-md w-full rounded-3xl p-6 border border-[#E2E8F0] shadow-2xl space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-[#E2E8F0]">
             <h3 class="section-heading">Schedule New Event / Site Visit</h3>
-            <button onclick="document.getElementById('newEventModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            <button onclick="document.getElementById('newEventModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
         </div>
 
         <form action="{{ route('site-visits.index') }}" method="GET" class="space-y-3 text-xs">

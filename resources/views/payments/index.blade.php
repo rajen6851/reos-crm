@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Payments & GST Tax Receipts - REOS')
+@section('title', 'Payments & GST Tax Receipts - UrbanProperty')
 
 @section('content')
 <div class="space-y-6">
@@ -8,14 +8,14 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>›</span>
+                <span>â€º</span>
                 <span class="text-[#0F172A] font-bold">Payments & Invoices</span>
             </div>
             <h1 class="page-heading text-2xl">Payments Ledger & GST Tax Receipts</h1>
             <p class="body-text text-xs mt-0.5">Recorded unit token payments, Razorpay gateways, and official tax invoice downloads</p>
         </div>
         <div class="flex items-center space-x-2 text-xs font-bold text-[#059669] bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-lg shadow-2xs">
-            <span>Total Collected: <strong class="font-mono text-sm">₹{{ number_format($totalCollected) }}</strong></span>
+            <span>Total Collected: <strong class="font-mono text-sm">â‚¹{{ number_format($totalCollected) }}</strong></span>
         </div>
     </div>
 
@@ -23,7 +23,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="reos-card p-5">
             <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue Collected</div>
-            <div class="text-3xl font-bold text-emerald-600 font-mono mt-2">₹{{ number_format($totalCollected) }}</div>
+            <div class="text-3xl font-bold text-emerald-600 font-mono mt-2">â‚¹{{ number_format($totalCollected) }}</div>
             <div class="text-xs text-slate-600 font-medium mt-1">Confirmed Token Payments</div>
         </div>
         <div class="reos-card p-5">
@@ -65,7 +65,7 @@
                             <span class="text-[10px] text-slate-500 font-mono">Unit {{ $p->booking->unit->unit_number ?? 'N/A' }}</span>
                         </td>
                         <td class="p-4 font-mono font-bold text-emerald-600 text-sm">
-                            ₹{{ number_format($p->amount) }}
+                            â‚¹{{ number_format($p->amount) }}
                         </td>
                         <td class="p-4 text-xs">
                             <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 block w-max mb-1">
@@ -119,7 +119,7 @@
                             <span class="text-[10px] text-slate-500 font-mono">Unit {{ $b->unit->unit_number ?? 'N/A' }}</span>
                         </td>
                         <td class="p-4 font-mono font-bold text-emerald-600 text-sm">
-                            ₹{{ number_format($b->booking_amount) }}
+                            â‚¹{{ number_format($b->booking_amount) }}
                         </td>
                         <td class="p-4 text-xs">
                             <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 block w-max mb-1">

@@ -1,4 +1,4 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
 @section('title', 'Projects Directory')
 
@@ -57,11 +57,11 @@
                         </div>
                         <div class="text-[11px] text-slate-500 mt-0.5">
                             Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded p-2 mt-1.5 border border-amber-200">
-                                💬 <em>"{{ $approval->reason }}"</em>
+                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -123,12 +123,12 @@
 
                     <div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">{{ $project->name }}</h3>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">{{ $project->city ?? 'Location N/A' }} • RERA: {{ $project->rera_number ?? 'Pending' }}</p>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">{{ $project->city ?? 'Location N/A' }} â€¢ RERA: {{ $project->rera_number ?? 'Pending' }}</p>
                     </div>
 
                     <div class="flex items-center space-x-3 text-xs text-slate-500 font-medium pt-2 border-t border-slate-100">
                         <span><i class="fa-solid fa-building text-indigo-500 mr-1.5"></i>{{ $project->buildings->count() }} Towers</span>
-                        <span>•</span>
+                        <span>â€¢</span>
                         <span><i class="fa-solid fa-boxes-stacked text-emerald-500 mr-1.5"></i>{{ $project->units->count() }} Units</span>
                     </div>
                 </div>
@@ -194,7 +194,7 @@
                         <p class="text-xs text-slate-500">Add new builder project & inventory specs</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('createProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">✕</button>
+                <button onclick="document.getElementById('createProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Drawer Form Body -->
@@ -303,7 +303,7 @@
                         <p class="text-xs text-slate-500">Update project specifications & banner media</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('editProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">✕</button>
+                <button onclick="document.getElementById('editProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Drawer Form Body -->

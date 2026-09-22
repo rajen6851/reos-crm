@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Team & Staff Management - REOS')
+@section('title', 'Team & Staff Management - UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeRoleTab: 'all', viewMode: 'list' }">
@@ -59,11 +59,11 @@
                         </div>
                         <div class="text-[11px] text-[#64748B] mt-0.5">
                             Requested by: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
-                                💬 <em>"{{ $approval->reason }}"</em>
+                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -243,7 +243,7 @@
                                     };
                                 @endphp
                                 <div class="font-bold text-[#0F172A]">{{ $u->branch ?? 'Head Office' }}</div>
-                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? $defaultDept }} • {{ $u->designation ?? $defaultDesig }}</div>
+                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? $defaultDept }} â€¢ {{ $u->designation ?? $defaultDesig }}</div>
                             </td>
                             <td class="p-4 text-xs font-mono">
                                 <div class="text-[#0F172A] font-bold">{{ $u->email }}</div>
@@ -330,7 +330,7 @@
                         <p class="body-text text-xs text-[#64748B]">Create new internal employee account</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('addUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
+                <button onclick="document.getElementById('addUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Form Body (Scrollable) -->
@@ -442,7 +442,7 @@
                         <p class="body-text text-xs text-[#64748B]">Update employee profile, contact & system role</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('editUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
+                <button onclick="document.getElementById('editUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
             </div>
 
             <!-- Drawer Form Body (Scrollable with Section Dividers & Fixed Block Inputs) -->
@@ -525,7 +525,7 @@
 
                     <div>
                         <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">New Password (Optional)</label>
-                        <input type="password" name="password" placeholder="••••••••" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                        <input type="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
                         <p class="text-[10px] text-[#64748B] mt-1 font-medium">Leave blank to keep current password unchanged.</p>
                     </div>
                 </div>

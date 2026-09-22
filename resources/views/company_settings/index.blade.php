@@ -1,6 +1,6 @@
 @extends('layouts.reos')
 
-@section('title', 'Company Settings - REOS')
+@section('title', 'Company Settings - UrbanProperty')
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">

@@ -144,7 +144,7 @@ class HrmsController extends Controller
         if (!empty($validated['latitude']) && !empty($validated['longitude'])) {
             try {
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
-                    'User-Agent' => 'REOS-CRM-Attendance-System/1.0'
+                    'User-Agent' => 'UrbanProperty-CRM-Attendance-System/1.0'
                 ])->get('https://nominatim.openstreetmap.org/reverse', [
                     'format' => 'json',
                     'lat' => $validated['latitude'],

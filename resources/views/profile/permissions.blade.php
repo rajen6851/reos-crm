@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'My Permissions - REOS')
+@section('title', 'My Permissions - UrbanProperty')
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-8">
@@ -10,7 +10,7 @@
                 <i class="fa-solid fa-shield-halved text-2xl text-indigo-600"></i>
                 <h1 class="text-2xl font-black text-slate-900">My Access Permissions</h1>
             </div>
-            <p class="text-xs text-slate-600 mt-1 font-medium">Review the modules and features you have access to in the REOS platform.</p>
+            <p class="text-xs text-slate-600 mt-1 font-medium">Review the modules and features you have access to in the UrbanProperty platform.</p>
         </div>
         <div class="flex items-center space-x-2 text-xs font-bold text-slate-700 bg-indigo-50 border border-indigo-200 px-3.5 py-2 rounded-2xl">
             <span class="text-indigo-900">Role: {{ $user->isSaaSAdmin() ? ($user->is_super_admin ? 'SaaS Founder' : 'SaaS Sub-Admin') : ($user->role->name ?? 'Account User') }}</span>

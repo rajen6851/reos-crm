@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>REOS – Real Estate Operating System SaaS</title>
+    <title>UrbanProperty â€“ Real Estate Operating System SaaS</title>
     
     <!-- Google Fonts Manrope & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,10 +71,10 @@
             <!-- Brand Logo -->
             <a href="{{ url('/') }}" class="flex items-center space-x-3 group">
                 <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-xs border border-emerald-200 bg-white flex items-center justify-center p-0.5 group-hover:scale-105 transition transform">
-                    <img src="{{ asset('images/logo.jpg') }}" alt="REOS Logo" class="w-full h-full object-cover rounded-xl">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="UrbanProperty Logo" class="w-full h-full object-cover rounded-xl">
                 </div>
                 <div>
-                    <span class="text-xl font-extrabold tracking-tight text-[#0F172A]">REOS <span class="text-[#059669]">CRM</span></span>
+                    <span class="text-xl font-extrabold tracking-tight text-[#0F172A]">UrbanProperty <span class="text-[#059669]">CRM</span></span>
                     <span class="text-[9px] uppercase font-bold tracking-widest text-emerald-600 block -mt-1">Real Estate Operating System</span>
                 </div>
             </a>
@@ -118,7 +118,7 @@
             <!-- Badge -->
             <div class="inline-flex items-center space-x-2.5 px-4 py-2 rounded-full text-xs font-extrabold bg-emerald-50 text-[#059669] border border-emerald-200 shadow-2xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>REOS 2.0 – Enterprise Multi-Tenant SaaS Platform</span>
+                <span>UrbanProperty 2.0 â€“ Enterprise Multi-Tenant SaaS Platform</span>
             </div>
 
             <!-- Grand Headline -->
@@ -198,7 +198,7 @@
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                             <div class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Broker Payouts</div>
-                            <div class="text-xl font-extrabold text-emerald-700 font-mono mt-1">₹4.85 Lakh</div>
+                            <div class="text-xl font-extrabold text-emerald-700 font-mono mt-1">â‚¹4.85 Lakh</div>
                             <span class="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200 inline-block mt-2">Auto Calculated</span>
                         </div>
                     </div>
@@ -206,11 +206,11 @@
                     <!-- Mock Inventory Grid Preview -->
                     <div class="bg-slate-900 rounded-2xl p-4 text-white font-mono text-xs space-y-3">
                         <div class="flex justify-between items-center text-[11px] text-slate-400 pb-2 border-b border-slate-800">
-                            <span>Apex Tower A – Interactive Unit Status Matrix</span>
+                            <span>Apex Tower A â€“ Interactive Unit Status Matrix</span>
                             <div class="flex space-x-3 text-[10px]">
-                                <span class="text-emerald-400">● Available</span>
-                                <span class="text-amber-400">● Hold</span>
-                                <span class="text-rose-400">● Booked</span>
+                                <span class="text-emerald-400">â— Available</span>
+                                <span class="text-amber-400">â— Hold</span>
+                                <span class="text-rose-400">â— Booked</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 text-center text-[11px] font-bold">
@@ -241,7 +241,7 @@
                     Engineered Specifically for <span class="gradient-text">Real Estate Workflows</span>
                 </h2>
                 <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-                    REOS replaces fragmented spreadsheets and generic CRMs with specialized real-estate tools.
+                    UrbanProperty replaces fragmented spreadsheets and generic CRMs with specialized real-estate tools.
                 </p>
             </div>
 
@@ -395,7 +395,7 @@
                 <div class="bg-[#F8FAFC] p-8 rounded-3xl border border-slate-200 space-y-6 flex flex-col justify-between">
                     <div class="space-y-4">
                         <span class="text-xs font-extrabold uppercase text-slate-400 tracking-wider">Starter Tier</span>
-                        <div class="text-3xl font-extrabold text-[#0F172A]">₹4,999 <span class="text-xs text-slate-500 font-normal">/ month</span></div>
+                        <div class="text-3xl font-extrabold text-[#0F172A]">â‚¹4,999 <span class="text-xs text-slate-500 font-normal">/ month</span></div>
                         <p class="text-xs text-slate-600">Ideal for single project property agencies & boutique builders.</p>
                         <ul class="space-y-2.5 text-xs text-slate-700 pt-2 font-medium">
                             <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-600"></i><span>Up to 5 Staff Users</span></li>
@@ -412,7 +412,7 @@
                     <div class="absolute -top-3 right-6 bg-[#059669] text-white px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Most Popular</div>
                     <div class="space-y-4">
                         <span class="text-xs font-extrabold uppercase text-emerald-400 tracking-wider">Growth Enterprise</span>
-                        <div class="text-3xl font-extrabold text-white">₹14,999 <span class="text-xs text-slate-400 font-normal">/ month</span></div>
+                        <div class="text-3xl font-extrabold text-white">â‚¹14,999 <span class="text-xs text-slate-400 font-normal">/ month</span></div>
                         <p class="text-xs text-slate-400">Full operational power for multi-project real estate developers.</p>
                         <ul class="space-y-2.5 text-xs text-slate-300 pt-2 font-medium">
                             <li class="flex items-center space-x-2"><i class="fa-solid fa-check text-emerald-400"></i><span>Up to 25 Staff Users</span></li>
@@ -437,7 +437,7 @@
             </p>
             <div class="pt-2">
                 <a href="{{ route('register') }}" class="px-8 py-4 bg-white text-[#059669] font-extrabold text-sm rounded-2xl shadow-xl hover:bg-emerald-50 transition inline-block">
-                    Register Your Company Workspace →
+                    Register Your Company Workspace â†’
                 </a>
             </div>
         </div>
@@ -448,7 +448,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="space-y-3">
                 <div class="flex items-center space-x-2">
-                    <span class="text-lg font-extrabold text-white">REOS <span class="text-emerald-400">CRM</span></span>
+                    <span class="text-lg font-extrabold text-white">UrbanProperty <span class="text-emerald-400">CRM</span></span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed">
                     Multi-Tenant Enterprise Operating System for Real Estate Developers, Agencies & Channel Partners.
@@ -485,7 +485,7 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 mt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500">
-            <div>© {{ date('Y') }} <strong>REOS Platform</strong>. All rights reserved.</div>
+            <div>Â© {{ date('Y') }} <strong>UrbanProperty Platform</strong>. All rights reserved.</div>
             <div class="mt-2 sm:mt-0 font-mono">Laravel 12.x SaaS Architecture</div>
         </div>
     </footer>

@@ -1,6 +1,6 @@
-@extends('layouts.reos')
+﻿@extends('layouts.reos')
 
-@section('title', 'Profile Settings - REOS')
+@section('title', 'Profile Settings - UrbanProperty')
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-8">

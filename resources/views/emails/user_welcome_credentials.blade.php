@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to REOS CRM</title>
+    <title>Welcome to UrbanProperty CRM</title>
     <style>
         body {
             font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -133,7 +133,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>REOS CRM</h1>
+            <h1>UrbanProperty CRM</h1>
             <p>Real Estate Operating System</p>
         </div>
 
@@ -141,7 +141,7 @@
         <div class="content">
             <div class="greeting">Welcome aboard, {{ $user->name }}!</div>
             <p class="intro">
-                Your staff account has been created successfully for <strong>{{ $user->company->name ?? 'REOS CRM' }}</strong>. 
+                Your staff account has been created successfully for <strong>{{ $user->company->name ?? 'UrbanProperty CRM' }}</strong>. 
                 You can now log in to access your CRM dashboard and manage your real estate operations.
             </p>
 
@@ -167,7 +167,7 @@
 
             <!-- Login CTA -->
             <div class="cta-container">
-                <a href="{{ $loginUrl }}" class="cta-button">Login to REOS CRM &rarr;</a>
+                <a href="{{ $loginUrl }}" class="cta-button">Login to UrbanProperty CRM &rarr;</a>
             </div>
 
             <!-- Security Notice -->
@@ -178,7 +178,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            &copy; {{ date('Y') }} {{ config('app.name', 'REOS CRM') }}. All rights reserved.
+            &copy; {{ date('Y') }} {{ config('app.name', 'UrbanProperty CRM') }}. All rights reserved.
         </div>
     </div>
 </body>
