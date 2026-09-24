@@ -483,6 +483,129 @@ class SalesExecutiveApiController extends Controller
     }
 
     /**
+     * Manually transfer a lead to a different executive with reason and history.
+     */
+    public function transferLead(Request $request, int $id, \App\Services\LeadAssignmentService $assignmentService)
+    {
+        $user = $request->user();
+
+        if (!$user->isManager() && !$user->hasPermission('manage-users')) {
+            return response()->json(['error' => 'Unauthorized. Only managers can transfer leads with history.'], 403);
+        }
+
+        $lead = Lead::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $managerCanAccess = $user->hasPermission('manage-leads') || 
+            ($lead->assigned_to_manager_id === $user->id) || 
+            $this->teamExecutiveIds($user)->contains($lead->assigned_to_user_id);
+
+        if (!$managerCanAccess) {
+            return response()->json(['error' => 'Not authorized to transfer this lead.'], 403);
+        }
+
+        $validated = $request->validate([
+            'new_assignee_id' => 'required|exists:users,id|different:lead.assigned_to_user_id',
+            'transfer_reason' => 'required|string|max:100',
+            'transfer_note' => 'nullable|string|max:500',
+        ]);
+
+        $newAssignee = User::where('company_id', $user->company_id)->findOrFail($validated['new_assignee_id']);
+
+        if ($lead->transfer_count >= 5) {
+            return response()->json(['error' => "Lead has already been transferred {$lead->transfer_count} times."], 422);
+        }
+
+        $assignmentService->transferLead(
+            $lead,
+            $newAssignee,
+            $user,
+            $validated['transfer_reason'],
+            $validated['transfer_note'],
+            'manual'
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Lead transferred to {$newAssignee->name} successfully.",
+            'lead' => $lead->fresh(['project', 'broker', 'brokerLead']),
+        ]);
+    }
+
+    /**
+     * Start negotiation phase
+     */
+    public function startNegotiation(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        if ($user->isSales() && !$user->isManager()) {
+            return response()->json(['error' => 'Sales Executives are not authorized to start negotiations.'], 403);
+        }
+
+        $lead = Lead::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'neg_offered_price' => 'required|numeric',
+            'neg_expected_close_date' => 'required|date',
+            'neg_remarks' => 'nullable|string',
+        ]);
+
+        $lead->status = 'negotiation';
+        $lead->save();
+
+        LeadActivity::create([
+            'company_id' => $user->company_id,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'activity_type' => 'negotiation_started',
+            'description' => "Negotiation started. Offered Price: ₹" . number_format($validated['neg_offered_price']) . ". Expected Close: " . date('d M Y', strtotime($validated['neg_expected_close_date'])) . ". Remarks: " . ($validated['neg_remarks'] ?? 'None'),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Negotiation started successfully.',
+            'lead' => $lead->fresh(),
+        ]);
+    }
+
+    /**
+     * Drop lead (Mark as Lost)
+     */
+    public function dropLead(Request $request, int $id)
+    {
+        $user = $request->user();
+
+        $lead = Lead::where('company_id', $user->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $managerCanAccess = $user->isManager()
+            && (($lead->assigned_to_manager_id === $user->id)
+                || $this->teamExecutiveIds($user)->contains($lead->assigned_to_user_id));
+
+        if ($lead->assigned_to_user_id !== $user->id && !$managerCanAccess && !$user->hasPermission('manage-leads')) {
+            return response()->json(['error' => 'Unauthorized access.'], 403);
+        }
+
+        $validated = $request->validate([
+            'lost_reason' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        app(\App\Services\LeadService::class)->updateStatus($lead, 'lost', $validated['notes'] ?? $validated['lost_reason'], $user);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Lead marked as lost successfully.',
+            'lead' => $lead->fresh(),
+        ]);
+    }
+
+    /**
      * Site Visits assigned to executive
      */
     public function siteVisits(Request $request)
@@ -945,6 +1068,7 @@ class SalesExecutiveApiController extends Controller
             'call' => $call,
         ], 201);
     }
+}
 
     /**
      * Record payment entry directly from mobile field app

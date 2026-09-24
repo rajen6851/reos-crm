@@ -1,15 +1,15 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Drop Lead â€“ ' . $lead->first_name)
+@section('title', 'Drop Lead – ' . $lead->first_name)
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex items-center space-x-3 text-sm text-slate-500 mb-4">
         <a href="{{ route('leads.index') }}" class="hover:text-blue-600">Leads</a>
-        <span>â€º</span>
+        <span>›</span>
         <a href="{{ route('leads.show', $lead->id) }}" class="hover:text-blue-600 font-semibold text-slate-800">{{ $lead->first_name }} {{ $lead->last_name }}</a>
-        <span>â€º</span>
+        <span>›</span>
         <span class="text-rose-600 font-bold">Drop Lead</span>
     </div>
 

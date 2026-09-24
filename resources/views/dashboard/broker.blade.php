@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Broker Portal')
 
@@ -53,7 +53,7 @@
                 <span>Total Earned</span>
                 <i class="fa-solid fa-money-bill-wave text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">â‚¹{{ number_format($totalCommissions) }}</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalCommissions) }}</div>
             <div class="text-xs font-semibold text-emerald-600">Across Bookings &rarr;</div>
         </a>
 
@@ -63,7 +63,7 @@
                 <span>Approved Payouts</span>
                 <i class="fa-solid fa-circle-check text-blue-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-blue-700 font-mono">â‚¹{{ number_format($approvedCommissions) }}</div>
+            <div class="text-2xl font-bold text-blue-700 font-mono">₹{{ number_format($approvedCommissions) }}</div>
             <div class="text-xs font-semibold text-blue-600">Ready for Transfer &rarr;</div>
         </a>
 
@@ -170,7 +170,7 @@
                             <div class="text-[10px] text-blue-600 font-mono font-normal">{{ $c->booking->project->name ?? 'Project' }}</div>
                         </td>
                         <td class="p-3.5 font-mono font-bold text-slate-900">{{ $c->booking->customer_name ?? 'N/A' }}</td>
-                        <td class="p-3.5 font-semibold text-emerald-700">â‚¹{{ number_format($c->total_commission_amount) }}</td>
+                        <td class="p-3.5 font-semibold text-emerald-700">₹{{ number_format($c->total_commission_amount) }}</td>
                         <td class="p-3.5 font-mono text-slate-500">{{ date('d M Y', strtotime($c->created_at)) }}</td>
                         <td class="p-3.5 text-right">
                             @if($c->status === 'approved' || $c->status === 'paid')
@@ -246,7 +246,7 @@
     <div class="bg-white max-w-md w-full rounded-xl p-6 border border-slate-200 shadow-2xl space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-200">
             <h3 class="text-sm font-bold text-[#0F172A]">Submit Customer Referral Lead</h3>
-            <button onclick="document.getElementById('submitLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">âœ•</button>
+            <button onclick="document.getElementById('submitLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
         </div>
 
         <form action="{{ route('broker.submit-lead') }}" method="POST" class="space-y-3 text-xs">

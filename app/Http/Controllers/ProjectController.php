@@ -55,12 +55,28 @@ class ProjectController extends Controller
             ->get();
 
         $projects = Project::with(['buildings.floors', 'units'])->latest()->get();
-        return view('projects.index', compact('projects', 'pendingProjectApprovals'));
+
+        $company = $user->company;
+        $planMaxProjects = $company->subscriptionPlan ? $company->subscriptionPlan->max_projects : 2;
+        $currentProjects = $company->projects()->count();
+        // If max_projects is 0 or null, we treat it as unlimited
+        $isUnlimited = $company->subscriptionPlan && !$company->subscriptionPlan->max_projects;
+        $canAddMoreProjects = $isUnlimited || ($currentProjects < $planMaxProjects);
+
+        return view('projects.index', compact('projects', 'pendingProjectApprovals', 'canAddMoreProjects', 'currentProjects', 'planMaxProjects', 'isUnlimited'));
     }
 
-    public function store(Request $request, StorageService $storageService)
+    public function store(Request $request, StorageService $storageService, \App\Services\SubscriptionLimitService $subscriptionLimitService)
     {
         Gate::authorize('manage-projects');
+
+        $currentUser = Auth::user();
+
+        // SaaS Subscription Limit Check for Projects
+        if (!$subscriptionLimitService->canAddMoreProjects($currentUser->company)) {
+            $limit = $currentUser->company->subscriptionPlan ? $currentUser->company->subscriptionPlan->max_projects : 2;
+            return back()->with('error', "SaaS Plan Limit Reached: Your current subscription allows a maximum of {$limit} active projects. Please upgrade your plan.");
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:150',

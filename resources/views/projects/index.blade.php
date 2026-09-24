@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Projects Directory')
 
@@ -17,11 +17,24 @@
         </div>
 
         @can('manage-projects')
-        <div>
-            <button onclick="document.getElementById('createProjectModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Create Project</span>
-            </button>
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Limit</div>
+                <div class="text-sm font-black {{ !$isUnlimited && $currentProjects >= $planMaxProjects ? 'text-rose-600' : 'text-emerald-600' }}">
+                    {{ $currentProjects }} / {{ $isUnlimited ? '∞' : $planMaxProjects }} Projects
+                </div>
+            </div>
+            @if(isset($canAddMoreProjects) && $canAddMoreProjects)
+                <button onclick="document.getElementById('createProjectModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Create Project</span>
+                </button>
+            @else
+                <button type="button" disabled class="px-4 py-2.5 bg-slate-300 text-slate-500 text-xs font-bold rounded-lg shadow-xs flex items-center space-x-2 cursor-not-allowed" title="SaaS Plan Limit Reached. Please upgrade your plan.">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span>Limit Reached</span>
+                </button>
+            @endif
         </div>
         @endcan
     </div>
@@ -57,11 +70,11 @@
                         </div>
                         <div class="text-[11px] text-slate-500 mt-0.5">
                             Requested by Admin: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded p-2 mt-1.5 border border-amber-200">
-                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
+                                💬 <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -123,12 +136,12 @@
 
                     <div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">{{ $project->name }}</h3>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">{{ $project->city ?? 'Location N/A' }} â€¢ RERA: {{ $project->rera_number ?? 'Pending' }}</p>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">{{ $project->city ?? 'Location N/A' }} • RERA: {{ $project->rera_number ?? 'Pending' }}</p>
                     </div>
 
                     <div class="flex items-center space-x-3 text-xs text-slate-500 font-medium pt-2 border-t border-slate-100">
                         <span><i class="fa-solid fa-building text-indigo-500 mr-1.5"></i>{{ $project->buildings->count() }} Towers</span>
-                        <span>â€¢</span>
+                        <span>•</span>
                         <span><i class="fa-solid fa-boxes-stacked text-emerald-500 mr-1.5"></i>{{ $project->units->count() }} Units</span>
                     </div>
                 </div>
@@ -194,7 +207,7 @@
                         <p class="text-xs text-slate-500">Add new builder project & inventory specs</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('createProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">âœ•</button>
+                <button onclick="document.getElementById('createProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">✕</button>
             </div>
 
             <!-- Drawer Form Body -->
@@ -303,7 +316,7 @@
                         <p class="text-xs text-slate-500">Update project specifications & banner media</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('editProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">âœ•</button>
+                <button onclick="document.getElementById('editProjectModal').classList.add('hidden')" class="w-7 h-7 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-xs transition cursor-pointer">✕</button>
             </div>
 
             <!-- Drawer Form Body -->

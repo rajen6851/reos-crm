@@ -35,9 +35,20 @@ class ManagerTeamApiController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\SubscriptionLimitService $subscriptionLimitService)
     {
         $manager = $request->user();
+
+        // ---------------------------------------------------------
+        // SaaS SUBSCRIPTION LIMIT CHECK
+        // ---------------------------------------------------------
+        if (!$subscriptionLimitService->canAddMoreUsers($manager->company)) {
+            $limit = $manager->company->subscriptionPlan ? $manager->company->subscriptionPlan->max_users : 10;
+            return response()->json([
+                'status' => 'error',
+                'message' => "SaaS Plan Limit Reached: Your company's subscription allows a maximum of {$limit} users.",
+            ], 403);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:150',
@@ -121,6 +132,52 @@ class ManagerTeamApiController extends Controller
             'status' => 'success',
             'message' => $validated['is_active'] ? 'Executive activated.' : 'Executive deactivated.',
             'data' => $executive->fresh('role'),
+        ]);
+    }
+
+    public function teamLeaves(Request $request)
+    {
+        $manager = $request->user();
+        $teamIds = $this->teamExecutiveIds($manager);
+
+        $leaves = \App\Models\LeaveRequest::where('company_id', $manager->company_id)
+            ->whereIn('user_id', $teamIds)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $leaves,
+        ]);
+    }
+
+    public function approveLeave(Request $request, int $id)
+    {
+        $manager = $request->user();
+        $teamIds = $this->teamExecutiveIds($manager);
+
+        $leave = \App\Models\LeaveRequest::where('company_id', $manager->company_id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        if (!$teamIds->contains($leave->user_id) && !$manager->hasPermission('manage-hrms')) {
+            return response()->json(['error' => 'Unauthorized to approve this leave.'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        $leave->update([
+            'status' => $validated['status'],
+            'approved_by_user_id' => $manager->id,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Leave request ' . $validated['status'] . ' successfully.',
+            'data' => $leave->fresh(['user', 'approver']),
         ]);
     }
 }

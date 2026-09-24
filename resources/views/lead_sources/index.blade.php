@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Lead Integration Engine & Webhooks - UrbanProperty')
 
@@ -9,9 +9,9 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <a href="{{ route('company-settings.index') }}" class="hover:text-[#2563EB]">Settings</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-[#0F172A] font-bold">Lead Sources Integration Engine</span>
             </div>
             <div class="flex items-center space-x-3">
@@ -368,7 +368,7 @@ function updateFormFields(selectedType) {
 
 function copyWebhookUrl(url) {
     navigator.clipboard.writeText(url).then(() => {
-        alert('âœ… Webhook URL copied to clipboard!');
+        alert('✅ Webhook URL copied to clipboard!');
     }).catch(err => {
         alert('Failed to copy URL: ' + err);
     });
@@ -386,10 +386,10 @@ function testSourceConnection(sourceId) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('âœ… Connection Test Successful: ' + data.message);
+            alert('✅ Connection Test Successful: ' + data.message);
             window.location.reload();
         } else {
-            alert('âŒ Connection Test Failed: ' + data.message);
+            alert('❌ Connection Test Failed: ' + data.message);
         }
     })
     .catch(err => {

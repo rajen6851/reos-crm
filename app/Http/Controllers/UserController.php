@@ -76,7 +76,12 @@ class UserController extends Controller
 
         $treeUsers = $this->buildUserTree($users);
 
-        return view('users.index', compact('users', 'roles', 'pendingUserApprovals', 'managers', 'treeUsers'));
+        $subscriptionLimitService = app(\App\Services\SubscriptionLimitService::class);
+        $canAddMoreUsers = $subscriptionLimitService->canAddMoreUsers($user->company);
+        $planMaxUsers = $user->company->subscriptionPlan ? $user->company->subscriptionPlan->max_users : 10;
+        $currentUsers = $user->company->users()->whereHas('role', function ($q) { $q->where('slug', '!=', 'broker'); })->count();
+
+        return view('users.index', compact('users', 'roles', 'pendingUserApprovals', 'managers', 'treeUsers', 'canAddMoreUsers', 'planMaxUsers', 'currentUsers'));
     }
 
     private function buildUserTree($users)
@@ -100,9 +105,19 @@ class UserController extends Controller
         return $tree;
     }
 
-    public function store(Request $request, NotificationService $notificationService)
+    public function store(Request $request, NotificationService $notificationService, \App\Services\SubscriptionLimitService $subscriptionLimitService)
     {
         Gate::authorize('manage-users');
+
+        $currentUser = \Illuminate\Support\Facades\Auth::user();
+
+        // ---------------------------------------------------------
+        // SaaS SUBSCRIPTION LIMIT CHECK
+        // ---------------------------------------------------------
+        if (!$subscriptionLimitService->canAddMoreUsers($currentUser->company)) {
+            $limit = $currentUser->company->subscriptionPlan ? $currentUser->company->subscriptionPlan->max_users : 10;
+            return back()->with('error', "SaaS Plan Limit Reached: Your current subscription allows a maximum of {$limit} users. Please upgrade your plan.");
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:150',
@@ -275,8 +290,11 @@ class UserController extends Controller
             return back()->with('error', 'Managers can assign only themselves as the reporting manager.');
         }
 
+        $isCriticalTargetRole = in_array($targetRole->slug, ['admin', 'company_admin', 'director', 'founder']);
+        $isUserCritical = in_array($user->role?->slug, ['admin', 'company_admin', 'director', 'founder']);
+
         // Company Admin cannot assign Admin/Director/Founder roles — only Director/Founder can do this directly
-        if (!$currentUser->isDirectorOrFounder() && $isCriticalTargetRole) {
+        if (!$currentUser->isDirectorOrFounder() && ($isCriticalTargetRole || $isUserCritical)) {
             return back()->withInput()->with('error', 'Only the Company Director or Main Owner can modify Admin / Director level user accounts.');
         }
 
@@ -321,6 +339,12 @@ class UserController extends Controller
 
         if (Auth::id() === $user->id) {
             return back()->with('error', 'You cannot delete your own logged-in account.');
+        }
+
+        $isUserCritical = in_array($user->role?->slug, ['admin', 'company_admin', 'director', 'founder']);
+        
+        if (!$currentUser->isDirectorOrFounder() && $isUserCritical) {
+            return back()->with('error', 'You do not have permission to delete or request deletion of Admin / Director level accounts.');
         }
 
         // CRITICAL APPROVAL FLOW: If non-Director tries to delete a staff account, send approval request
@@ -436,6 +460,16 @@ class UserController extends Controller
                     $targetBooking = \App\Models\Booking::find($bookingId);
                     if ($targetBooking) {
                         $targetBooking->delete();
+                    }
+                    break;
+                    
+                case 'delete_chat_group':
+                    $chatId = $payload['chat_id'] ?? $approvalRequest->target_id;
+                    $targetChat = \App\Models\Chat::find($chatId);
+                    if ($targetChat && $targetChat->type === 'group') {
+                        $targetChat->messages()->delete();
+                        $targetChat->participants()->delete();
+                        $targetChat->delete();
                     }
                     break;
 

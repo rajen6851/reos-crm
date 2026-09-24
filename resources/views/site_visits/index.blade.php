@@ -1,16 +1,16 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Site Visits â€“ UrbanProperty CRM')
+@section('title', 'Site Visits – UrbanProperty CRM')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ searchQuery: '', isFilterOpen: true }">
 
-    {{-- â•â•â• HEADER â•â•â• --}}
+    {{-- ═══ HEADER ═══ --}}
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-blue-600 transition">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-slate-900 font-bold">Site Visits</span>
             </div>
             <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-3">
@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    {{-- â•â•â• METRICS â•â•â• --}}
+    {{-- ═══ METRICS ═══ --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
         <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs flex justify-between items-center">
             <div>
@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    {{-- â•â•â• ADVANCED SEARCH PANEL â•â•â• --}}
+    {{-- ═══ ADVANCED SEARCH PANEL ═══ --}}
     <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <button @click="isFilterOpen = !isFilterOpen" class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/50 transition">
             <div class="flex items-center space-x-2 text-sm font-extrabold text-blue-600">
@@ -265,7 +265,7 @@
         </div>
     </div>
 
-    {{-- â•â•â• VISITS TABLE â•â•â• --}}
+    {{-- ═══ VISITS TABLE ═══ --}}
     <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-slate-100">
             <h2 class="text-base font-extrabold text-slate-900">Scheduled & Conducted Site Visits</h2>
@@ -336,7 +336,7 @@
                                 <div class="text-[10px] text-slate-400 font-mono mt-0.5">{{ $latestVisit->feedback_submitted_at->diffForHumans() }}</div>
                                 @endif
                             @else
-                                <span class="text-slate-400 italic text-[11px]">â€” No feedback yet</span>
+                                <span class="text-slate-400 italic text-[11px]">— No feedback yet</span>
                             @endif
                         </td>
                         {{-- Photos --}}
@@ -408,7 +408,7 @@
         </div>
     </div>
 
-    {{-- â•â•â• RECENT ACTIVITY â•â•â• --}}
+    {{-- ═══ RECENT ACTIVITY ═══ --}}
     @if($recentVisitLogs->isNotEmpty())
     <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
         <h2 class="text-base font-extrabold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
@@ -423,7 +423,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="font-bold text-slate-800 truncate">{{ $log->description }}</div>
-                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">{{ $log->created_at->format('d M Y, h:i A') }} â€¢ {{ $log->user->name ?? 'System' }}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">{{ $log->created_at->format('d M Y, h:i A') }} • {{ $log->user->name ?? 'System' }}</div>
                 </div>
             </div>
             @endforeach
@@ -432,9 +432,9 @@
     @endif
 </div>
 
-{{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{-- ════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL: Log Site Visit Feedback + Images                            --}}
-{{-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{-- ════════════════════════════════════════════════════════════════════ --}}
 <div id="feedbackModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
     <div class="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col" style="max-height:90vh">
 
@@ -457,7 +457,7 @@
             <form id="feedbackForm" method="POST" action="" enctype="multipart/form-data" class="p-6 space-y-5 text-xs">
                 @csrf
 
-                {{-- â­ Star Rating --}}
+                {{-- ⭐ Star Rating --}}
                 <div class="space-y-2">
                     <label class="block font-bold text-slate-800">Customer Interest Rating</label>
                     <div class="flex items-center space-x-2">
@@ -471,7 +471,7 @@
                     </div>
                     <input type="hidden" name="customer_rating" id="ratingInput" value="">
                     <div class="grid grid-cols-5 gap-1 text-[9px] text-slate-400 text-center font-semibold">
-                        <span>Not Interested</span><span>Slightly</span><span>Moderate</span><span>Interested</span><span>Very Hot ðŸ”¥</span>
+                        <span>Not Interested</span><span>Slightly</span><span>Moderate</span><span>Interested</span><span>Very Hot 🔥</span>
                     </div>
                 </div>
 
@@ -487,18 +487,18 @@
                 <div class="space-y-1.5">
                     <label class="block font-bold text-slate-800">Next Action Step <span class="text-rose-500">*</span></label>
                     <select name="next_action" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 font-bold focus:outline-none focus:border-indigo-500">
-                        <option value="follow_up_scheduled">ðŸ“ž Schedule Follow-up Call</option>
-                        <option value="negotiation">ðŸ’° Move to Price Negotiation</option>
-                        <option value="booking_drafted">ðŸ“‹ Draft Unit Booking</option>
-                        <option value="dropped">âŒ Not Interested / Close Lead</option>
+                        <option value="follow_up_scheduled">📞 Schedule Follow-up Call</option>
+                        <option value="negotiation">💰 Move to Price Negotiation</option>
+                        <option value="booking_drafted">📋 Draft Unit Booking</option>
+                        <option value="dropped">❌ Not Interested / Close Lead</option>
                     </select>
                 </div>
 
-                {{-- ðŸ“· Image Upload --}}
+                {{-- 📷 Image Upload --}}
                 <div class="space-y-2">
                     <label class="block font-bold text-slate-800">
                         <i class="fa-solid fa-images text-indigo-500 mr-1"></i>
-                        Visit Photos <span class="text-slate-400 font-normal">(optional â€” up to 10 images, 5 MB each)</span>
+                        Visit Photos <span class="text-slate-400 font-normal">(optional — up to 10 images, 5 MB each)</span>
                     </label>
 
                     <div id="imgDropZone"
@@ -509,7 +509,7 @@
                          class="cursor-pointer border-2 border-dashed border-slate-300 rounded-xl p-5 text-center hover:border-indigo-400 hover:bg-indigo-50 transition-all">
                         <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-2xl mb-2"></i>
                         <p class="text-slate-500 font-semibold text-[11px]">Click or drag & drop site visit photos</p>
-                        <p class="text-slate-400 text-[10px] mt-0.5">JPG, PNG, WEBP â€” Max 5 MB each</p>
+                        <p class="text-slate-400 text-[10px] mt-0.5">JPG, PNG, WEBP — Max 5 MB each</p>
                     </div>
 
                     <input type="file" id="visitImagesInput" name="visit_images[]"
@@ -546,13 +546,13 @@
 </div>
 
 <script>
-// â”€â”€â”€ FEEDBACK MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FEEDBACK MODAL ──────────────────────────────────────────────────────────
 var selectedFiles = [];
 var currentRating = 0;
 
 function openFeedbackModal(leadId, name) {
     document.getElementById('feedbackForm').action = '/site-visits/' + leadId + '/feedback';
-    document.getElementById('feedbackModalSubtitle').textContent = name + ' â€” feedback & photos';
+    document.getElementById('feedbackModalSubtitle').textContent = name + ' — feedback & photos';
     resetFeedbackModal();
     document.getElementById('feedbackModal').classList.remove('hidden');
 }
@@ -574,8 +574,8 @@ function resetFeedbackModal() {
     });
 }
 
-// â”€â”€â”€ STAR RATING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-var ratingLabels = ['','Not Interested','Slightly Interested','Moderate Interest','Interested','Very Interested! ðŸ”¥'];
+// ─── STAR RATING ─────────────────────────────────────────────────────────────
+var ratingLabels = ['','Not Interested','Slightly Interested','Moderate Interest','Interested','Very Interested! 🔥'];
 function setRating(star) {
     currentRating = star;
     document.getElementById('ratingInput').value = star;
@@ -592,7 +592,7 @@ function setRating(star) {
     });
 }
 
-// â”€â”€â”€ IMAGE UPLOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
 function handleImgSelect(input) { addImgFiles(Array.from(input.files)); }
 function handleImgDrop(event) {
     event.preventDefault();
@@ -638,7 +638,7 @@ function syncImgInput() {
     document.getElementById('visitImagesInput').files = dt.files;
 }
 
-// â”€â”€â”€ GALLERY LIGHTBOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── GALLERY LIGHTBOX ────────────────────────────────────────────────────────
 var galleryImages = []; var galleryIdx = 0;
 var storageBase   = '{{ asset("storage") }}/';
 function openGallery(images) {

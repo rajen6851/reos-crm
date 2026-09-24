@@ -108,6 +108,7 @@ class ChatController extends Controller
                 'id' => $chat->id,
                 'type' => $chat->type,
                 'name' => $chat->getDisplayName($currentUser),
+                'created_by' => $chat->created_by,
                 'participants' => $chat->users->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role ? $u->role->name : 'User']),
             ],
             'messages' => $messages,
@@ -271,5 +272,93 @@ class ChatController extends Controller
             'success' => true,
             'chat_id' => $chat->id,
         ]);
+    }
+
+    public function addMembersToGroup(Request $request, Chat $chat): JsonResponse
+    {
+        $currentUser = Auth::user();
+
+        if ($chat->type !== 'group') {
+            return response()->json(['error' => 'Members can only be added to group chats.'], 403);
+        }
+
+        // Must be group admin, creator, company admin, or founder
+        $isGroupAdmin = $chat->participants()->where('user_id', $currentUser->id)->where('role', 'admin')->exists();
+        if (!$isGroupAdmin && $chat->created_by !== $currentUser->id && !$currentUser->isCompanyAdmin() && !$currentUser->isSaaSFounder()) {
+            return response()->json(['error' => 'Unauthorized. Only group admins can add members.'], 403);
+        }
+
+        $request->validate([
+            'participant_ids' => 'required|array|min:1',
+            'participant_ids.*' => 'exists:users,id',
+        ]);
+
+        $existingParticipantIds = $chat->participants()->pluck('user_id')->toArray();
+        $newParticipantIds = array_diff($request->input('participant_ids'), $existingParticipantIds);
+
+        foreach ($newParticipantIds as $uId) {
+            ChatParticipant::create(['chat_id' => $chat->id, 'user_id' => $uId, 'role' => 'member']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Members added successfully.',
+            'added_count' => count($newParticipantIds),
+        ]);
+    }
+    public function destroyGroup(Request $request, Chat $chat, \App\Services\NotificationService $notificationService): JsonResponse
+    {
+        $currentUser = Auth::user();
+
+        if ($chat->type !== 'group') {
+            return response()->json(['error' => 'Only group chats can be deleted.'], 403);
+        }
+
+        // Only Founder can delete directly. Admin needs approval.
+        if ($currentUser->isDirectorOrFounder() || $currentUser->isSaaSFounder()) {
+            $chat->messages()->delete();
+            $chat->participants()->delete();
+            $chat->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Group deleted successfully.'
+            ]);
+        }
+
+        if ($currentUser->isCompanyAdmin()) {
+            \App\Models\SaasApprovalRequest::create([
+                'company_id' => $currentUser->company_id,
+                'requested_by_user_id' => $currentUser->id,
+                'action_type' => 'delete_chat_group',
+                'target_type' => Chat::class,
+                'target_id' => $chat->id,
+                'target_name' => "Chat Group: " . $chat->name,
+                'payload' => ['chat_id' => $chat->id],
+                'reason' => "Admin {$currentUser->name} requested deletion of chat group '{$chat->name}'.",
+                'status' => 'pending',
+            ]);
+
+            $directors = \App\Models\User::where('company_id', $currentUser->company_id)
+                ->whereHas('role', fn($q) => $q->whereIn('slug', ['director', 'founder']))
+                ->get();
+
+            foreach ($directors as $director) {
+                $notificationService->notify(
+                    $director,
+                    'critical_approval_request',
+                    "🚨 Approval Needed: Delete Chat Group",
+                    "Admin {$currentUser->name} requested to DELETE chat group '{$chat->name}'. Please review.",
+                    route('users.approvals')
+                );
+            }
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Approval Request Sent! Deleting a group requires Founder approval. Request has been submitted.'
+            ]);
+        }
+
+        return response()->json(['error' => 'Unauthorized. Only Founder or Admin can request deletion.'], 403);
     }
 }

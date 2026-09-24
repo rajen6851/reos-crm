@@ -106,6 +106,52 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // 4.5. Initialize and Assign Permissions
+        $defaultPermissions = [
+            ['name' => 'View & Manage Customer Leads', 'slug' => 'manage-leads', 'module' => 'Leads'],
+            ['name' => 'Assign Leads to Sales Team', 'slug' => 'assign-leads', 'module' => 'Leads'],
+            ['name' => 'Delete / Archive Leads', 'slug' => 'delete-leads', 'module' => 'Leads'],
+            ['name' => 'Export Leads Data (Excel/CSV)', 'slug' => 'export-leads', 'module' => 'Leads'],
+            ['name' => 'Manage Projects & Buildings', 'slug' => 'manage-projects', 'module' => 'Inventory'],
+            ['name' => 'Manage Unit Inventory & Pricing', 'slug' => 'manage-units', 'module' => 'Inventory'],
+            ['name' => 'Approve Unit Booking Locks', 'slug' => 'approve-bookings', 'module' => 'Bookings'],
+            ['name' => 'Approve Agreement Step Skips', 'slug' => 'approve-agreement-skips', 'module' => 'Bookings'],
+            ['name' => 'Manage Broker Commissions', 'slug' => 'manage-commissions', 'module' => 'Finance'],
+            ['name' => 'Process & Approve Payouts', 'slug' => 'process-payouts', 'module' => 'Finance'],
+            ['name' => 'Manage Team Users & Roles', 'slug' => 'manage-users', 'module' => 'Users'],
+            ['name' => 'Access Broker Channel Partner Portal', 'slug' => 'broker-access', 'module' => 'Channel Partners'],
+            ['name' => 'View System Reports & Analytics', 'slug' => 'view-reports', 'module' => 'Reports'],
+            ['name' => 'Edit Company Settings & Branding', 'slug' => 'company-settings', 'module' => 'Settings'],
+            ['name' => 'Manage Digital File Repository', 'slug' => 'manage-documents', 'module' => 'Documents'],
+        ];
+
+        $permsMap = [];
+        foreach ($defaultPermissions as $perm) {
+            $permsMap[$perm['slug']] = Permission::firstOrCreate(['slug' => $perm['slug']], $perm)->id;
+        }
+
+        // Map roles to permissions
+        $rolePermsMap = [
+            'founder' => array_values($permsMap),
+            'director' => array_values($permsMap),
+            'admin' => array_values($permsMap),
+            'manager' => [
+                $permsMap['manage-leads'], $permsMap['assign-leads'], $permsMap['approve-bookings'],
+                $permsMap['manage-documents'], $permsMap['view-reports']
+            ],
+            'sales_executive' => [
+                $permsMap['manage-leads'], $permsMap['manage-documents']
+            ],
+            'broker' => [
+                $permsMap['broker-access']
+            ]
+        ];
+
+        foreach (['founder', 'director', 'admin', 'manager', 'sales_executive', 'broker'] as $slug) {
+            if (isset($roles1[$slug])) $roles1[$slug]->permissions()->sync($rolePermsMap[$slug]);
+            if (isset($roles2[$slug])) $roles2[$slug]->permissions()->sync($rolePermsMap[$slug]);
+        }
+
         // 5. Users
         $defaultPassword = Hash::make('password123');
 
@@ -561,5 +607,27 @@ class DatabaseSeeder extends Seeder
             'user_id' => $exec1_3->id,
             'allocation_value' => null,
         ]);
+
+        // 12. Create a Mock Booking (Pending Approval) for Apex Realty
+        $bookedUnit = Unit::where('company_id', $company1->id)->where('unit_number', '501')->first();
+        if ($bookedUnit) {
+            \App\Models\Booking::create([
+                'company_id' => $company1->id,
+                'booking_code' => 'BKG-APEX-001',
+                'lead_id' => $leadDistributionService ? Lead::where('lead_code', 'LD-8801')->first()->id ?? null : null,
+                'customer_name' => 'Amit Kulkarni',
+                'customer_email' => 'amit.k@gmail.com',
+                'customer_phone' => '9988776655',
+                'project_id' => $project1->id,
+                'unit_id' => $bookedUnit->id,
+                'unit_identifier' => '501',
+                'sales_user_id' => $exec1_1->id, // Vikram Singh
+                'booking_amount' => 100000.00, // Token amount
+                'total_unit_cost' => 8200000.00,
+                'booking_date' => now()->subDays(1),
+                'status' => 'pending_approval',
+                'approval_status' => 'pending',
+            ]);
+        }
     }
 }

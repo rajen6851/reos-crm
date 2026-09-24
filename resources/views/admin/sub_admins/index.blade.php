@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'SaaS Sub-Admin Management â€“ UrbanProperty Platform')
+@section('title', 'SaaS Sub-Admin Management – UrbanProperty Platform')
 
 @section('content')
 <div class="space-y-6">
@@ -99,7 +99,7 @@
                                     </div>
                                     <div>
                                         <div class="font-bold text-slate-900">{{ $admin->name }}</div>
-                                        <div class="text-[10px] font-mono text-slate-400">ID: #SA-{{ $admin->id }} â€¢ Created {{ $admin->created_at->format('M d, Y') }}</div>
+                                        <div class="text-[10px] font-mono text-slate-400">ID: #SA-{{ $admin->id }} • Created {{ $admin->created_at->format('M d, Y') }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -202,7 +202,7 @@
                 <div>
                     <label class="form-label">Password <span class="text-rose-500">*</span></label>
                 <div class="relative">
-                    <input type="password" name="password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="form-input w-full">
+                    <input type="password" name="password" required placeholder="••••••••" class="form-input w-full">
                     <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -211,7 +211,7 @@
                 <div class="md:col-span-2">
                     <label class="form-label">Confirm Password <span class="text-rose-500">*</span></label>
                 <div class="relative">
-                    <input type="password" name="password_confirmation" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="form-input w-full">
+                    <input type="password" name="password_confirmation" required placeholder="••••••••" class="form-input w-full">
                     <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -287,7 +287,7 @@
             <div>
                 <label class="form-label">New Password <span class="text-slate-400 font-normal">(Leave blank to keep current)</span></label>
                 <div class="relative">
-                    <input type="password" id="edit_password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="form-input w-full">
+                    <input type="password" id="edit_password" name="password" placeholder="••••••••" class="form-input w-full">
                     <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-emerald-600 transition" onclick="let inp = this.previousElementSibling; if(inp.type === 'password'){inp.type = 'text'; this.innerHTML = '<i class=\'fa-solid fa-eye-slash\'></i>';}else{inp.type = 'password'; this.innerHTML = '<i class=\'fa-solid fa-eye\'></i>';}">
                         <i class="fa-solid fa-eye"></i>
                     </button>

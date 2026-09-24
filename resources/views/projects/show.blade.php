@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', "{$project->name} â€“ Project Command Center â€“ UrbanProperty")
+@section('title', "{$project->name} – Project Command Center – UrbanProperty")
 
 @section('content')
 <div class="space-y-5 max-w-7xl mx-auto pb-12" x-data="{ 
@@ -39,12 +39,12 @@
                         <i class="fa-solid fa-location-dot text-rose-500"></i>
                         <span>Location: <strong class="text-slate-900 font-medium">{{ $project->city ?? 'Location N/A' }}</strong></span>
                     </span>
-                    <span class="text-slate-300">â€¢</span>
+                    <span class="text-slate-300">•</span>
                     <span class="inline-flex items-center gap-1.5">
                         <i class="fa-solid fa-file-contract text-emerald-600"></i>
                         <span>RERA Registration: <strong class="font-mono text-slate-900 font-medium">{{ $project->rera_number ?? 'REG-APPROVED-2026' }}</strong></span>
                     </span>
-                    <span class="text-slate-300">â€¢</span>
+                    <span class="text-slate-300">•</span>
                     <span class="inline-flex items-center gap-1.5">
                         <i class="fa-solid fa-eye text-slate-400"></i>
                         <span>Visibility: <strong class="capitalize text-slate-900 font-medium">{{ $project->visibility ?? 'Public Showcase' }}</strong></span>
@@ -180,7 +180,7 @@
                         </span>
                         <div>
                             <h2 class="text-sm font-bold text-slate-900">{{ $bldg->name }} <span class="text-xs text-slate-500 font-normal">({{ $bldg->code }})</span></h2>
-                            <p class="text-xs text-slate-500">{{ $bldg->total_floors }} Floors â€¢ {{ $bldg->units->count() }} Total Units</p>
+                            <p class="text-xs text-slate-500">{{ $bldg->total_floors }} Floors • {{ $bldg->units->count() }} Total Units</p>
                         </div>
                     </div>
 
@@ -219,7 +219,7 @@
                             <span class="text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">{{ $unit->unit_type }}</span>
                         </div>
 
-                        <div class="text-xs font-mono font-bold text-slate-900">â‚¹{{ number_format($unit->final_price ?? $unit->price ?? 0) }}</div>
+                        <div class="text-xs font-mono font-bold text-slate-900">₹{{ number_format($unit->final_price ?? $unit->price ?? 0) }}</div>
                         <div class="text-[10px] text-slate-500 font-mono flex items-center justify-between">
                             <span>{{ $unit->carpet_area }} sqft</span>
                             <span class="font-semibold uppercase text-[9px] px-1 py-0.2 rounded {{ $unit->status === 'available' ? 'bg-emerald-100 text-emerald-800' : ($unit->status === 'hold' ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800') }}">
@@ -280,7 +280,7 @@
                 <p class="text-xs text-slate-500">Active customer bookings and sales agreements for {{ $project->name }}</p>
             </div>
             <a href="{{ route('bookings.index') }}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-md transition border border-slate-200">
-                View All Bookings â†’
+                View All Bookings →
             </a>
         </div>
 
@@ -314,7 +314,7 @@
                                 <div class="text-[11px] text-slate-500">{{ $b->unit->unit_type ?? '' }}</div>
                             </td>
                             <td class="p-3 font-medium text-slate-800">{{ $b->salesUser->name ?? 'Direct Admin' }}</td>
-                            <td class="p-3 font-mono font-semibold text-emerald-700">â‚¹{{ number_format($b->total_unit_cost ?? $b->booking_amount ?? 0) }}</td>
+                            <td class="p-3 font-mono font-semibold text-emerald-700">₹{{ number_format($b->total_unit_cost ?? $b->booking_amount ?? 0) }}</td>
                             <td class="p-3">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
                                     {{ $b->status ?? 'Confirmed' }}
@@ -336,7 +336,7 @@
                 <p class="text-xs text-slate-500">Prospective buyers inquiring for {{ $project->name }}</p>
             </div>
             <a href="{{ route('leads.index') }}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-md transition border border-slate-200">
-                View All Leads â†’
+                View All Leads →
             </a>
         </div>
 
@@ -382,7 +382,7 @@
                             </td>
                             <td class="p-3 text-right">
                                 <a href="{{ route('leads.show', $lead->id) }}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-semibold rounded transition">
-                                    View â†’
+                                    View →
                                 </a>
                             </td>
                         </tr>
@@ -450,7 +450,7 @@
                     <h3 class="text-sm font-bold text-slate-900">Unit <span x-text="unitModal?.unit_number"></span> Details</h3>
                     <p class="text-xs text-slate-500" x-text="unitModal?.unit_type + ' Configuration'"></p>
                 </div>
-                <button @click="unitModal = null" class="text-slate-400 hover:text-slate-600 font-bold text-base cursor-pointer">âœ•</button>
+                <button @click="unitModal = null" class="text-slate-400 hover:text-slate-600 font-bold text-base cursor-pointer">✕</button>
             </div>
 
             <div class="space-y-2.5 text-xs">
@@ -468,11 +468,11 @@
                 <div class="grid grid-cols-2 gap-2.5 p-3 bg-emerald-50/50 rounded-md border border-emerald-200">
                     <div>
                         <span class="text-[11px] text-emerald-800">Base Unit Rate</span>
-                        <div class="font-bold font-mono text-slate-900 text-xs" x-text="'â‚¹' + Number(unitModal?.base_price || 0).toLocaleString()"></div>
+                        <div class="font-bold font-mono text-slate-900 text-xs" x-text="'₹' + Number(unitModal?.base_price || 0).toLocaleString()"></div>
                     </div>
                     <div>
                         <span class="text-[11px] text-emerald-800">Final Price</span>
-                        <div class="font-bold font-mono text-emerald-700 text-sm" x-text="'â‚¹' + Number(unitModal?.final_price || unitModal?.price || 0).toLocaleString()"></div>
+                        <div class="font-bold font-mono text-emerald-700 text-sm" x-text="'₹' + Number(unitModal?.final_price || unitModal?.price || 0).toLocaleString()"></div>
                     </div>
                 </div>
 
@@ -498,7 +498,7 @@
         <div class="bg-white w-full max-w-md p-5 rounded-lg space-y-4 border border-slate-200 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
                 <h3 class="text-sm font-bold text-slate-900">Add Building Tower</h3>
-                <button onclick="document.getElementById('addTowerModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">âœ•</button>
+                <button onclick="document.getElementById('addTowerModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
             </div>
 
             <form method="POST" action="{{ route('projects.store-building', $project->id) }}" class="space-y-3 text-xs">
@@ -532,7 +532,7 @@
         <div class="bg-white w-full max-w-lg p-5 rounded-lg space-y-4 border border-slate-200 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
                 <h3 class="text-sm font-bold text-slate-900">Add Inventory Unit</h3>
-                <button onclick="document.getElementById('addUnitModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">âœ•</button>
+                <button onclick="document.getElementById('addUnitModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
             </div>
 
             <form method="POST" action="{{ route('projects.store-unit', $project->id) }}" class="space-y-3 text-xs">
@@ -573,11 +573,11 @@
                         <input type="number" name="carpet_area" required value="1250" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Base Price (â‚¹) *</label>
+                        <label class="block text-slate-700 mb-1 font-semibold">Base Price (₹) *</label>
                         <input type="number" name="base_price" required value="7500000" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Final Price (â‚¹) *</label>
+                        <label class="block text-slate-700 mb-1 font-semibold">Final Price (₹) *</label>
                         <input type="number" name="final_price" required value="8200000" class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                 </div>
@@ -595,7 +595,7 @@
         <div class="bg-white w-full max-w-lg p-5 rounded-lg space-y-4 border border-slate-200 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
                 <h3 class="text-sm font-bold text-slate-900">Edit Inventory Unit Specs</h3>
-                <button onclick="document.getElementById('editUnitModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">âœ•</button>
+                <button onclick="document.getElementById('editUnitModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
             </div>
 
             <form id="editUnitForm" method="POST" action="" class="space-y-3 text-xs">
@@ -624,11 +624,11 @@
                         <input type="number" id="edit_carpet_area" name="carpet_area" required class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Base Price (â‚¹) *</label>
+                        <label class="block text-slate-700 mb-1 font-semibold">Base Price (₹) *</label>
                         <input type="number" id="edit_base_price" name="base_price" required class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-slate-700 mb-1 font-semibold">Final Price (â‚¹) *</label>
+                        <label class="block text-slate-700 mb-1 font-semibold">Final Price (₹) *</label>
                         <input type="number" id="edit_final_price" name="final_price" required class="w-full bg-slate-50 border border-slate-300 rounded-md p-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition">
                     </div>
                 </div>
@@ -650,7 +650,7 @@
                 <i class="fa-solid fa-link text-emerald-600"></i>
                 <h3 class="text-sm font-bold text-slate-900">Share Public Showcase Link</h3>
             </div>
-            <button onclick="document.getElementById('sharePublicLinkModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">âœ•</button>
+            <button onclick="document.getElementById('sharePublicLinkModal').classList.add('hidden')" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
         </div>
 
         <p class="text-xs text-slate-500 leading-relaxed">

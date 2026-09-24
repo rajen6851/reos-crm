@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Critical Approvals Queue â€“ UrbanProperty')
+@section('title', 'Critical Approvals Queue – UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#DC2626]">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-[#0F172A] font-bold">Critical Approvals</span>
             </div>
             <h1 class="page-heading text-2xl font-extrabold text-[#0F172A]">Main Owner Critical Approvals Queue</h1>
@@ -62,14 +62,14 @@
                             </div>
                             <div class="text-xs text-[#64748B] mt-1 flex items-center space-x-2">
                                 <span>Requested by: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong></span>
-                                <span>â€¢</span>
+                                <span>•</span>
                                 <span class="font-mono text-slate-500">{{ $approval->created_at->format('d M Y, h:i A') }} ({{ $approval->created_at->diffForHumans() }})</span>
                             </div>
                         </div>
 
                         @if($approval->reason)
                             <div class="text-xs text-amber-900 bg-amber-50 rounded-xl p-3 border border-amber-200 max-w-2xl">
-                                ðŸ’¬ <strong>Reason:</strong> "{{ $approval->reason }}"
+                                💬 <strong>Reason:</strong> "{{ $approval->reason }}"
                             </div>
                         @endif
                     </div>
@@ -130,11 +130,11 @@
                         <td class="p-4">
                             @if($p->status === 'approved')
                                 <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300">
-                                    âœ“ Approved
+                                    ✓ Approved
                                 </span>
                             @else
                                 <span class="px-2.5 py-1 bg-rose-100 text-rose-800 font-bold rounded-lg border border-rose-300">
-                                    âœ• Rejected
+                                    ✕ Rejected
                                 </span>
                             @endif
                         </td>

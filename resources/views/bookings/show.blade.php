@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', "Booking {$booking->booking_code} â€“ UrbanProperty")
+@section('title', "Booking {$booking->booking_code} – UrbanProperty")
 
 @section('content')
 <div class="max-w-7xl mx-auto space-y-8 animate-fade-in-up">
@@ -94,7 +94,7 @@
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-tags text-indigo-500 mr-2"></i> Unit Final Price
                         </span>
-                        <div class="text-2xl font-black font-mono text-slate-900 mt-2 tracking-tight">â‚¹{{ number_format($unitPrice) }}</div>
+                        <div class="text-2xl font-black font-mono text-slate-900 mt-2 tracking-tight">₹{{ number_format($unitPrice) }}</div>
                     </div>
                 </div>
 
@@ -107,7 +107,7 @@
                         <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-coins mr-2"></i> Total Paid
                         </span>
-                        <div class="text-2xl font-black font-mono text-emerald-700 mt-2 tracking-tight">â‚¹{{ number_format($totalPaid) }}</div>
+                        <div class="text-2xl font-black font-mono text-emerald-700 mt-2 tracking-tight">₹{{ number_format($totalPaid) }}</div>
                     </div>
                 </div>
 
@@ -120,7 +120,7 @@
                         <span class="text-xs font-bold text-rose-600 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-scale-unbalanced mr-2"></i> Balance Remaining
                         </span>
-                        <div class="text-2xl font-black font-mono text-rose-700 mt-2 tracking-tight">â‚¹{{ number_format($balanceRemaining) }}</div>
+                        <div class="text-2xl font-black font-mono text-rose-700 mt-2 tracking-tight">₹{{ number_format($balanceRemaining) }}</div>
                     </div>
                 </div>
             </div>
@@ -155,7 +155,7 @@
                             </div>
                         </div>
                         <div class="text-left sm:text-right w-full sm:w-auto flex sm:flex-col justify-between sm:justify-center items-center sm:items-end border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-                            <div class="font-black text-emerald-600 text-lg tracking-tight">â‚¹{{ number_format($booking->booking_amount) }}</div>
+                            <div class="font-black text-emerald-600 text-lg tracking-tight">₹{{ number_format($booking->booking_amount) }}</div>
                             <span class="text-[9px] px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 font-black tracking-widest uppercase mt-1 border border-emerald-200 shadow-sm">CLEARED</span>
                         </div>
                     </div>
@@ -179,7 +179,7 @@
                             </div>
                         </div>
                         <div class="text-left sm:text-right w-full sm:w-auto flex sm:flex-col justify-between sm:justify-center items-center sm:items-end border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 gap-2">
-                            <div class="font-black text-emerald-600 text-lg tracking-tight">â‚¹{{ number_format($payment->amount) }}</div>
+                            <div class="font-black text-emerald-600 text-lg tracking-tight">₹{{ number_format($payment->amount) }}</div>
                             <a href="{{ route('payments.download-receipt', $payment->id) }}" class="text-[10px] text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white px-2 py-1 rounded-md font-bold transition-colors border border-indigo-100 flex items-center space-x-1">
                                 <i class="fa-solid fa-download"></i><span>Receipt</span>
                             </a>
@@ -276,16 +276,16 @@
                     <h3 class="text-lg font-black text-slate-900 tracking-tight">Record Installment</h3>
                     <p class="text-xs text-slate-500 mt-1 font-medium">Log a new payment for this booking</p>
                 </div>
-                <button onclick="document.getElementById('recordPaymentModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">âœ•</button>
+                <button onclick="document.getElementById('recordPaymentModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">✕</button>
             </div>
 
             <form method="POST" action="{{ route('bookings.payment', $booking->id) }}" class="space-y-5">
                 @csrf
                 <div>
-                    <label class="block text-[11px] uppercase tracking-wider text-slate-500 mb-1.5 font-bold">Payment Amount (â‚¹) <span class="text-rose-500">*</span></label>
+                    <label class="block text-[11px] uppercase tracking-wider text-slate-500 mb-1.5 font-bold">Payment Amount (₹) <span class="text-rose-500">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <span class="text-slate-400 font-mono font-bold">â‚¹</span>
+                            <span class="text-slate-400 font-mono font-bold">₹</span>
                         </div>
                         <input type="number" name="amount" required min="1" value="50000" class="w-full bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-xl pl-8 pr-4 py-3 text-slate-900 font-mono font-bold text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-inner">
                     </div>
@@ -322,7 +322,7 @@
                     <h3 class="text-lg font-black text-slate-900 tracking-tight">Edit Booking Details</h3>
                     <p class="text-xs text-slate-500 mt-1 font-medium">Update basic customer or property information</p>
                 </div>
-                <button onclick="document.getElementById('editBookingModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">âœ•</button>
+                <button onclick="document.getElementById('editBookingModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">✕</button>
             </div>
 
             <form method="POST" action="{{ route('bookings.update', $booking->id) }}" class="space-y-4">
@@ -367,7 +367,7 @@
                     <h3 class="text-lg font-black text-rose-600 tracking-tight">Cancel Booking</h3>
                     <p class="text-xs text-slate-500 mt-1 font-medium">This action will cancel the booking and release the unit</p>
                 </div>
-                <button onclick="document.getElementById('cancelBookingModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">âœ•</button>
+                <button onclick="document.getElementById('cancelBookingModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors flex items-center justify-center font-bold">✕</button>
             </div>
 
             <form method="POST" action="{{ route('bookings.cancel', $booking->id) }}" class="space-y-4">

@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Salary Payslip - ' . ($salarySlip->user->name ?? 'Staff') . ' - UrbanProperty')
 
@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto space-y-6 pb-12">
     <!-- Action Bar -->
     <div class="flex items-center justify-between">
-        <a href="{{ route('hrms.index') }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold text-xs rounded-xl transition flex items-center space-x-2">
+        <a href="{{ route('hrms.payroll') }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold text-xs rounded-xl transition flex items-center space-x-2">
             <i class="fa-solid fa-arrow-left"></i>
             <span>Back to HRMS</span>
         </a>
@@ -63,24 +63,24 @@
             <div class="border border-slate-200 rounded-2xl overflow-hidden">
                 <div class="bg-emerald-50 px-4 py-2.5 font-bold text-xs text-[#047857] border-b border-emerald-200 uppercase tracking-wider flex justify-between">
                     <span>Earnings</span>
-                    <span>Amount (â‚¹)</span>
+                    <span>Amount (₹)</span>
                 </div>
                 <div class="p-4 space-y-3 text-xs">
                     <div class="flex justify-between font-medium">
                         <span class="text-slate-600">Basic Salary</span>
-                        <span class="font-mono font-bold text-[#0F172A]">â‚¹{{ number_format($salarySlip->basic_salary, 2) }}</span>
+                        <span class="font-mono font-bold text-[#0F172A]">₹{{ number_format($salarySlip->basic_salary, 2) }}</span>
                     </div>
                     <div class="flex justify-between font-medium">
                         <span class="text-slate-600">HRA & Allowances</span>
-                        <span class="font-mono font-bold text-[#0F172A]">â‚¹{{ number_format($salarySlip->allowances, 2) }}</span>
+                        <span class="font-mono font-bold text-[#0F172A]">₹{{ number_format($salarySlip->allowances, 2) }}</span>
                     </div>
                     <div class="flex justify-between font-medium">
                         <span class="text-slate-600">Sales Commission Earned</span>
-                        <span class="font-mono font-bold text-emerald-700">â‚¹{{ number_format($salarySlip->commission_earned, 2) }}</span>
+                        <span class="font-mono font-bold text-emerald-700">₹{{ number_format($salarySlip->commission_earned, 2) }}</span>
                     </div>
                     <div class="pt-3 border-t border-slate-200 flex justify-between font-extrabold text-sm">
                         <span>Total Gross Earnings</span>
-                        <span class="font-mono text-emerald-800">â‚¹{{ number_format($salarySlip->basic_salary + $salarySlip->allowances + $salarySlip->commission_earned, 2) }}</span>
+                        <span class="font-mono text-emerald-800">₹{{ number_format($salarySlip->basic_salary + $salarySlip->allowances + $salarySlip->commission_earned, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -89,20 +89,20 @@
             <div class="border border-slate-200 rounded-2xl overflow-hidden">
                 <div class="bg-rose-50 px-4 py-2.5 font-bold text-xs text-[#DC2626] border-b border-rose-200 uppercase tracking-wider flex justify-between">
                     <span>Deductions</span>
-                    <span>Amount (â‚¹)</span>
+                    <span>Amount (₹)</span>
                 </div>
                 <div class="p-4 space-y-3 text-xs">
                     <div class="flex justify-between font-medium">
                         <span class="text-slate-600">Professional Tax & TDS</span>
-                        <span class="font-mono font-bold text-[#0F172A]">â‚¹{{ number_format($salarySlip->deductions, 2) }}</span>
+                        <span class="font-mono font-bold text-[#0F172A]">₹{{ number_format($salarySlip->deductions, 2) }}</span>
                     </div>
                     <div class="flex justify-between font-medium text-slate-400">
                         <span>Unpaid Leave / LOP</span>
-                        <span class="font-mono font-bold">â‚¹0.00</span>
+                        <span class="font-mono font-bold">₹0.00</span>
                     </div>
                     <div class="pt-9 border-t border-slate-200 flex justify-between font-extrabold text-sm">
                         <span>Total Deductions</span>
-                        <span class="font-mono text-rose-700">â‚¹{{ number_format($salarySlip->deductions, 2) }}</span>
+                        <span class="font-mono text-rose-700">₹{{ number_format($salarySlip->deductions, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                 <div class="text-xs text-slate-400">Transferred to registered bank account</div>
             </div>
             <div class="text-3xl font-extrabold font-mono text-emerald-400">
-                â‚¹{{ number_format($salarySlip->net_salary, 2) }}
+                ₹{{ number_format($salarySlip->net_salary, 2) }}
             </div>
         </div>
 

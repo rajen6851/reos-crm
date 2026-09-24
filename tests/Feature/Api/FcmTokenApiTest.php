@@ -14,8 +14,10 @@ class FcmTokenApiTest extends TestCase
     public function test_user_can_register_fcm_token()
     {
         $company = Company::create(['name' => 'Test Company', 'slug' => 'test-co', 'code' => 'TC']);
+        $role = \App\Models\Role::create(['company_id' => $company->id, 'name' => 'Manager', 'slug' => 'manager']);
         $user = User::factory()->create([
             'company_id' => $company->id,
+            'role_id' => $role->id,
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
@@ -40,8 +42,10 @@ class FcmTokenApiTest extends TestCase
     public function test_user_can_remove_fcm_token()
     {
         $company = Company::create(['name' => 'Test Company', 'slug' => 'test-co', 'code' => 'TC']);
+        $role = \App\Models\Role::create(['company_id' => $company->id, 'name' => 'Manager', 'slug' => 'manager']);
         $user = User::factory()->create([
             'company_id' => $company->id,
+            'role_id' => $role->id,
             'fcm_token' => 'sample_token',
         ]);
 

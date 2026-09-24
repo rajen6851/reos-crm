@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -186,7 +186,7 @@
                 <td>{{ strtoupper($payment->payment_method ?? 'Razorpay Gateway') }}</td>
                 <td style="font-family: monospace;">{{ $payment->transaction_reference ?? ('TXN-' . strtoupper(substr(md5($payment->id), 0, 10))) }}</td>
                 <td style="text-align: right; font-weight: bold; font-size: 15px; color: #0f172a;">
-                    â‚¹{{ number_format($payment->amount) }}
+                    ₹{{ number_format($payment->amount) }}
                 </td>
             </tr>
         </tbody>
@@ -194,7 +194,7 @@
 
     <div class="amount-box">
         <div class="amount-title">Total Amount Received</div>
-        <div class="amount-value">â‚¹{{ number_format($payment->amount) }}</div>
+        <div class="amount-value">₹{{ number_format($payment->amount) }}</div>
         <div style="font-size: 10px; color: #047857; margin-top: 4px; font-weight: bold;">Status: PAYMENT VERIFIED & CONFIRMED</div>
     </div>
 

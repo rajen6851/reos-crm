@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Ticket #' . $ticket->ticket_number . ' - UrbanProperty Helpdesk')
 
@@ -8,7 +8,7 @@
     <!-- Top Navigation Header -->
     <div class="flex items-center justify-between">
         <a href="{{ route('support-tickets.index') }}" class="text-xs font-black text-indigo-600 hover:text-indigo-800 flex items-center space-x-1">
-            <span>â†</span>
+            <span>←</span>
             <span>Back to Support Desk</span>
         </a>
         <div class="flex items-center space-x-2">
@@ -49,7 +49,7 @@
                         };
                     @endphp
                     <span class="px-3.5 py-1 rounded-full text-xs font-extrabold border {{ $sBadge }}">
-                        â— {{ strtoupper(str_replace('_', ' ', $ticket->status)) }}
+                        ● {{ strtoupper(str_replace('_', ' ', $ticket->status)) }}
                     </span>
                 </div>
 

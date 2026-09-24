@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', $company->name . ' â€“ Builder Tenant 360Â° Profile & Full History - UrbanProperty')
+@section('title', $company->name . ' – Builder Tenant 360° Profile & Full History - UrbanProperty')
 
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto pb-12" x-data="{ activeTab: 'projects' }">
@@ -9,9 +9,9 @@
         <div class="space-y-1">
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B]">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#4F46E5]">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <a href="{{ route('admin.companies.index') }}" class="hover:text-[#4F46E5]">Companies</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-[#0F172A] font-bold">{{ $company->name }}</span>
             </div>
             <h1 class="page-heading text-2xl flex items-center space-x-3">
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <!-- 360Â° Hero Profile & Corporate Legal Information Card -->
+    <!-- 360° Hero Profile & Corporate Legal Information Card -->
     <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#E2E8F0] shadow-2xs space-y-6">
         <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div class="flex items-start space-x-4">
@@ -53,9 +53,9 @@
                     <h2 class="text-2xl font-extrabold text-[#0F172A]">{{ $company->name }}</h2>
                     <div class="flex flex-wrap items-center gap-2 text-xs text-[#64748B] font-semibold">
                         <span class="font-mono text-[#4F46E5] bg-indigo-50 px-2.5 py-0.5 rounded-lg border border-indigo-100">{{ $company->code }}</span>
-                        <span>â€¢</span>
+                        <span>•</span>
                         <span class="font-mono text-[#0F172A]"><i class="fa-regular fa-envelope text-slate-400 mr-1"></i>{{ $company->email }}</span>
-                        <span>â€¢</span>
+                        <span>•</span>
                         <span class="font-mono text-[#0F172A]"><i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ $company->phone ?? 'Phone N/A' }}</span>
                     </div>
 
@@ -102,7 +102,7 @@
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                 <div class="flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-600">Team Users Capacity</span>
-                    <span class="font-mono text-[#4F46E5]">{{ $uCurr }} / {{ $uLimit ?: 'âˆž' }}</span>
+                    <span class="font-mono text-[#4F46E5]">{{ $uCurr }} / {{ $uLimit ?: '∞' }}</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                     <div class="bg-[#4F46E5] h-2 rounded-full" style="width: {{ $uPct }}%"></div>
@@ -118,7 +118,7 @@
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                 <div class="flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-600">Developer Projects Capacity</span>
-                    <span class="font-mono text-indigo-700">{{ $pCurr }} / {{ $pLimit ?: 'âˆž' }}</span>
+                    <span class="font-mono text-indigo-700">{{ $pCurr }} / {{ $pLimit ?: '∞' }}</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                     <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ $pPct }}%"></div>
@@ -134,7 +134,7 @@
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                 <div class="flex justify-between items-center text-xs font-bold">
                     <span class="text-slate-600">Monthly Lead Intake Limit</span>
-                    <span class="font-mono text-emerald-700">{{ $lCurr }} / {{ $lLimit ?: 'âˆž' }}</span>
+                    <span class="font-mono text-emerald-700">{{ $lCurr }} / {{ $lLimit ?: '∞' }}</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                     <div class="bg-[#059669] h-2 rounded-full" style="width: {{ $lPct }}%"></div>
@@ -182,7 +182,7 @@
             <!-- 6. Total Booked Token Revenue -->
             <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-[#E2E8F0] space-y-1 col-span-2 sm:col-span-1">
                 <div class="text-[#64748B] font-semibold text-[11px]">Token Revenue</div>
-                <div class="text-xl font-extrabold text-[#059669] font-mono truncate">â‚¹{{ number_format($totalRevenue) }}</div>
+                <div class="text-xl font-extrabold text-[#059669] font-mono truncate">₹{{ number_format($totalRevenue) }}</div>
                 <div class="text-[10px] text-emerald-700 font-semibold truncate">{{ $totalBookings }} Units Locked</div>
             </div>
         </div>
@@ -236,7 +236,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h4 class="font-extrabold text-[#0F172A] text-sm">{{ $proj->name }}</h4>
-                                <p class="text-[11px] text-[#64748B] font-mono">{{ $proj->code }} â€¢ {{ $proj->city }}</p>
+                                <p class="text-[11px] text-[#64748B] font-mono">{{ $proj->code }} • {{ $proj->city }}</p>
                             </div>
                             <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-indigo-50 text-[#4F46E5] uppercase">
                                 {{ $proj->project_type }}
@@ -245,7 +245,7 @@
 
                         <div class="flex items-center space-x-3 text-xs text-[#64748B] pt-2 border-t border-slate-200">
                             <span><strong class="text-[#0F172A]">{{ $proj->buildings->count() }}</strong> Towers</span>
-                            <span>â€¢</span>
+                            <span>•</span>
                             <span><strong class="text-[#0F172A]">{{ $proj->units->count() }}</strong> Total Units</span>
                         </div>
                     </div>
@@ -352,7 +352,7 @@
                                 <td class="p-3.5 font-mono font-bold text-[#4F46E5]">{{ $bk->booking_code }}</td>
                                 <td class="p-3.5 font-extrabold text-[#0F172A]">{{ $bk->customer_name }}</td>
                                 <td class="p-3.5 font-mono font-bold text-[#0F172A]">Unit {{ $bk->unit->unit_number ?? 'N/A' }}</td>
-                                <td class="p-3.5 font-mono font-bold text-[#059669]">â‚¹{{ number_format($bk->booking_amount) }}</td>
+                                <td class="p-3.5 font-mono font-bold text-[#059669]">₹{{ number_format($bk->booking_amount) }}</td>
                                 <td class="p-3.5">
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-[#4F46E5] border border-indigo-200 uppercase">
                                         {{ $bk->status }}
@@ -380,7 +380,7 @@
                     <div class="p-4 rounded-2xl bg-slate-50 border border-[#E2E8F0] flex items-center justify-between">
                         <div class="space-y-1">
                             <div class="font-extrabold text-[#0F172A] text-sm">{{ $brk->name }}</div>
-                            <div class="text-xs text-[#64748B] font-mono">{{ $brk->firm_name ?? 'Individual Broker' }} â€¢ {{ $brk->phone }}</div>
+                            <div class="text-xs text-[#64748B] font-mono">{{ $brk->firm_name ?? 'Individual Broker' }} • {{ $brk->phone }}</div>
                         </div>
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 uppercase">
                             {{ $brk->category ?? 'Partner' }}
@@ -402,7 +402,7 @@
                 </div>
                 <div class="flex justify-between items-center pb-3 border-b border-slate-200">
                     <span class="text-slate-600 font-bold">Monthly Recurring Price:</span>
-                    <span class="font-mono font-bold text-[#059669]">â‚¹{{ number_format($company->subscriptionPlan->price_monthly ?? 0) }}/mo</span>
+                    <span class="font-mono font-bold text-[#059669]">₹{{ number_format($company->subscriptionPlan->price_monthly ?? 0) }}/mo</span>
                 </div>
                 <div class="flex justify-between items-center pb-3 border-b border-slate-200">
                     <span class="text-slate-600 font-bold">Subscription Expiry Date:</span>
@@ -457,7 +457,7 @@
                         <p class="body-text text-xs text-[#64748B]">Update profile & plan settings</p>
                     </div>
                 </div>
-                <button type="button" onclick="document.getElementById('editCompanyModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
+                <button type="button" onclick="document.getElementById('editCompanyModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
             </div>
 
             <form id="editCompanyForm" method="POST" action="{{ route('admin.companies.update', $company->id) }}" class="p-6 overflow-y-auto flex-1 space-y-5 text-xs">
@@ -487,7 +487,7 @@
                         <label class="block font-bold text-[10px] text-[#475569] uppercase mb-1">Assigned Subscription Plan</label>
                         <select id="edit_comp_plan" name="subscription_plan_id" class="w-full bg-white border border-[#CBD5E1] rounded-xl px-3 py-2 text-xs font-bold text-[#0F172A]">
                             @foreach($subscriptionPlans as $sp)
-                                <option value="{{ $sp->id }}" {{ $company->subscription_plan_id == $sp->id ? 'selected' : '' }}>{{ $sp->name }} (â‚¹{{ number_format($sp->price_monthly) }}/mo)</option>
+                                <option value="{{ $sp->id }}" {{ $company->subscription_plan_id == $sp->id ? 'selected' : '' }}>{{ $sp->name }} (₹{{ number_format($sp->price_monthly) }}/mo)</option>
                             @endforeach
                         </select>
                     </div>

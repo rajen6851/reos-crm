@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AgreementController;
@@ -39,6 +39,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/dashboard/seed-sample', [DashboardController::class, 'seedSampleData'])->name('dashboard.seed-sample');
     Route::post('/subscription/select-plan', [DashboardController::class, 'selectSubscriptionPlan'])->name('subscription.select-plan');
     Route::get('/admin/saas-subscriptions', [DashboardController::class, 'saasSubscriptions'])->name('admin.saas-subscriptions');
+    Route::post('/admin/subscription-plans', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'store'])->name('admin.subscription-plans.store');
     Route::get('/admin/companies', [DashboardController::class, 'companiesListByFounder'])->name('admin.companies.index');
     Route::get('/admin/companies/create', [DashboardController::class, 'createCompanyFormByFounder'])->name('admin.companies.create');
     Route::post('/admin/companies/store', [DashboardController::class, 'storeCompanyByFounder'])->name('admin.companies.store');
@@ -185,15 +186,26 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/chat/{chat}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/chat/direct', [ChatController::class, 'startDirectChat'])->name('chat.direct');
     Route::post('/chat/group', [ChatController::class, 'createGroupChat'])->name('chat.group');
+    Route::post('/chat/group/{chat}/members', [ChatController::class, 'addMembersToGroup'])->name('chat.group.members');
+    Route::delete('/chat/group/{chat}', [ChatController::class, 'destroyGroup'])->name('chat.group.destroy');
 
     // System Activity Audit Logs & HRMS Attendance Module
-    Route::get('/hrms', [\App\Http\Controllers\HrmsController::class, 'index'])->name('hrms.index');
+    Route::get('/hrms/dashboard', [\App\Http\Controllers\HrmsController::class, 'dashboard'])->name('hrms.dashboard');
+    Route::get('/hrms/staff', [\App\Http\Controllers\HrmsController::class, 'staff'])->name('hrms.staff');
+    Route::get('/hrms/attendance', [\App\Http\Controllers\HrmsController::class, 'attendance'])->name('hrms.attendance');
+    Route::get('/hrms/leaves', [\App\Http\Controllers\HrmsController::class, 'leaves'])->name('hrms.leaves');
+    Route::get('/hrms/payroll', [\App\Http\Controllers\HrmsController::class, 'payroll'])->name('hrms.payroll');
+
     Route::post('/hrms/clock-in', [\App\Http\Controllers\HrmsController::class, 'clockIn'])->name('hrms.clock-in');
     Route::post('/hrms/clock-out', [\App\Http\Controllers\HrmsController::class, 'clockOut'])->name('hrms.clock-out');
     Route::post('/hrms/leave-requests', [\App\Http\Controllers\HrmsController::class, 'storeLeaveRequest'])->name('hrms.leave-requests.store');
     Route::post('/hrms/leave-requests/{leaveRequest}/status', [\App\Http\Controllers\HrmsController::class, 'updateLeaveStatus'])->name('hrms.leave-requests.status');
     Route::post('/hrms/salary-slips', [\App\Http\Controllers\HrmsController::class, 'generateSalarySlip'])->name('hrms.salary-slips.store');
     Route::get('/hrms/salary-slips/{salarySlip}', [\App\Http\Controllers\HrmsController::class, 'showSalarySlip'])->name('hrms.salary-slips.show');
+    Route::post('/hrms/leave-requests/{id}/delete', [\App\Http\Controllers\HrmsController::class, 'requestLeaveDeletion'])->name('hrms.leave-requests.delete');
+    Route::post('/hrms/leave-requests/{id}/approve-delete', [\App\Http\Controllers\HrmsController::class, 'approveLeaveDeletion'])->name('hrms.leave-requests.approve-delete');
+    Route::post('/hrms/salary-slips/{id}/delete', [\App\Http\Controllers\HrmsController::class, 'requestSalarySlipDeletion'])->name('hrms.salary-slips.delete');
+    Route::post('/hrms/salary-slips/{id}/approve-delete', [\App\Http\Controllers\HrmsController::class, 'approveSalarySlipDeletion'])->name('hrms.salary-slips.approve-delete');
 
     // Operations, Analytics & System
     Route::get('/follow-ups', [FollowUpController::class, 'index'])->name('follow-ups.index');
@@ -216,5 +228,6 @@ Route::middleware(['auth', 'subscription'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
 
 

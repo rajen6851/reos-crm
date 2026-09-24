@@ -60,7 +60,7 @@ class SubscriptionApiTest extends TestCase
             'name' => 'Company Admin',
             'slug' => 'admin',
         ]);
-        $this->attachPermissionsToRole($adminRole, ['manage-subscription']);
+        $this->attachPermissionsToRole($adminRole, ['company-settings']);
 
         $this->adminUser = User::factory()->create([
             'company_id' => $this->company->id,

@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Team Chat â€“ UrbanProperty Real Estate Operating System')
+@section('title', 'Team Chat – UrbanProperty Real Estate Operating System')
 
 @section('content')
 <div class="h-[calc(100vh-80px)] flex flex-col" x-data="chatApp()" x-init="initChat()">
@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-[#0F172A] font-bold">Team Chat</span>
             </div>
             <h1 class="page-heading flex items-center gap-2">
@@ -119,6 +119,23 @@
                                 <p class="text-[11px] text-slate-500 font-medium" x-text="activeChat.type === 'group' ? (activeChat.participants.length + ' members in group') : 'Direct Chat'"></p>
                             </div>
                         </div>
+
+                        
+                        <div class="flex items-center space-x-2">
+                            <!-- Add Members Button -->
+                            <template x-if="activeChat.type === 'group' && (activeChat.created_by === currentUserId || isCompanyAdmin || isSaaSFounder)">
+                                <button @click="openAddMembersModal()" class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Add Members">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </button>
+                            </template>
+                            
+                            <!-- Delete Group Button (visible only to creator/admin) -->
+                            <template x-if="activeChat.type === 'group' && (activeChat.created_by === currentUserId || isCompanyAdmin || isSaaSFounder)">
+                                <button @click="deleteGroup(activeChat.id)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Delete Group">
+                                    <i class="fa-solid fa-trash-alt"></i>
+                                </button>
+                            </template>
+                        </div>
                     </div>
 
                     <!-- Messages Stream -->
@@ -204,7 +221,7 @@
                     <div @click="startDirectChat({{ $user->id }})" class="p-3 hover:bg-emerald-50 rounded-xl cursor-pointer flex items-center justify-between transition">
                         <div>
                             <p class="text-xs font-bold text-slate-800">{{ $user->name }}</p>
-                            <p class="text-[10px] text-slate-500">{{ $user->role ? $user->role->name : 'User' }} â€¢ {{ $user->email }}</p>
+                            <p class="text-[10px] text-slate-500">{{ $user->role ? $user->role->name : 'User' }} • {{ $user->email }}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
                     </div>
@@ -246,6 +263,40 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal: Add Members to Group -->
+    <div x-show="showAddMembersModal" x-cloak class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-emerald-600"></i>
+                    <span>Add Members</span>
+                </h3>
+                <button @click="showAddMembersModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form @submit.prevent="addMembersToGroup()" class="space-y-4">
+                <div>
+                    <label class="form-label">Select Participants to Add</label>
+                    <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-2 space-y-1 bg-slate-50">
+                        <template x-if="availableUsersToAdd.length === 0">
+                            <p class="text-xs text-slate-500 p-2 text-center">No available users to add.</p>
+                        </template>
+                        <template x-for="user in availableUsersToAdd" :key="user.id">
+                            <label class="flex items-center space-x-2 p-2 hover:bg-white rounded-lg cursor-pointer transition">
+                                <input type="checkbox" :value="user.id" x-model="selectedUsersToAdd" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-600">
+                                <span class="text-xs font-bold text-slate-800" x-text="user.name"></span>
+                                <span class="text-[10px] text-slate-400" x-text="'(' + (user.role ? user.role.name : 'User') + ')'"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" @click="showAddMembersModal = false" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl">Cancel</button>
+                    <button type="submit" :disabled="selectedUsersToAdd.length === 0" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs">Add Members</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -261,9 +312,15 @@ function chatApp() {
         isSending: false,
         showDirectModal: false,
         showGroupModal: false,
+        showAddMembersModal: false,
         groupName: '',
         selectedGroupUsers: [],
+        selectedUsersToAdd: [],
+        availableUsersToAdd: [],
         pollTimer: null,
+        currentUserId: {{ auth()->id() }},
+        isCompanyAdmin: {{ auth()->user()->isCompanyAdmin() ? 'true' : 'false' }},
+        isSaaSFounder: {{ auth()->user()->isSaaSFounder() ? 'true' : 'false' }},
 
         initChat() {
             this.fetchConversations();
@@ -397,6 +454,71 @@ function chatApp() {
                     this.selectedGroupUsers = [];
                     this.fetchConversations();
                     this.selectConversation(data.chat_id);
+                }
+            });
+        },
+        
+        openAddMembersModal() {
+            if (!this.activeChat || this.activeChat.type !== 'group') return;
+            
+            // Generate list of users who are not already in the group
+            const currentParticipantIds = this.activeChat.participants.map(p => p.id);
+            const allUsers = @json($availableUsers);
+            
+            this.availableUsersToAdd = allUsers.filter(u => !currentParticipantIds.includes(u.id));
+            this.selectedUsersToAdd = [];
+            this.showAddMembersModal = true;
+        },
+
+        addMembersToGroup() {
+            if (!this.activeChat || this.selectedUsersToAdd.length === 0) return;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch(`/chat/group/${this.activeChat.id}/members`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    participant_ids: this.selectedUsersToAdd
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    this.showAddMembersModal = false;
+                    this.selectedUsersToAdd = [];
+                    this.fetchConversations();
+                    this.fetchMessages(this.activeChatId, false);
+                } else {
+                    alert(data.error || 'Failed to add members');
+                }
+            });
+        },
+        
+        deleteGroup(chatId) {
+            if (!confirm('Are you sure you want to delete this group chat permanently? This action cannot be undone.')) {
+                return;
+            }
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch(`/chat/group/${chatId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    this.activeChatId = null;
+                    this.activeChat = null;
+                    this.messages = [];
+                    this.fetchConversations();
+                } else {
+                    alert(data.error || 'Failed to delete group');
                 }
             });
         }

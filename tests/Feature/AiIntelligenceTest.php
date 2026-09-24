@@ -44,6 +44,7 @@ class AiIntelligenceTest extends TestCase
             'name' => 'Sales Agent',
             'email' => 'agent@aitest.com',
             'password' => bcrypt('password'),
+            'is_active' => true,
         ]);
 
         $this->project = Project::create([

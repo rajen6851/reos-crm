@@ -46,6 +46,7 @@ class UserWelcomeCredentialsMailTest extends TestCase
             'name' => 'Admin User',
             'email' => 'admin@mailtest.com',
             'password' => bcrypt('password123'),
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($admin)->post(route('users.store'), [

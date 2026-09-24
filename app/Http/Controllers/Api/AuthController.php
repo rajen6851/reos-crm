@@ -22,6 +22,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        if (!$user->is_active) {
+            return response()->json(['message' => 'Your account has been deactivated. Please contact administrator.'], 403);
+        }
+
         if (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker'], true)) {
             return response()->json([
                 'status' => 'error',
@@ -54,6 +58,10 @@ class AuthController extends Controller
         $user = User::where('phone', $request->phone)->first();
         if (!$user) {
             return response()->json(['message' => 'User not found for this mobile number.'], 404);
+        }
+
+        if (!$user->is_active) {
+            return response()->json(['message' => 'Your account has been deactivated. Please contact administrator.'], 403);
         }
 
         if (!in_array($user->role?->slug, ['manager', 'sales_executive', 'executive', 'broker'], true)) {

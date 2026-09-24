@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Real Estate Business â€“ UrbanProperty SaaS</title>
+    <title>Register Real Estate Business – UrbanProperty SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,11 +119,11 @@
 
                 <div class="pt-3 flex items-center justify-between">
                     <a href="{{ route('login') }}" class="text-xs text-slate-500 hover:text-indigo-600 transition">
-                        Already have an account? Sign In â†’
+                        Already have an account? Sign In →
                     </a>
 
                     <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-sm transition">
-                        Register & Launch Workspace â†’
+                        Register & Launch Workspace →
                     </button>
                 </div>
             </form>

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\CoApplicant;
 use App\Models\CostSheet;
 use App\Models\Lead;
 use App\Models\LeadActivity;
@@ -109,7 +110,20 @@ class BookingService
                 'notes' => 'Initial Booking Token'
             ]);
 
-            // 5. Create Lead Activity Log
+            // 5. Create Co-Applicants if provided
+            if (!empty($data['co_applicants']) && is_array($data['co_applicants'])) {
+                foreach ($data['co_applicants'] as $ca) {
+                    CoApplicant::create([
+                        'company_id' => $user->company_id,
+                        'booking_id' => $booking->id,
+                        'full_name' => $ca['name'] ?? '',
+                        'relationship' => $ca['relationship'] ?? null,
+                        'phone' => $ca['phone'] ?? null,
+                    ]);
+                }
+            }
+
+            // 6. Create Lead Activity Log
             LeadActivity::create([
                 'company_id' => $user->company_id,
                 'lead_id' => $data['lead_id'],

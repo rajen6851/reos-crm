@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Dashboard')
 
@@ -14,11 +14,12 @@
 
         <div class="flex flex-wrap items-center gap-3">
             <!-- Segmented Period Selector (Today, This Week, This Month, Custom) -->
+            @php $currentPeriod = request('period', 'all'); @endphp
             <div class="inline-flex items-center bg-[#E2E8F0]/70 p-1 rounded-lg text-xs font-semibold text-slate-600">
-                <button class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs font-bold transition">Today</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Week</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Month</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">Custom</button>
+                <a href="{{ route('dashboard', ['period' => 'today']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'today' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">Today</a>
+                <a href="{{ route('dashboard', ['period' => 'this_week']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'this_week' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">This Week</a>
+                <a href="{{ route('dashboard', ['period' => 'this_month']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'this_month' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">This Month</a>
+                <a href="{{ route('dashboard', ['period' => 'all']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'all' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">All Time</a>
             </div>
 
             <!-- Permissions Matrix Link Button -->
@@ -76,7 +77,7 @@
                 <span>Revenue</span>
                 <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-xs"></i>
             </div>
-            <div class="text-2xl font-bold text-slate-900 font-mono">â‚¹{{ number_format($totalRevenue) }}</div>
+            <div class="text-2xl font-bold text-slate-900 font-mono">₹{{ number_format($totalRevenue) }}</div>
             <div class="text-xs font-semibold text-emerald-600">(+14.5%)</div>
         </div>
 
@@ -212,11 +213,11 @@
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
                         <tr>
                             <th class="p-3 w-8"><input type="checkbox" class="rounded border-slate-300"></th>
-                            <th class="p-3">Customer Name <span class="text-[9px] text-slate-400">â†•</span></th>
-                            <th class="p-3">Phone <span class="text-[9px] text-slate-400">â†•</span></th>
-                            <th class="p-3">Property Name <span class="text-[9px] text-slate-400">â†•</span></th>
-                            <th class="p-3">Assigned Agent <span class="text-[9px] text-slate-400">â†•</span></th>
-                            <th class="p-3">Status <span class="text-[9px] text-slate-400">â†•</span></th>
+                            <th class="p-3">Customer Name <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Phone <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Property Name <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Assigned Agent <span class="text-[9px] text-slate-400">↕</span></th>
+                            <th class="p-3">Status <span class="text-[9px] text-slate-400">↕</span></th>
                             <th class="p-3 text-center">Action</th>
                         </tr>
                     </thead>

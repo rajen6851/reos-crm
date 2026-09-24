@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 
 class AttendanceApiController extends Controller
@@ -72,27 +73,27 @@ class AttendanceApiController extends Controller
             }
         }
 
-        // Reverse Geocoding via OpenStreetMap (100% Free for Unlimited Users)
+        // Reverse Geocoding via Google Maps API
         if (empty($validated['address']) && !empty($validated['latitude']) && !empty($validated['longitude'])) {
             try {
-                $response = \Illuminate\Support\Facades\Http::withHeaders([
-                    'User-Agent' => 'UrbanProperty-CRM-Attendance-System/1.0'
-                ])->get('https://nominatim.openstreetmap.org/reverse', [
-                    'format' => 'json',
-                    'lat' => $validated['latitude'],
-                    'lon' => $validated['longitude'],
-                    'zoom' => 18,
-                    'addressdetails' => 1
-                ]);
-                
-                if ($response->successful()) {
-                    $data = $response->json();
-                    if (!empty($data['display_name'])) {
-                        $validated['address'] = $data['display_name'];
+                $apiKey = env('GOOGLE_MAPS_API_KEY');
+                if ($apiKey) {
+                    $response = \Illuminate\Support\Facades\Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                        'latlng' => $validated['latitude'] . ',' . $validated['longitude'],
+                        'key' => $apiKey
+                    ]);
+                    
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        if (!empty($data['results'][0]['formatted_address'])) {
+                            $validated['address'] = $data['results'][0]['formatted_address'];
+                        }
                     }
+                } else {
+                    \Illuminate\Support\Facades\Log::warning('Google Maps API key not set for reverse geocoding.');
                 }
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('OSM Geocoding failed: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Google Geocoding failed: ' . $e->getMessage());
             }
         }
 
@@ -141,5 +142,47 @@ class AttendanceApiController extends Controller
         ]);
 
         return response()->json(['status' => 'success', 'message' => 'Attendance clock-out recorded.', 'data' => $attendance->fresh()]);
+    }
+
+    public function leaves(Request $request)
+    {
+        abort_if($request->user()->isBroker(), 403, 'HRMS is available for internal staff only.');
+        
+        $leaves = LeaveRequest::where('company_id', $request->user()->company_id)
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('created_at')
+            ->paginate(15);
+            
+        return response()->json(['status' => 'success', 'data' => $leaves]);
+    }
+
+    public function storeLeaveRequest(Request $request)
+    {
+        abort_if($request->user()->isBroker(), 403, 'HRMS is available for internal staff only.');
+        
+        $validated = $request->validate([
+            'leave_type' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        $user = $request->user();
+        $start = strtotime($validated['start_date']);
+        $end = strtotime($validated['end_date']);
+        $totalDays = max(1, round(($end - $start) / 86400) + 1);
+
+        $leave = LeaveRequest::create([
+            'company_id' => $user->company_id,
+            'user_id' => $user->id,
+            'leave_type' => $validated['leave_type'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'total_days' => $totalDays,
+            'reason' => $validated['reason'],
+            'status' => 'pending',
+        ]);
+
+        return response()->json(['status' => 'success', 'message' => 'Leave application submitted for approval!', 'data' => $leave], 201);
     }
 }

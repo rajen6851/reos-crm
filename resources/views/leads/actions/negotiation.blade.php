@@ -1,15 +1,15 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Start Negotiation â€“ ' . $lead->first_name)
+@section('title', 'Start Negotiation – ' . $lead->first_name)
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex items-center space-x-3 text-sm text-slate-500 mb-4">
         <a href="{{ route('leads.index') }}" class="hover:text-blue-600">Leads</a>
-        <span>â€º</span>
+        <span>›</span>
         <a href="{{ route('leads.show', $lead->id) }}" class="hover:text-blue-600 font-semibold text-slate-800">{{ $lead->first_name }} {{ $lead->last_name }}</a>
-        <span>â€º</span>
+        <span>›</span>
         <span class="text-amber-600 font-bold">Start Negotiation</span>
     </div>
 
@@ -29,7 +29,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Offered Price (â‚¹) <span class="text-orange-500">*</span></label>
+                    <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Offered Price (₹) <span class="text-orange-500">*</span></label>
                     <input type="number" name="neg_offered_price" required placeholder="e.g. 4500000" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                 </div>
 

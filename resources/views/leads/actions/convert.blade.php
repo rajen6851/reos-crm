@@ -1,15 +1,15 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Record Booking â€“ ' . $lead->first_name)
+@section('title', 'Record Booking – ' . $lead->first_name)
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex items-center space-x-3 text-sm text-slate-500 mb-4">
         <a href="{{ route('leads.index') }}" class="hover:text-blue-600">Leads</a>
-        <span>â€º</span>
+        <span>›</span>
         <a href="{{ route('leads.show', $lead->id) }}" class="hover:text-blue-600 font-semibold text-slate-800">{{ $lead->first_name }} {{ $lead->last_name }}</a>
-        <span>â€º</span>
+        <span>›</span>
         <span class="text-emerald-600 font-bold">Record Booking</span>
     </div>
 
@@ -65,12 +65,12 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border border-slate-300 p-4 bg-slate-50">
                     <div>
-                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Token Amount (â‚¹) <span class="text-orange-500">*</span></label>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Token Amount (₹) <span class="text-orange-500">*</span></label>
                         <input type="number" name="booking_amount" required placeholder="e.g. 100000" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     </div>
 
                     <div>
-                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Total Unit Cost (â‚¹)</label>
+                        <label class="block text-[#1F2937] font-bold mb-1 text-[13px]">Total Unit Cost (₹)</label>
                         <input type="number" name="total_unit_cost" placeholder="e.g. 7500000" class="w-full bg-white border border-slate-300 p-1.5 focus:outline-none focus:border-blue-500 text-[13px]">
                     </div>
 

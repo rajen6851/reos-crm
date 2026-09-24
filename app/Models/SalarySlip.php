@@ -23,7 +23,14 @@ class SalarySlip extends Model
         'deductions',
         'net_salary',
         'status',
+        'deletion_requested_by',
+        'deletion_reason',
     ];
+
+    public function deletionRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deletion_requested_by');
+    }
 
     public function company(): BelongsTo
     {

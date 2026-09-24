@@ -15,12 +15,16 @@ class AuthApiTest extends TestCase
     {
         $company = Company::create(['name' => 'API Realty', 'code' => 'APR', 'slug' => 'api-realty', 'status' => 'active']);
 
+        $role = \App\Models\Role::create(['company_id' => $company->id, 'name' => 'Manager', 'slug' => 'manager']);
+
         $user = User::create([
             'company_id' => $company->id,
+            'role_id' => $role->id,
             'name' => 'API Agent',
             'email' => 'apiagent@reos.com',
             'phone' => '9999900000',
             'password' => bcrypt('password123'),
+            'is_active' => true,
         ]);
 
         $response = $this->postJson('/api/auth/login', [
@@ -42,6 +46,7 @@ class AuthApiTest extends TestCase
             'email' => 'apiagent@reos.com',
             'phone' => '9999900000',
             'password' => bcrypt('password123'),
+            'is_active' => true,
         ]);
 
         $token = $user->createToken('test_token')->plainTextToken;

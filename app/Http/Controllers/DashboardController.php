@@ -12,9 +12,26 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    private function getPeriodDateRange(Request $request): array
+    {
+        $period = $request->query('period', 'all');
+        $now = Carbon::now();
+
+        switch ($period) {
+            case 'today':
+                return [$now->startOfDay()->toDateTimeString(), $now->endOfDay()->toDateTimeString()];
+            case 'this_week':
+                return [$now->startOfWeek()->toDateTimeString(), $now->endOfWeek()->toDateTimeString()];
+            case 'this_month':
+                return [$now->startOfMonth()->toDateTimeString(), $now->endOfMonth()->toDateTimeString()];
+            default:
+                return [null, null]; // 'all' or custom
+        }
+    }
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -112,6 +129,8 @@ class DashboardController extends Controller
         // 3. Company Admin / Director Dashboard
         if ($user->isCompanyAdmin()) {
             $company = $user->company;
+            [$startDate, $endDate] = $this->getPeriodDateRange($request);
+            
             $totalUsers = User::where('company_id', $user->company_id)
                 ->whereHas('role', function ($q) {
                     $q->where('slug', '!=', 'broker');
@@ -120,15 +139,25 @@ class DashboardController extends Controller
             $totalUnits = Unit::count();
             $availableUnits = Unit::where('status', 'available')->count();
             $bookedUnits = Unit::where('status', 'booked')->count();
-            $totalLeads = Lead::count();
-            $newLeadsCount = Lead::where('status', 'new')->count();
-            $contactedLeadsCount = Lead::where('status', 'contacted')->count();
-            $qualifiedLeadsCount = Lead::where('status', 'qualified')->count();
-            $siteVisitsCount = Lead::where('status', 'site_visit')->count();
-            $negotiationCount = Lead::where('status', 'negotiation')->count();
-            $convertedCount = Lead::where('status', 'converted')->count();
-            $pendingFollowUpsCount = \App\Models\FollowUp::where('company_id', $user->company_id)->where('status', 'pending')->count();
-            $totalRevenue = \App\Models\Booking::where('company_id', $user->company_id)->sum('booking_amount');
+            
+            // Apply Period Filters
+            $leadQuery = Lead::where('company_id', $user->company_id);
+            if ($startDate && $endDate) $leadQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $totalLeads = (clone $leadQuery)->count();
+            $newLeadsCount = (clone $leadQuery)->where('status', 'new')->count();
+            $contactedLeadsCount = (clone $leadQuery)->where('status', 'contacted')->count();
+            $qualifiedLeadsCount = (clone $leadQuery)->where('status', 'qualified')->count();
+            $siteVisitsCount = (clone $leadQuery)->where('status', 'site_visit')->count();
+            $negotiationCount = (clone $leadQuery)->where('status', 'negotiation')->count();
+            $convertedCount = (clone $leadQuery)->where('status', 'converted')->count();
+
+            $pendingFollowUpsQuery = \App\Models\FollowUp::where('company_id', $user->company_id)->where('status', 'pending');
+            if ($startDate && $endDate) $pendingFollowUpsQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $pendingFollowUpsCount = $pendingFollowUpsQuery->count();
+
+            $revenueQuery = \App\Models\Booking::where('company_id', $user->company_id);
+            if ($startDate && $endDate) $revenueQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $totalRevenue = $revenueQuery->sum('booking_amount');
             $teamUsers = User::where('company_id', $user->company_id)
                 ->whereHas('role', function ($q) {
                     $q->where('slug', '!=', 'broker');
@@ -169,10 +198,12 @@ class DashboardController extends Controller
 
         // 4. Sales Executive Dashboard
         if ($user->isSales()) {
-            $myLeads = Lead::where('assigned_to_user_id', $user->id)
-                ->with(['project', 'calls.user'])
-                ->latest()
-                ->get();
+            [$startDate, $endDate] = $this->getPeriodDateRange($request);
+            $query = Lead::where('assigned_to_user_id', $user->id)
+                ->with(['project', 'calls.user']);
+            if ($startDate && $endDate) $query->whereBetween('created_at', [$startDate, $endDate]);
+            
+            $myLeads = $query->latest()->get();
             $myLeadsCount = $myLeads->count();
             $mySiteVisitsCount = $myLeads->where('status', 'site_visit')->count();
             $myConvertedCount = $myLeads->where('status', 'converted')->count();
@@ -182,11 +213,16 @@ class DashboardController extends Controller
 
         // 5. Operations & Sales Manager Dashboard
         $company = $user->company;
-        $totalLeads = Lead::count();
-        $newLeadsCount = Lead::where('status', 'new')->count();
-        $siteVisitsCount = Lead::where('status', 'site_visit')->count();
-        $negotiationCount = Lead::where('status', 'negotiation')->count();
-        $convertedCount = Lead::where('status', 'converted')->count();
+        [$startDate, $endDate] = $this->getPeriodDateRange($request);
+
+        $leadQuery = Lead::query();
+        if ($startDate && $endDate) $leadQuery->whereBetween('created_at', [$startDate, $endDate]);
+        
+        $totalLeads = (clone $leadQuery)->count();
+        $newLeadsCount = (clone $leadQuery)->where('status', 'new')->count();
+        $siteVisitsCount = (clone $leadQuery)->where('status', 'site_visit')->count();
+        $negotiationCount = (clone $leadQuery)->where('status', 'negotiation')->count();
+        $convertedCount = (clone $leadQuery)->where('status', 'converted')->count();
 
         $totalProjects = Project::count();
         $totalUnits = Unit::count();
@@ -592,7 +628,7 @@ class DashboardController extends Controller
         $activeSubscriptions = Company::where('status', 'active')->count();
         $totalPlatformRevenue = 4999.00 + 14999.00;
         $subscriptionPlans = SubscriptionPlan::all();
-        $companies = Company::with('subscriptionPlan')->latest()->get();
+        $companies = Company::with('subscriptionPlan')->withCount('users')->latest()->get();
 
         return view('admin.saas_subscriptions', compact(
             'user', 'totalCompanies', 'activeSubscriptions', 'totalPlatformRevenue', 'subscriptionPlans', 'companies'

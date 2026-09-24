@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Demand Notice â€“ {{ $schedule->milestone_name }}</title>
+    <title>Payment Demand Notice – {{ $schedule->milestone_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
     <div class="max-w-3xl mx-auto space-y-4">
         <!-- Control Actions -->
         <div class="no-print flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-            <a href="{{ route('payments.index') }}" class="text-xs font-bold text-slate-600 hover:text-indigo-600">â† Back to Payments</a>
+            <a href="{{ route('payments.index') }}" class="text-xs font-bold text-slate-600 hover:text-indigo-600">← Back to Payments</a>
             <button onclick="window.print()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
                 <i class="fa-solid fa-print mr-1"></i>Print / Save Demand Letter PDF
             </button>
@@ -66,7 +66,7 @@
             <!-- Subject & Letter Body -->
             <div class="space-y-4 text-xs leading-relaxed text-slate-700">
                 <p class="font-bold text-slate-900 text-sm">
-                    Subject: Demand Notice for Milestone Payment â€“ {{ $schedule->milestone_name }}
+                    Subject: Demand Notice for Milestone Payment – {{ $schedule->milestone_name }}
                 </p>
                 <p>Dear Customer,</p>
                 <p>
@@ -84,25 +84,25 @@
                         <tr>
                             <th class="p-3.5">Milestone Description</th>
                             <th class="p-3.5 text-center">Stage %</th>
-                            <th class="p-3.5 text-right">Amount Due (â‚¹)</th>
+                            <th class="p-3.5 text-right">Amount Due (₹)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         <tr>
                             <td class="p-3.5 font-bold text-slate-900">{{ $schedule->milestone_name }}</td>
                             <td class="p-3.5 text-center font-mono text-slate-600">{{ number_format($schedule->percentage, 2) }}%</td>
-                            <td class="p-3.5 text-right font-extrabold text-slate-900 font-mono">â‚¹{{ number_format($schedule->due_amount, 2) }}</td>
+                            <td class="p-3.5 text-right font-extrabold text-slate-900 font-mono">₹{{ number_format($schedule->due_amount, 2) }}</td>
                         </tr>
                         @if($schedule->paid_amount > 0)
                         <tr class="bg-emerald-50/50 text-emerald-800">
                             <td colspan="2" class="p-3.5 font-bold">Less: Previously Received Token Payment</td>
-                            <td class="p-3.5 text-right font-bold font-mono">- â‚¹{{ number_format($schedule->paid_amount, 2) }}</td>
+                            <td class="p-3.5 text-right font-bold font-mono">- ₹{{ number_format($schedule->paid_amount, 2) }}</td>
                         </tr>
                         @endif
                         <tr class="bg-slate-50 font-bold text-slate-900 border-t-2 border-slate-300">
                             <td colspan="2" class="p-3.5 text-right font-black uppercase text-[11px]">Net Amount Payable:</td>
                             <td class="p-3.5 text-right font-black text-indigo-700 text-sm font-mono">
-                                â‚¹{{ number_format(max(0, $schedule->due_amount - $schedule->paid_amount), 2) }}
+                                ₹{{ number_format(max(0, $schedule->due_amount - $schedule->paid_amount), 2) }}
                             </td>
                         </tr>
                     </tbody>

@@ -1,6 +1,6 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
-@section('title', 'Company Private Digital Drive & File Vault â€“ UrbanProperty Enterprise')
+@section('title', 'Company Private Digital Drive & File Vault – UrbanProperty Enterprise')
 
 @section('content')
 {{--
@@ -34,7 +34,7 @@
         <div>
             <div class="flex items-center space-x-2 text-xs font-semibold text-[#64748B] mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#2563EB]">Home</a>
-                <span>â€º</span>
+                <span>›</span>
                 <span class="text-[#0F172A] font-bold">Document Repository</span>
             </div>
             <h1 class="page-heading text-2xl font-extrabold text-slate-900">Company Digital File Repository</h1>
@@ -157,9 +157,9 @@
             <span class="text-slate-500 font-semibold">Access Level Filter:</span>
             <select x-model="activeConfidentiality" class="bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:border-indigo-500">
                 <option value="all">All Access Levels</option>
-                <option value="Confidential (Admins Only)">ðŸ”’ Confidential (Admins Only)</option>
-                <option value="Internal Team Access">ðŸ‘¥ Internal Team Access</option>
-                <option value="Public / Shareable">ðŸŒ Public / Shareable</option>
+                <option value="Confidential (Admins Only)">🔒 Confidential (Admins Only)</option>
+                <option value="Internal Team Access">👥 Internal Team Access</option>
+                <option value="Public / Shareable">🌐 Public / Shareable</option>
             </select>
         </div>
     </div>
@@ -299,7 +299,7 @@
                     <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-cloud-arrow-up"></i></span>
                     <h3 class="text-base font-extrabold text-slate-900">Upload to Company Private Drive</h3>
                 </div>
-                <button onclick="document.getElementById('uploadCompanyDriveModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer text-lg">âœ•</button>
+                <button onclick="document.getElementById('uploadCompanyDriveModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer text-lg">✕</button>
             </div>
 
             <form action="{{ route('documents.kyc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
@@ -314,21 +314,21 @@
                     <div>
                         <label class="form-label font-bold text-slate-700">Folder / Category *</label>
                         <select name="category" required class="form-input">
-                            <option value="Legal & RERA Documents">ðŸ“œ Legal & RERA Documents</option>
-                            <option value="Company Registration & Tax">ðŸ›ï¸ Company Registration & GST</option>
-                            <option value="Financial & Banking Assets">ðŸ’° Financial & Banking Assets</option>
-                            <option value="Project & Marketing Collaterals">ðŸŽ¨ Project & Marketing Collaterals</option>
-                            <option value="HR & Internal Policies">ðŸ“‹ HR & Internal Policies</option>
-                            <option value="General Drive Vault">ðŸ“ General Drive Vault</option>
+                            <option value="Legal & RERA Documents">📜 Legal & RERA Documents</option>
+                            <option value="Company Registration & Tax">🏛️ Company Registration & GST</option>
+                            <option value="Financial & Banking Assets">💰 Financial & Banking Assets</option>
+                            <option value="Project & Marketing Collaterals">🎨 Project & Marketing Collaterals</option>
+                            <option value="HR & Internal Policies">📋 HR & Internal Policies</option>
+                            <option value="General Drive Vault">📁 General Drive Vault</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-slate-700">Confidentiality Level *</label>
                         <select name="confidentiality" required class="form-input">
-                            <option value="Confidential (Admins Only)">ðŸ”’ Confidential (Admins Only)</option>
-                            <option value="Internal Team Access" selected>ðŸ‘¥ Internal Team Access</option>
-                            <option value="Public / Shareable">ðŸŒ Public / Shareable</option>
+                            <option value="Confidential (Admins Only)">🔒 Confidential (Admins Only)</option>
+                            <option value="Internal Team Access" selected>👥 Internal Team Access</option>
+                            <option value="Public / Shareable">🌐 Public / Shareable</option>
                         </select>
                     </div>
                 </div>
@@ -353,7 +353,7 @@
 
                 <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="document.getElementById('uploadCompanyDriveModal').classList.add('hidden')" class="px-4 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs cursor-pointer">Upload File â†’</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs cursor-pointer">Upload File →</button>
                 </div>
             </form>
         </div>

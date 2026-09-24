@@ -50,6 +50,8 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
     Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
     Route::post('/attendance/clock-out', [AttendanceApiController::class, 'clockOut']);
+    Route::get('/attendance/leaves', [AttendanceApiController::class, 'leaves']);
+    Route::post('/attendance/leaves', [AttendanceApiController::class, 'storeLeaveRequest']);
     Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
     Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
     Route::get('/documents', [DocumentApiController::class, 'index']);
@@ -109,8 +111,13 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::post('/leads', [SalesExecutiveApiController::class, 'storeLead']);
         Route::post('/leads/check-duplicate', [SalesExecutiveApiController::class, 'checkDuplicate']);
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
+        Route::put('/leads/{id}', [SalesExecutiveApiController::class, 'updateLead']);
+        Route::get('/leads/{id}/timeline', [SalesExecutiveApiController::class, 'leadTimeline']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
         Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
+        Route::post('/leads/{id}/transfer', [SalesExecutiveApiController::class, 'transferLead']);
+        Route::post('/leads/{id}/negotiate', [SalesExecutiveApiController::class, 'startNegotiation']);
+        Route::post('/leads/{id}/lost', [SalesExecutiveApiController::class, 'dropLead']);
         Route::post('/leads/{id}/notes', [SalesExecutiveApiController::class, 'addNote']);
         Route::post('/leads/{id}/calls', [SalesExecutiveApiController::class, 'logCall']);
         Route::get('/leads/{id}/follow-ups', [SalesExecutiveApiController::class, 'followUps']);
@@ -136,10 +143,15 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::post('/team/executives', [ManagerTeamApiController::class, 'store']);
         Route::put('/team/executives/{id}', [ManagerTeamApiController::class, 'update']);
         Route::patch('/team/executives/{id}/status', [ManagerTeamApiController::class, 'updateStatus']);
+        Route::get('/team/leaves', [ManagerTeamApiController::class, 'teamLeaves']);
+        Route::post('/team/leaves/{id}/approve', [ManagerTeamApiController::class, 'approveLeave']);
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
         Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
+        Route::post('/leads/{id}/transfer', [SalesExecutiveApiController::class, 'transferLead']);
+        Route::post('/leads/{id}/negotiate', [SalesExecutiveApiController::class, 'startNegotiation']);
+        Route::post('/leads/{id}/lost', [SalesExecutiveApiController::class, 'dropLead']);
         Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
         Route::post('/site-visits/{id}/status', [SalesExecutiveApiController::class, 'updateSiteVisitStatus']);
         Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#F8FAFC]">
 
 <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'UrbanProperty â€“ Real Estate Operating System SaaS')</title>
+    <title>@yield('title', 'UrbanProperty – Real Estate Operating System SaaS')</title>
 
     <!-- Google Fonts Plus Jakarta Sans, Manrope & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,20 +107,20 @@
         window.ReosLogger = {
             prefix: '[UrbanProperty CRM]',
             info: function (msg, data = '') {
-                console.log(`%c${this.prefix} [INFO] â„¹ï¸ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
+                console.log(`%c${this.prefix} [INFO] ℹ️ ${msg}`, 'color: #0284C7; font-weight: 700; background: #E0F2FE; padding: 2px 6px; border-radius: 4px;', data);
             },
             success: function (msg, data = '') {
-                console.log(`%c${this.prefix} [SUCCESS] âœ… ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
+                console.log(`%c${this.prefix} [SUCCESS] ✅ ${msg}`, 'color: #059669; font-weight: 700; background: #D1FAE5; padding: 2px 6px; border-radius: 4px;', data);
             },
             warn: function (msg, data = '') {
-                console.warn(`%c${this.prefix} [WARN] âš ï¸ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
+                console.warn(`%c${this.prefix} [WARN] ⚠️ ${msg}`, 'color: #D97706; font-weight: 700; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;', data);
             },
             error: function (msg, err = '') {
-                console.error(`%c${this.prefix} [ERROR] âŒ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
+                console.error(`%c${this.prefix} [ERROR] ❌ ${msg}`, 'color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 2px 6px; border-radius: 4px;', err);
             },
             ajax: function (method, url, status, duration, data = '') {
                 const color = status >= 200 && status < 300 ? '#059669' : '#DC2626';
-                console.log(`%c${this.prefix} [AJAX] ðŸŒ ${method} ${url} â†’ ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
+                console.log(`%c${this.prefix} [AJAX] 🌐 ${method} ${url} → ${status} (${duration}ms)`, `color: ${color}; font-weight: 600;`, data);
             }
         };
 
@@ -162,7 +162,7 @@
             const form = event.target;
             const formId = form.id ? `#${form.id}` : (form.name ? `[name="${form.name}"]` : 'form');
             const action = form.action || window.location.href;
-            window.ReosLogger.info(`Form Submitted: ${formId} â†’ ${action}`);
+            window.ReosLogger.info(`Form Submitted: ${formId} → ${action}`);
         }, true);
     </script>
 
@@ -390,7 +390,7 @@
                 $isPlatformOnlyHeaderUser = auth()->user()->isSaaSFounder() || auth()->user()->isSaaSSubAdmin();
             @endphp
 
-            <!-- + Quick Add â–¾ Button (Royal Blue with Chevron) -->
+            <!-- + Quick Add ▾ Button (Royal Blue with Chevron) -->
             @if(!$isPlatformOnlyHeaderUser)
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.outside="open = false"
@@ -538,7 +538,7 @@
                     </div>
                 @endif
 
-                <!-- SECTION 3: OPERATIONS (Internal Staff Only â€” not Broker, not SaaS-only admins) -->
+                <!-- SECTION 3: OPERATIONS (Internal Staff Only — not Broker, not SaaS-only admins) -->
                 @if(!$isBroker && !$isSaasPlatformOnly && !($isSaasAdmin && !$isAdmin && !$isDirector && !$isManager && !$isSales))
                     <div class="space-y-1">
                         <div x-show="!sidebarCollapsed"
@@ -574,13 +574,46 @@
                         @endif
 
                         <!-- HRMS (All Internal Staff) -->
-                        @if(Route::has('hrms.index') && !$isBroker)
-                            <a href="{{ route('hrms.index') }}" :title="sidebarCollapsed ? 'HRMS' : ''"
-                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                <i
-                                    class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                                <span x-show="!sidebarCollapsed" class="truncate">HRMS</span>
-                            </a>
+                        @if(Route::has('hrms.dashboard') && !$isBroker)
+                            <div x-data="{ hrmsOpen: {{ request()->routeIs('hrms.*') ? 'true' : 'false' }} }">
+                                <button @click="hrmsOpen = !hrmsOpen" :title="sidebarCollapsed ? 'HRMS' : ''"
+                                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('hrms.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa-solid fa-user-clock text-sm w-4 text-center {{ request()->routeIs('hrms.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                        <span x-show="!sidebarCollapsed" class="truncate">HRMS</span>
+                                    </div>
+                                    <i x-show="!sidebarCollapsed" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200" :class="hrmsOpen ? 'rotate-180' : ''"></i>
+                                </button>
+                                
+                                <div x-show="hrmsOpen && !sidebarCollapsed" x-collapse class="pl-9 pr-3 mt-1 space-y-1">
+                                    {{-- Dashboard: All internal staff --}}
+                                    <a href="{{ route('hrms.dashboard') }}" class="block px-2 py-2 rounded-lg text-xs font-semibold transition {{ request()->routeIs('hrms.dashboard') ? 'bg-[#1E294A] text-white' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                        Dashboard
+                                    </a>
+
+                                    {{-- Staff Directory: Only Founders, Admins, Directors, Managers --}}
+                                    @if($u->isSaaSFounder() || $u->isCompanyFounder() || $u->isCompanyAdmin() || $u->isDirector() || $u->isManager())
+                                    <a href="{{ route('hrms.staff') }}" class="block px-2 py-2 rounded-lg text-xs font-semibold transition {{ request()->routeIs('hrms.staff') ? 'bg-[#1E294A] text-white' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                        Staff Directory
+                                    </a>
+                                    @endif
+
+                                    {{-- Attendance: All internal staff (executive sees own, manager sees team) --}}
+                                    <a href="{{ route('hrms.attendance') }}" class="block px-2 py-2 rounded-lg text-xs font-semibold transition {{ request()->routeIs('hrms.attendance') ? 'bg-[#1E294A] text-white' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                        Attendance
+                                    </a>
+
+                                    {{-- Leave Management: All internal staff (executive sees own requests) --}}
+                                    <a href="{{ route('hrms.leaves') }}" class="block px-2 py-2 rounded-lg text-xs font-semibold transition {{ request()->routeIs('hrms.leaves') ? 'bg-[#1E294A] text-white' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                        Leave Management
+                                    </a>
+
+                                    {{-- Payroll & Salary: Founders/Admins (generate slips) + All others (view own slip) --}}
+                                    <a href="{{ route('hrms.payroll') }}" class="block px-2 py-2 rounded-lg text-xs font-semibold transition {{ request()->routeIs('hrms.payroll') ? 'bg-[#1E294A] text-white' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                        Payroll & Salary
+                                    </a>
+                                </div>
+                            </div>
                         @endif
 
                         <!-- Support Desk (All internal staff) -->
@@ -594,13 +627,14 @@
                         @endif
 
                         <!-- Team Chat (All internal staff) -->
-                        <!-- @if(Route::has('chat.index'))
-                                <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''"
-                                   class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                    <i class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                                    <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
-                                </a>
-                                @endif -->
+                        @if(Route::has('chat.index'))
+                            <a href="{{ route('chat.index') }}" :title="sidebarCollapsed ? 'Team Chat' : ''"
+                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('chat.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                <i
+                                    class="fa-solid fa-comments text-sm w-4 text-center {{ request()->routeIs('chat.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                <span x-show="!sidebarCollapsed" class="truncate">Team Chat</span>
+                            </a>
+                        @endif
                     </div>
                 @endif
 
@@ -681,12 +715,16 @@
                                     class="fa-solid fa-gear text-sm w-4 text-center {{ request()->routeIs('company-settings.*', 'profile.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
                                 <span x-show="!sidebarCollapsed" class="truncate">Settings</span>
                             </a>
-                            <!-- <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''"
-                                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
-                                                <i
-                                                    class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
-                                                <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
-                                            </a> -->
+                        @endif
+
+                        <!-- Lead Sources -->
+                        @if($isCompanyFounder || $isDirector || $isAdmin || $u->hasPermission('company-settings'))
+                            <a href="{{ route('lead-sources.index') }}" :title="sidebarCollapsed ? 'Lead Sources' : ''"
+                                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-xs font-semibold {{ request()->routeIs('lead-sources.*') ? 'bg-[#253154] text-white font-bold shadow-xs' : 'text-[#94A3B8] hover:bg-[#1E294A] hover:text-white' }}">
+                                <i
+                                    class="fa-solid fa-plug text-sm w-4 text-center {{ request()->routeIs('lead-sources.*') ? 'text-white' : 'text-[#94A3B8]' }}"></i>
+                                <span x-show="!sidebarCollapsed" class="truncate">Lead Sources</span>
+                            </a>
                         @endif
 
                         <!-- Lead Distribution -->
@@ -847,7 +885,7 @@
                         : strtoupper(substr(auth()->user()->name, 0, 2));
                 @endphp
 
-                {{-- Clickable Profile Card â†’ goes to Profile Edit page --}}
+                {{-- Clickable Profile Card → goes to Profile Edit page --}}
                 <a href="{{ route('profile.edit') }}" title="Edit My Profile"
                     class="group flex items-center space-x-3 px-2 py-2 rounded-lg hover:bg-[#1E294A] transition cursor-pointer">
                     <div class="relative shrink-0">
@@ -903,7 +941,7 @@
                         <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
                         <span>{{ session('success') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-emerald-800 font-bold">âœ•</button>
+                    <button onclick="this.parentElement.remove()" class="text-emerald-800 font-bold">✕</button>
                 </div>
             @endif
 
@@ -914,7 +952,7 @@
                         <i class="fa-solid fa-triangle-exclamation text-[#DC2626] text-sm"></i>
                         <span>{{ session('error') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-rose-800 font-bold">âœ•</button>
+                    <button onclick="this.parentElement.remove()" class="text-rose-800 font-bold">✕</button>
                 </div>
             @endif
 
@@ -925,7 +963,7 @@
                         <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
                         <span>{{ session('warning') }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-amber-800 font-bold">âœ•</button>
+                    <button onclick="this.parentElement.remove()" class="text-amber-800 font-bold">✕</button>
                 </div>
             @endif
 
@@ -938,7 +976,7 @@
                             <span>Please resolve the following validation errors:</span>
                         </div>
                         <button onclick="this.closest('.mb-6').remove()"
-                            class="text-rose-400 hover:text-rose-700 font-bold">âœ•</button>
+                            class="text-rose-400 hover:text-rose-700 font-bold">✕</button>
                     </div>
                     <ul class="list-disc list-inside space-y-1 text-slate-700 pl-1">
                         @foreach ($errors->all() as $error)
@@ -1026,7 +1064,7 @@
                             <h4 class="text-xs font-bold truncate">${title}</h4>
                             <p class="text-[11px] text-slate-300 truncate">${body}</p>
                         </div>
-                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold ml-2">âœ•</button>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold ml-2">✕</button>
                     `;
                     document.body.appendChild(toast);
                     setTimeout(() => { if (toast) toast.remove(); }, 6000);

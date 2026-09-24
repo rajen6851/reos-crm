@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Manager Command Center')
 
@@ -18,11 +18,12 @@
 
         <div class="flex flex-wrap items-center gap-3">
             <!-- Segmented Period Selector -->
+            @php $currentPeriod = request('period', 'all'); @endphp
             <div class="inline-flex items-center bg-[#E2E8F0]/70 p-1 rounded-lg text-xs font-semibold text-slate-600">
-                <button class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs font-bold transition">Today</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Week</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">This Month</button>
-                <button class="px-3 py-1.5 rounded-md hover:text-slate-900 transition">Custom</button>
+                <a href="{{ route('dashboard', ['period' => 'today']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'today' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">Today</a>
+                <a href="{{ route('dashboard', ['period' => 'this_week']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'this_week' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">This Week</a>
+                <a href="{{ route('dashboard', ['period' => 'this_month']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'this_month' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">This Month</a>
+                <a href="{{ route('dashboard', ['period' => 'all']) }}" class="px-3 py-1.5 rounded-md transition {{ $currentPeriod === 'all' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'hover:text-slate-900' }}">All Time</a>
             </div>
 
             <!-- Action Buttons -->
@@ -117,7 +118,7 @@
                 <div class="space-y-1.5">
                     <div class="flex justify-between items-center">
                         <span class="font-mono font-bold text-indigo-700 text-xs">{{ $bk->booking_code }}</span>
-                        <span class="font-mono font-bold text-emerald-700">â‚¹{{ number_format($bk->booking_amount) }} Token</span>
+                        <span class="font-mono font-bold text-emerald-700">₹{{ number_format($bk->booking_amount) }} Token</span>
                     </div>
                     <div class="font-bold text-slate-900 text-sm">{{ $bk->customer_name }}</div>
                     <div class="text-xs text-slate-500">Unit {{ $bk->unit->unit_number ?? 'N/A' }} in {{ $bk->project->name ?? 'Project' }}</div>

@@ -1,4 +1,4 @@
-﻿@extends('layouts.reos')
+@extends('layouts.reos')
 
 @section('title', 'Team & Staff Management - UrbanProperty')
 
@@ -20,11 +20,24 @@
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Add and manage internal Managers, Sales Executives, and Support Staff for {{ auth()->user()->company->name ?? 'Company' }}</p>
             @endif
         </div>
-        <div>
-            <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
-                <i class="fa-solid fa-user-plus text-xs"></i>
-                <span>{{ auth()->user()->isManager() ? 'Add Sales Executive' : 'Add Staff Member' }}</span>
-            </button>
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Plan Limit</div>
+                <div class="text-sm font-black {{ $currentUsers >= $planMaxUsers ? 'text-rose-600' : 'text-emerald-600' }}">
+                    {{ $currentUsers }} / {{ $planMaxUsers }} Users
+                </div>
+            </div>
+            @if($canAddMoreUsers)
+                <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="px-4 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>{{ auth()->user()->isManager() ? 'Add Sales Executive' : 'Add Staff Member' }}</span>
+                </button>
+            @else
+                <button type="button" disabled class="px-4 py-2.5 bg-slate-300 text-slate-500 text-xs font-bold rounded-lg shadow-xs flex items-center space-x-2 cursor-not-allowed" title="SaaS Plan Limit Reached. Please upgrade your plan.">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span>Limit Reached</span>
+                </button>
+            @endif
         </div>
     </div>
 
@@ -59,11 +72,11 @@
                         </div>
                         <div class="text-[11px] text-[#64748B] mt-0.5">
                             Requested by: <strong class="text-slate-800">{{ $approval->requestedBy->name ?? 'Admin User' }}</strong>
-                            â€¢ <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
+                            • <span class="font-mono">{{ $approval->created_at->diffForHumans() }}</span>
                         </div>
                         @if($approval->reason)
                             <div class="text-[11px] text-amber-900 bg-amber-50 rounded-lg p-2 mt-2 border border-amber-200">
-                                ðŸ’¬ <em>"{{ $approval->reason }}"</em>
+                                💬 <em>"{{ $approval->reason }}"</em>
                             </div>
                         @endif
                     </div>
@@ -243,7 +256,7 @@
                                     };
                                 @endphp
                                 <div class="font-bold text-[#0F172A]">{{ $u->branch ?? 'Head Office' }}</div>
-                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? $defaultDept }} â€¢ {{ $u->designation ?? $defaultDesig }}</div>
+                                <div class="text-[11px] text-[#64748B]">{{ $u->department ?? $defaultDept }} • {{ $u->designation ?? $defaultDesig }}</div>
                             </td>
                             <td class="p-4 text-xs font-mono">
                                 <div class="text-[#0F172A] font-bold">{{ $u->email }}</div>
@@ -267,13 +280,28 @@
                                 {{ $u->created_at->format('d M Y') }}
                             </td>
                             <td class="p-4 text-right">
+                                @php
+                                    $currentUser = auth()->user();
+                                    $canManage = false;
+                                    
+                                    if ($currentUser->isSaaSFounder()) {
+                                        $canManage = true;
+                                    } elseif ($currentUser->isDirectorOrFounder() && !$u->isSaaSFounder()) {
+                                        $canManage = true;
+                                    } elseif ($currentUser->isCompanyAdmin() && !in_array($u->role?->slug, ['admin', 'company_admin', 'director', 'founder']) && !$u->isSaaSFounder()) {
+                                        $canManage = true;
+                                    } elseif ($currentUser->isManager() && in_array($u->role?->slug, ['sales_executive', 'executive']) && $u->reporting_manager_id === $currentUser->id) {
+                                        $canManage = true;
+                                    }
+                                @endphp
+
                                 <div class="flex items-center justify-end space-x-2">
+                                    @if($canManage)
                                     <button onclick="openEditUserModal({{ json_encode($u) }})" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer">
                                         <i class="fa-solid fa-pen-to-square text-amber-700"></i>
                                         <span>Edit Specs</span>
                                     </button>
-
-                                    @if($u->id !== auth()->id())
+                                    @endif                                    @if($canManage && $u->id !== auth()->id())
                                     <form method="POST" action="{{ route('users.destroy', $u->id) }}" onsubmit="return confirm('Are you sure you want to delete staff account {{ $u->name }}?')">
                                         @csrf
                                         @method('DELETE')
@@ -330,7 +358,7 @@
                         <p class="body-text text-xs text-[#64748B]">Create new internal employee account</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('addUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
+                <button onclick="document.getElementById('addUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
             </div>
 
             <!-- Form Body (Scrollable) -->
@@ -410,9 +438,14 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div x-data="{ showPass: false }">
                         <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">Initial Password *</label>
-                        <input type="password" name="password" required value="password123" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                        <div class="relative">
+                            <input :type="showPass ? 'text' : 'password'" name="password" required value="password123" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 pr-10 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                            <button type="button" @click="showPass = !showPass" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-indigo-600 transition">
+                                <i class="fa-solid" :class="showPass ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -442,7 +475,7 @@
                         <p class="body-text text-xs text-[#64748B]">Update employee profile, contact & system role</p>
                     </div>
                 </div>
-                <button onclick="document.getElementById('editUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">âœ•</button>
+                <button onclick="document.getElementById('editUserModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
             </div>
 
             <!-- Drawer Form Body (Scrollable with Section Dividers & Fixed Block Inputs) -->
@@ -523,9 +556,14 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div x-data="{ showPassEdit: false }">
                         <label class="block font-bold text-xs text-[#475569] uppercase tracking-wider mb-1.5">New Password (Optional)</label>
-                        <input type="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                        <div class="relative">
+                            <input :type="showPassEdit ? 'text' : 'password'" name="password" placeholder="••••••••" class="w-full bg-slate-50 border border-[#CBD5E1] rounded-xl px-3.5 py-2.5 pr-10 text-xs text-[#0F172A] font-mono focus:outline-none focus:border-[#4F46E5] focus:bg-white transition">
+                            <button type="button" @click="showPassEdit = !showPassEdit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-indigo-600 transition">
+                                <i class="fa-solid" :class="showPassEdit ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            </button>
+                        </div>
                         <p class="text-[10px] text-[#64748B] mt-1 font-medium">Leave blank to keep current password unchanged.</p>
                     </div>
                 </div>
