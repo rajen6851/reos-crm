@@ -180,15 +180,15 @@
                 });
 
                 marker.addListener("click", () => {
-                    const content = 
+                    const content = `
                         <div class="p-2 min-w-[150px]">
                             <div class="flex items-center space-x-3 border-b border-slate-100 pb-2 mb-2">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">+loc.avatar+</div>
-                                <div class="font-bold text-sm text-slate-900"> + loc.name + </div>
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">${loc.avatar}</div>
+                                <div class="font-bold text-sm text-slate-900">${loc.name}</div>
                             </div>
-                            <div class="text-xs text-emerald-600 font-extrabold flex items-center"><i class="fa-solid fa-clock mr-1.5"></i> + loc.time + </div>
+                            <div class="text-xs text-emerald-600 font-extrabold flex items-center"><i class="fa-solid fa-clock mr-1.5"></i>${loc.time}</div>
                         </div>
-                    ;
+                    `;
                     infoWindow.setContent(content);
                     infoWindow.open(map, marker);
                 });

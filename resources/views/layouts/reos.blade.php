@@ -1015,7 +1015,7 @@
                 // Register Background Service Worker
                 navigator.serviceWorker.register('/firebase-messaging-sw.js')
                     .then((registration) => {
-                        messaging.useServiceWorker(registration);
+                        // messaging.useServiceWorker is not a function in v9, pass it to getToken instead
                         window.ReosLogger.info('Service Worker Registered for FCM', { scope: registration.scope });
 
                         // Request Notification Permission
@@ -1023,7 +1023,7 @@
                             window.ReosLogger.info(`Notification Permission: ${permission}`);
 
                             if (permission === 'granted') {
-                                messaging.getToken().then((currentToken) => {
+                                messaging.getToken({ serviceWorkerRegistration: registration }).then((currentToken) => {
                                     if (currentToken) {
                                         window.ReosLogger.success('FCM Device Token Acquired', currentToken);
                                         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

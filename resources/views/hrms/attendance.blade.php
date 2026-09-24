@@ -62,7 +62,11 @@
                             document.getElementById('clock-in-lon').value = p.coords.longitude;
                             document.getElementById('web-clock-in-form').submit();
                         },
-                        () => { document.getElementById('web-clock-in-form').submit(); },
+                        (error) => { 
+                            alert("Location access is required for attendance. Please enable location services in your browser/device settings and try again.");
+                            btn.innerHTML = '<i class="fa-solid fa-stopwatch"></i> <span>Start Shift (Clock-In)</span>';
+                            btn.disabled = false;
+                        },
                         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                     );
                 });
