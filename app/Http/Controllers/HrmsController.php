@@ -164,7 +164,7 @@ class HrmsController extends Controller
 
                 $location = 'N/A';
                 if ($att) {
-                    $location = str_replace('_', ' ', ucwords($att->work_location ?? 'Office', '_'));
+                    $location = $att->address ?? str_replace('_', ' ', ucwords($att->work_location ?? 'Office', '_'));
                     if ($att->latitude && $att->longitude) {
                         $location .= " (Map)";
                     }
