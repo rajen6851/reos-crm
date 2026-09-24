@@ -124,10 +124,39 @@ class AttendanceApiController extends Controller
         abort_if($request->user()->isBroker(), 403, 'Attendance is available for internal staff only.');
         
         $validated = $request->validate([
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'address' => 'nullable|string|max:500',
+            'latitude' => 'nullable|numeric', // legacy
+            'longitude' => 'nullable|numeric', // legacy
+            'address' => 'nullable|string|max:500', // legacy
+            'checkout_latitude' => 'nullable|numeric',
+            'checkout_longitude' => 'nullable|numeric',
+            'checkout_address' => 'nullable|string|max:500',
         ]);
+
+        $checkoutLat = $validated['checkout_latitude'] ?? $validated['latitude'] ?? null;
+        $checkoutLon = $validated['checkout_longitude'] ?? $validated['longitude'] ?? null;
+        $checkoutAddress = $validated['checkout_address'] ?? $validated['address'] ?? null;
+
+        // Reverse Geocoding via Google Maps API for checkout location
+        if (empty($checkoutAddress) && !empty($checkoutLat) && !empty($checkoutLon)) {
+            try {
+                $apiKey = env('GOOGLE_MAPS_API_KEY');
+                if ($apiKey) {
+                    $response = \Illuminate\Support\Facades\Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                        'latlng' => $checkoutLat . ',' . $checkoutLon,
+                        'key' => $apiKey
+                    ]);
+                    
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        if (!empty($data['results'][0]['formatted_address'])) {
+                            $checkoutAddress = $data['results'][0]['formatted_address'];
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Google Geocoding failed on API checkout: ' . $e->getMessage());
+            }
+        }
 
         $attendance = Attendance::where('company_id', $request->user()->company_id)
             ->where('user_id', $request->user()->id)
@@ -136,9 +165,13 @@ class AttendanceApiController extends Controller
             
         $attendance->update([
             'clock_out' => now()->format('H:i:s'),
-            'latitude' => $attendance->latitude ?? $validated['latitude'] ?? null,
-            'longitude' => $attendance->longitude ?? $validated['longitude'] ?? null,
-            'address' => $attendance->address ?? $validated['address'] ?? null,
+            'checkout_latitude' => $checkoutLat,
+            'checkout_longitude' => $checkoutLon,
+            'checkout_address' => $checkoutAddress,
+            // Fallback for legacy clients missing clock-in location
+            'latitude' => $attendance->latitude ?? $checkoutLat,
+            'longitude' => $attendance->longitude ?? $checkoutLon,
+            'address' => $attendance->address ?? $checkoutAddress,
         ]);
 
         return response()->json(['status' => 'success', 'message' => 'Attendance clock-out recorded.', 'data' => $attendance->fresh()]);

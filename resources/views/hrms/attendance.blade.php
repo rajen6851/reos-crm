@@ -72,13 +72,38 @@
                 });
             </script>
             @elseif($myTodayAttendance && !$myTodayAttendance->clock_out)
-            <form action="{{ route('hrms.clock-out') }}" method="POST">
+            <form id="web-clock-out-form" action="{{ route('hrms.clock-out') }}" method="POST">
                 @csrf
-                <button type="submit" class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                <input type="hidden" name="checkout_latitude" id="clock-out-lat">
+                <input type="hidden" name="checkout_longitude" id="clock-out-lon">
+                <button type="button" id="clock-out-btn" class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>End Shift (Clock-Out)</span>
                 </button>
             </form>
+            <script>
+                document.getElementById('clock-out-btn').addEventListener('click', function() {
+                    const btn = this;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Getting Location...</span>';
+                    btn.disabled = true;
+                    if (!navigator.geolocation) {
+                        document.getElementById('web-clock-out-form').submit(); return;
+                    }
+                    navigator.geolocation.getCurrentPosition(
+                        (p) => {
+                            document.getElementById('clock-out-lat').value = p.coords.latitude;
+                            document.getElementById('clock-out-lon').value = p.coords.longitude;
+                            document.getElementById('web-clock-out-form').submit();
+                        },
+                        (error) => { 
+                            alert("Location access is required for checkout. Please enable location services in your browser/device settings and try again.");
+                            btn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>End Shift (Clock-Out)</span>';
+                            btn.disabled = false;
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                });
+            </script>
             @else
             <div class="text-white font-bold font-mono text-sm bg-black/20 p-3 rounded-xl text-center border border-white/10">
                 <i class="fa-solid fa-check-circle mr-2 text-emerald-300"></i> Shift Completed for Today. See you tomorrow!
@@ -225,8 +250,9 @@
                         <th class="px-4 py-4 whitespace-nowrap">Employee Name</th>
                         <th class="px-4 py-4 whitespace-nowrap">Status</th>
                         <th class="px-4 py-4 whitespace-nowrap">Check In</th>
-                        <th class="px-4 py-4 whitespace-nowrap">Location</th>
+                        <th class="px-4 py-4 whitespace-nowrap">Check In Location</th>
                         <th class="px-4 py-4 whitespace-nowrap">Check Out</th>
+                        <th class="px-4 py-4 whitespace-nowrap">Check Out Location</th>
                         <th class="px-4 py-4 whitespace-nowrap">Shift</th>
                         <th class="px-4 py-4 whitespace-nowrap text-center">Worked</th>
                         <th class="px-6 py-4 whitespace-nowrap">Remarks</th>
@@ -262,10 +288,16 @@
                         <td class="px-4 py-4 border-r border-slate-100 font-medium text-slate-700">
                             {{ $emp->location }}
                             @if($emp->lat && $emp->lon)
-                            <a href="https://maps.google.com/?q={{ $emp->lat }},{{ $emp->lon }}" target="_blank" class="text-blue-500 hover:underline ml-1"><i class="fa-solid fa-map-location-dot"></i></a>
+                            <button type="button" onclick="openMapModal({{ $emp->lat }}, {{ $emp->lon }}, '{{ addslashes($emp->name) }} Check In')" class="text-blue-500 hover:underline ml-1"><i class="fa-solid fa-map-location-dot"></i></button>
                             @endif
                         </td>
                         <td class="px-4 py-4 border-r border-slate-100 font-medium text-slate-700">{{ $emp->check_out }}</td>
+                        <td class="px-4 py-4 border-r border-slate-100 font-medium text-slate-700">
+                            {{ $emp->checkout_location }}
+                            @if($emp->checkout_lat && $emp->checkout_lon)
+                            <button type="button" onclick="openMapModal({{ $emp->checkout_lat }}, {{ $emp->checkout_lon }}, '{{ addslashes($emp->name) }} Check Out')" class="text-blue-500 hover:underline ml-1"><i class="fa-solid fa-map-location-dot"></i></button>
+                            @endif
+                        </td>
                         <td class="px-4 py-4 border-r border-slate-100">
                             <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded text-[11px] font-semibold inline-block">
                                 {{ $emp->shift }}
@@ -285,4 +317,58 @@
         </div>
     </div>
 </div>
+
+<!-- Map Modal -->
+<div id="location-map-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden flex flex-col">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <h3 class="text-lg font-bold text-slate-800" id="map-modal-title">Location Map</h3>
+            <button onclick="closeMapModal()" class="text-slate-400 hover:text-rose-500 transition">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="w-full h-[400px] bg-slate-200 relative" id="map-modal-canvas">
+            <div class="absolute inset-0 flex items-center justify-center text-slate-500">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Map...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let mapModalInstance = null;
+    let mapModalMarker = null;
+
+    function openMapModal(lat, lon, title) {
+        document.getElementById('location-map-modal').classList.remove('hidden');
+        document.getElementById('map-modal-title').innerText = title;
+        
+        const position = { lat: parseFloat(lat), lng: parseFloat(lon) };
+
+        if (!mapModalInstance) {
+            const mapOptions = {
+                zoom: 15,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            };
+            mapModalInstance = new google.maps.Map(document.getElementById("map-modal-canvas"), mapOptions);
+            mapModalMarker = new google.maps.Marker({
+                position: position,
+                map: mapModalInstance,
+                title: title,
+                animation: google.maps.Animation.DROP
+            });
+        } else {
+            mapModalInstance.setCenter(position);
+            mapModalMarker.setPosition(position);
+            mapModalMarker.setTitle(title);
+        }
+    }
+
+    function closeMapModal() {
+        document.getElementById('location-map-modal').classList.add('hidden');
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}"></script>
+
 @endsection

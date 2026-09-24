@@ -170,6 +170,14 @@ class HrmsController extends Controller
                     }
                 }
 
+                $checkout_location = 'Null';
+                if ($att && $att->clock_out) {
+                    $checkout_location = $att->checkout_address ?? 'Checked Out';
+                    if ($att->checkout_latitude && $att->checkout_longitude) {
+                        $checkout_location .= " (Map)";
+                    }
+                }
+
                 $dailyAttendanceList->push((object)[
                     'id' => $emp->id,
                     'name' => $emp->name,
@@ -180,8 +188,11 @@ class HrmsController extends Controller
                     'shift' => '9 am - 6 pm',
                     'worked' => $worked,
                     'location' => $location,
+                    'checkout_location' => $checkout_location,
                     'lat' => $att->latitude ?? null,
                     'lon' => $att->longitude ?? null,
+                    'checkout_lat' => $att->checkout_latitude ?? null,
+                    'checkout_lon' => $att->checkout_longitude ?? null,
                     'remarks' => $remarks
                 ]);
             }
@@ -338,6 +349,33 @@ class HrmsController extends Controller
         $user = auth()->user();
         $today = date('Y-m-d');
 
+        $validated = $request->validate([
+            'checkout_latitude' => 'nullable|numeric',
+            'checkout_longitude' => 'nullable|numeric',
+        ]);
+
+        $address = null;
+        if (!empty($validated['checkout_latitude']) && !empty($validated['checkout_longitude'])) {
+            try {
+                $apiKey = env('GOOGLE_MAPS_API_KEY');
+                if ($apiKey) {
+                    $response = \Illuminate\Support\Facades\Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                        'latlng' => $validated['checkout_latitude'] . ',' . $validated['checkout_longitude'],
+                        'key' => $apiKey
+                    ]);
+                    
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        if (!empty($data['results'][0]['formatted_address'])) {
+                            $address = $data['results'][0]['formatted_address'];
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Google Geocoding failed on checkout: ' . $e->getMessage());
+            }
+        }
+
         $attendance = Attendance::where('user_id', $user->id)
             ->where('date', $today)
             ->first();
@@ -345,6 +383,9 @@ class HrmsController extends Controller
         if ($attendance) {
             $attendance->update([
                 'clock_out' => date('H:i:s'),
+                'checkout_latitude' => $validated['checkout_latitude'] ?? null,
+                'checkout_longitude' => $validated['checkout_longitude'] ?? null,
+                'checkout_address' => $address,
             ]);
         }
 

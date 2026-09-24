@@ -23,6 +23,9 @@ class Attendance extends Model
         'latitude',
         'longitude',
         'address',
+        'checkout_latitude',
+        'checkout_longitude',
+        'checkout_address',
     ];
 
     public function company(): BelongsTo
