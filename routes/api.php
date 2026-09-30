@@ -48,12 +48,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
 
 
 
-    // Support Ticket System API
-    Route::get('/support/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
-    Route::post('/support/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'store']);
-    Route::get('/support/tickets/{id}', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'show']);
-    Route::post('/support/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
-    Route::patch('/support/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
+
 
     // Team chat APIs shared with the web chat authorization flow
     Route::get('/chat/conversations', [ChatController::class, 'fetchConversations']);
@@ -65,6 +60,15 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     // Sales Executive Mobile App APIs (/api/sales/*)
     Route::prefix('executive')->middleware('mobile.sales')->group(function () {
         Route::post('/google-calendar/connect', [\App\Http\Controllers\Api\GoogleCalendarApiController::class, 'store']);
+
+        // Support Tickets
+        Route::prefix('support')->group(function () {
+            Route::get('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
+            Route::post('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'store']);
+            Route::get('/tickets/{id}', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'show']);
+            Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
+            Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
+        });
 
         Route::get('/attendance', [AttendanceApiController::class, 'index']);
         Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
@@ -110,6 +114,15 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::post('/attendance/leaves', [AttendanceApiController::class, 'storeLeaveRequest']);
 
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
+
+        // Support Tickets
+        Route::prefix('support')->group(function () {
+            Route::get('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
+            Route::post('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'store']);
+            Route::get('/tickets/{id}', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'show']);
+            Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
+            Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
+        });
         Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
         Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
         Route::get('/team', [ManagerTeamApiController::class, 'index']);
@@ -137,6 +150,15 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     // Broker Subsystem APIs (/api/broker/*)
     Route::prefix('broker')->group(function () {
         Route::get('/dashboard', [BrokerApiController::class, 'dashboard']);
+
+        // Support Tickets
+        Route::prefix('support')->group(function () {
+            Route::get('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
+            Route::post('/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'store']);
+            Route::get('/tickets/{id}', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'show']);
+            Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
+            Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
+        });
         Route::get('/profile', [BrokerApiController::class, 'profile']);
         Route::post('/bank-details', [BrokerApiController::class, 'updateBankDetails']);
         Route::post('/payout-request', [BrokerApiController::class, 'requestPayout']);

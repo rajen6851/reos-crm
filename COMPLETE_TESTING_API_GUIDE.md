@@ -89,8 +89,9 @@ This document is a comprehensive, exhaustive guide to testing every single API e
 - **Body:**
 ```json
 {
+  "category": "Technical",
   "subject": "App crashing on login",
-  "message": "When I click login, the app closes.",
+  "description": "When I click login, the app closes.",
   "priority": "high"
 }
 ```
