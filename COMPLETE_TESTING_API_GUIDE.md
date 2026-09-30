@@ -159,7 +159,7 @@ This document is a comprehensive, exhaustive guide to testing every single API e
 ```json
 {
   "name": "Sales Team Group",
-  "user_ids": [2, 3, 5]
+  "participant_ids": [2, 3, 5]
 }
 ```
 
@@ -348,6 +348,7 @@ This document is a comprehensive, exhaustive guide to testing every single API e
   "email": "vikas@company.com",
   "phone": "9998887776",
   "password": "password123",
+  "password_confirmation": "password123",
   "role": "sales_executive"
 }
 ```

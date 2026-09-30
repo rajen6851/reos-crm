@@ -138,7 +138,7 @@ class ManagerTeamApiController extends Controller
     public function teamLeaves(Request $request)
     {
         $manager = $request->user();
-        $teamIds = $this->teamExecutiveIds($manager);
+        $teamIds = $this->teamQuery($manager)->pluck('id');
 
         $leaves = \App\Models\LeaveRequest::where('company_id', $manager->company_id)
             ->whereIn('user_id', $teamIds)
@@ -155,7 +155,7 @@ class ManagerTeamApiController extends Controller
     public function approveLeave(Request $request, int $id)
     {
         $manager = $request->user();
-        $teamIds = $this->teamExecutiveIds($manager);
+        $teamIds = $this->teamQuery($manager)->pluck('id');
 
         $leave = \App\Models\LeaveRequest::where('company_id', $manager->company_id)
             ->where('id', $id)
