@@ -1,18 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\BookingApiController;
+
 use App\Http\Controllers\Api\BrokerApiController;
-use App\Http\Controllers\Api\LeadApiController;
+
 use App\Http\Controllers\Api\SalesExecutiveApiController;
-use App\Http\Controllers\Api\SiteVisitApiController;
-use App\Http\Controllers\Api\SubscriptionApiController;
 use App\Http\Controllers\Api\LeadSourceWebhookController;
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\ManagerTeamApiController;
 use App\Http\Controllers\Api\AttendanceApiController;
 use App\Http\Controllers\Api\FollowUpApiController;
-use App\Http\Controllers\Api\DocumentApiController;
 use App\Http\Controllers\Api\ReportApiController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
@@ -36,57 +33,20 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Company Subscription APIs (/api/subscription/*)
-    Route::prefix('subscription')->group(function () {
-        Route::get('/plans', [SubscriptionApiController::class, 'plans']);
-        Route::get('/status', [SubscriptionApiController::class, 'status']);
-        Route::post('/subscribe', [SubscriptionApiController::class, 'subscribe']);
-        Route::post('/renew', [SubscriptionApiController::class, 'renew']);
-    });
+
 
     // FCM Push Notification Token APIs
     Route::post('/fcm-token', [AuthController::class, 'updateFcmToken']);
     Route::delete('/fcm-token', [AuthController::class, 'removeFcmToken']);
-    Route::get('/attendance', [AttendanceApiController::class, 'index']);
-    Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
-    Route::post('/attendance/clock-out', [AttendanceApiController::class, 'clockOut']);
-    Route::get('/attendance/leaves', [AttendanceApiController::class, 'leaves']);
-    Route::post('/attendance/leaves', [AttendanceApiController::class, 'storeLeaveRequest']);
-    Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
-    Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
-    Route::get('/documents', [DocumentApiController::class, 'index']);
-    Route::post('/documents', [DocumentApiController::class, 'store']);
-    Route::delete('/documents/{id}', [DocumentApiController::class, 'destroy']);
+
+
     Route::get('/reports/summary', [ReportApiController::class, 'summary']);
 
     // Database-backed notifications shared with the web notification feed
     Route::get('/notifications', [NotificationApiController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markAsRead']);
 
-    // AI Assistant APIs (/api/ai/*)
-    Route::prefix('ai')->group(function () {
-        Route::get('/lead-score/{id}', [\App\Http\Controllers\Api\AiAssistantApiController::class, 'leadScore']);
-        Route::get('/recommendations/{id}', [\App\Http\Controllers\Api\AiAssistantApiController::class, 'recommendations']);
-        Route::post('/summarize-call', [\App\Http\Controllers\Api\AiAssistantApiController::class, 'summarizeCall']);
-        Route::get('/sales-coaching/{id}', [\App\Http\Controllers\Api\AiAssistantApiController::class, 'salesCoaching']);
-        Route::get('/predictive-analytics', [\App\Http\Controllers\Api\AiAssistantApiController::class, 'predictiveAnalytics']);
-    });
 
-    // General Leads API (CRM Admin / Manager)
-    Route::get('/leads', [LeadApiController::class, 'index']);
-    Route::post('/leads', [LeadApiController::class, 'store']);
-    Route::post('/leads/{lead}/status', [LeadApiController::class, 'updateStatus']);
-    Route::post('/leads/{lead}/assign', [LeadApiController::class, 'assign']);
-
-    // General Site Visits API
-    Route::get('/site-visits', [SiteVisitApiController::class, 'index']);
-    Route::post('/site-visits', [SiteVisitApiController::class, 'store']);
-
-    // General Bookings API
-    Route::get('/bookings', [BookingApiController::class, 'index']);
-    Route::post('/bookings', [BookingApiController::class, 'store']);
-    Route::post('/bookings/{booking}/approve', [BookingApiController::class, 'approve']);
-    Route::post('/bookings/{booking}/reject', [BookingApiController::class, 'reject']);
 
     // Support Ticket System API
     Route::get('/support/tickets', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'index']);
@@ -103,10 +63,18 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     Route::post('/chat/group', [ChatController::class, 'createGroupChat']);
 
     // Sales Executive Mobile App APIs (/api/sales/*)
-    Route::prefix('sales')->middleware('mobile.sales')->group(function () {
+    Route::prefix('executive')->middleware('mobile.sales')->group(function () {
         Route::post('/google-calendar/connect', [\App\Http\Controllers\Api\GoogleCalendarApiController::class, 'store']);
-        
+
+        Route::get('/attendance', [AttendanceApiController::class, 'index']);
+        Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
+        Route::post('/attendance/clock-out', [AttendanceApiController::class, 'clockOut']);
+        Route::get('/attendance/leaves', [AttendanceApiController::class, 'leaves']);
+        Route::post('/attendance/leaves', [AttendanceApiController::class, 'storeLeaveRequest']);
+
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
+        Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
+        Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
         Route::get('/leads', [SalesExecutiveApiController::class, 'leads']);
         Route::post('/leads', [SalesExecutiveApiController::class, 'storeLead']);
         Route::post('/leads/check-duplicate', [SalesExecutiveApiController::class, 'checkDuplicate']);
@@ -115,9 +83,6 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::get('/leads/{id}/timeline', [SalesExecutiveApiController::class, 'leadTimeline']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
         Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
-        Route::post('/leads/{id}/transfer', [SalesExecutiveApiController::class, 'transferLead']);
-        Route::post('/leads/{id}/negotiate', [SalesExecutiveApiController::class, 'startNegotiation']);
-        Route::post('/leads/{id}/lost', [SalesExecutiveApiController::class, 'dropLead']);
         Route::post('/leads/{id}/notes', [SalesExecutiveApiController::class, 'addNote']);
         Route::post('/leads/{id}/calls', [SalesExecutiveApiController::class, 'logCall']);
         Route::get('/leads/{id}/follow-ups', [SalesExecutiveApiController::class, 'followUps']);
@@ -138,7 +103,15 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
     // These use the same controller, but expose an explicit manager namespace
     // for React Native clients and return team-scoped data for manager users.
     Route::prefix('manager')->middleware('mobile.manager')->group(function () {
+        Route::get('/attendance', [AttendanceApiController::class, 'index']);
+        Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
+        Route::post('/attendance/clock-out', [AttendanceApiController::class, 'clockOut']);
+        Route::get('/attendance/leaves', [AttendanceApiController::class, 'leaves']);
+        Route::post('/attendance/leaves', [AttendanceApiController::class, 'storeLeaveRequest']);
+
         Route::get('/dashboard', [SalesExecutiveApiController::class, 'dashboard']);
+        Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
+        Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
         Route::get('/team', [ManagerTeamApiController::class, 'index']);
         Route::post('/team/executives', [ManagerTeamApiController::class, 'store']);
         Route::put('/team/executives/{id}', [ManagerTeamApiController::class, 'update']);
@@ -149,19 +122,17 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
         Route::get('/leads/{id}', [SalesExecutiveApiController::class, 'showLead']);
         Route::post('/leads/{id}/status', [SalesExecutiveApiController::class, 'updateLeadStatus']);
         Route::post('/leads/{id}/assign', [SalesExecutiveApiController::class, 'assignLead']);
-        Route::post('/leads/{id}/transfer', [SalesExecutiveApiController::class, 'transferLead']);
-        Route::post('/leads/{id}/negotiate', [SalesExecutiveApiController::class, 'startNegotiation']);
-        Route::post('/leads/{id}/lost', [SalesExecutiveApiController::class, 'dropLead']);
         Route::get('/site-visits', [SalesExecutiveApiController::class, 'siteVisits']);
         Route::post('/site-visits/{id}/status', [SalesExecutiveApiController::class, 'updateSiteVisitStatus']);
         Route::get('/projects', [SalesExecutiveApiController::class, 'projects']);
         Route::get('/projects/{id}/units', [SalesExecutiveApiController::class, 'projectUnits']);
         Route::get('/bookings', [SalesExecutiveApiController::class, 'bookings']);
-        
+
         // Lead Distribution Rule Builder APIs
         Route::apiResource('/distribution-rules', \App\Http\Controllers\Api\DistributionRuleApiController::class)
             ->names('api.manager.distribution-rules');
     });
+
 
     // Broker Subsystem APIs (/api/broker/*)
     Route::prefix('broker')->group(function () {

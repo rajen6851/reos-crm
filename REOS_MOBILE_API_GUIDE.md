@@ -49,31 +49,31 @@ For local development: `http://127.0.0.1:8000/api`
 
 ---
 
-## 2. Sales Executive APIs (`/api/sales/*`)
+## 2. Sales Executive APIs (`/api/executive/*`)
 *These endpoints require a user with `sales_executive` or `executive` role.*
 
 ### **Dashboard Analytics**
-`GET /sales/dashboard`
+`GET /executive/dashboard`
 - **Response**: Returns metrics like `total_leads`, `pending_follow_ups`, `site_visits_today`, `conversions`.
 
 ### **Leads Management**
-- `GET /sales/leads`: Fetch all leads assigned to the executive.
-- `POST /sales/leads`: Create a new lead manually.
-- `GET /sales/leads/{id}`: Get full lead details including timeline and calls.
-- `PUT /sales/leads/{id}`: Update lead basic details (first_name, phone, budget, etc).
-- `GET /sales/leads/{id}/timeline`: View full activity timeline of a specific lead.
-- `POST /sales/leads/{id}/status`: Update lead status (e.g., `new` -> `contacted`).
-- `POST /sales/leads/{id}/transfer`: Manually transfer a lead with reason (`{"new_assignee_id": 1, "transfer_reason": "Out of town"}`).
-- `POST /sales/leads/{id}/negotiate`: Move lead to negotiation (`{"neg_offered_price": 500000, "neg_expected_close_date": "2026-10-01"}`).
-- `POST /sales/leads/{id}/lost`: Drop a lead with a reason (`{"lost_reason": "Budget issue"}`).
+- `GET /executive/leads`: Fetch all leads assigned to the executive.
+- `POST /executive/leads`: Create a new lead manually.
+- `GET /executive/leads/{id}`: Get full lead details including timeline and calls.
+- `PUT /executive/leads/{id}`: Update lead basic details (first_name, phone, budget, etc).
+- `GET /executive/leads/{id}/timeline`: View full activity timeline of a specific lead.
+- `POST /executive/leads/{id}/status`: Update lead status (e.g., `new` -> `contacted`).
+- `POST /executive/leads/{id}/transfer`: Manually transfer a lead with reason (`{"new_assignee_id": 1, "transfer_reason": "Out of town"}`).
+- `POST /executive/leads/{id}/negotiate`: Move lead to negotiation (`{"neg_offered_price": 500000, "neg_expected_close_date": "2026-10-01"}`).
+- `POST /executive/leads/{id}/lost`: Drop a lead with a reason (`{"lost_reason": "Budget issue"}`).
     ```json
     { "status": "contacted" }
     ```
-- `POST /sales/leads/{id}/notes`: Add a note to the lead.
+- `POST /executive/leads/{id}/notes`: Add a note to the lead.
     ```json
     { "note": "Customer is interested in 3BHK." }
     ```
-- `POST /sales/leads/{id}/calls`: Log a phone call.
+- `POST /executive/leads/{id}/calls`: Log a phone call.
     ```json
     {
         "duration_seconds": 120,
@@ -83,8 +83,10 @@ For local development: `http://127.0.0.1:8000/api`
     ```
 
 ### **Follow-Ups & Calendar**
-- `GET /sales/leads/{id}/follow-ups`: Get upcoming follow-ups for a lead.
-- `POST /sales/leads/{id}/follow-ups`: Schedule a new follow-up.
+- `GET /executive/follow-ups`: Get all upcoming follow-ups (general list).
+- `PATCH /executive/follow-ups/{id}/status`: Update follow-up status (`pending`, `completed`, `missed`, `cancelled`).
+- `GET /executive/leads/{id}/follow-ups`: Get upcoming follow-ups for a specific lead.
+- `POST /executive/leads/{id}/follow-ups`: Schedule a new follow-up.
     ```json
     {
         "scheduled_at": "2026-10-01 14:30:00",
@@ -93,9 +95,27 @@ For local development: `http://127.0.0.1:8000/api`
     }
     ```
 
+### **HRMS & Attendance**
+- `GET /executive/attendance`: View attendance summary.
+- `POST /executive/attendance/clock-in`: Clock in for the day (requires location).
+    ```json
+    { "work_location": "office", "latitude": 17.432, "longitude": 78.432, "selfie": "file_binary_data" }
+    ```
+- `POST /executive/attendance/clock-out`: Clock out.
+- `GET /executive/attendance/leaves`: Fetch applied leaves.
+- `POST /executive/attendance/leaves`: Apply for a new leave.
+    ```json
+    {
+        "leave_type": "sick_leave",
+        "start_date": "2026-10-15",
+        "end_date": "2026-10-16",
+        "reason": "Not feeling well"
+    }
+    ```
+
 ### **Site Visits**
-- `GET /sales/site-visits`: List upcoming and past site visits.
-- `POST /sales/site-visits`: Schedule a site visit.
+- `GET /executive/site-visits`: List upcoming and past site visits.
+- `POST /executive/site-visits`: Schedule a site visit.
     ```json
     {
         "lead_id": 5,
@@ -103,12 +123,12 @@ For local development: `http://127.0.0.1:8000/api`
         "scheduled_at": "2026-10-05 10:00:00"
     }
     ```
-- `POST /sales/site-visits/{id}/verify-visit`: Verify physical presence via Geo-location/Selfie.
+- `POST /executive/site-visits/{id}/verify-visit`: Verify physical presence via Geo-location/Selfie.
 
 ### **Inventory & Bookings**
-- `GET /sales/projects`: Get active projects.
-- `GET /sales/projects/{id}/units`: Get unit availability for a project.
-- `POST /sales/bookings`: Initiate a booking token for a unit. Supports `co_applicants` array (e.g. `[{"name": "Wife", "relationship": "Spouse", "phone": "123"}]`).
+- `GET /executive/projects`: Get active projects.
+- `GET /executive/projects/{id}/units`: Get unit availability for a project.
+- `POST /executive/bookings`: Initiate a booking token for a unit. Supports `co_applicants` array (e.g. `[{"name": "Wife", "relationship": "Spouse", "phone": "123"}]`).
 
 ---
 
@@ -140,6 +160,17 @@ For local development: `http://127.0.0.1:8000/api`
         "assigned_to_user_id": 12
     }
     ```
+
+### **Manager HRMS & Attendance**
+- `GET /manager/attendance`: View own attendance summary.
+- `POST /manager/attendance/clock-in`: Clock in for the day.
+- `POST /manager/attendance/clock-out`: Clock out.
+- `GET /manager/attendance/leaves`: Fetch own applied leaves.
+- `POST /manager/attendance/leaves`: Apply for a new leave.
+
+### **Team Follow-Ups**
+- `GET /manager/follow-ups`: View team's upcoming follow-ups.
+- `PATCH /manager/follow-ups/{id}/status`: Update a follow-up status.
 
 ### **Lead Distribution Automation**
 - `GET /manager/distribution-rules`: List auto-assignment rules.
@@ -184,22 +215,7 @@ For local development: `http://127.0.0.1:8000/api`
     { "fcm_token": "fcm_device_token_string_here" }
     ```
 
-### **HRMS & Attendance**
-- `POST /attendance/clock-in`: Clock in for the day (requires location).
-    ```json
-    { "work_location": "office", "latitude": 17.432, "longitude": 78.432, "selfie": "file_binary_data" }
-    ```
-- `POST /attendance/clock-out`: Clock out.
-- `GET /attendance/leaves`: Fetch applied leaves.
-- `POST /attendance/leaves`: Apply for a new leave.
-    ```json
-    {
-        "leave_type": "sick_leave",
-        "start_date": "2026-10-15",
-        "end_date": "2026-10-16",
-        "reason": "Not feeling well"
-    }
-    ```
+
 
 ### **Team Chat (React Native Gifted Chat integration)**
 - `GET /chat/conversations`: List active chat threads.
