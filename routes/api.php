@@ -42,9 +42,7 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
 
     Route::get('/reports/summary', [ReportApiController::class, 'summary']);
 
-    // Database-backed notifications shared with the web notification feed
-    Route::get('/notifications', [NotificationApiController::class, 'index']);
-    Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markAsRead']);
+
 
 
 
@@ -69,6 +67,10 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
             Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
             Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
         });
+
+        // Notifications
+        Route::get('/notifications', [NotificationApiController::class, 'index']);
+        Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markAsRead']);
 
         Route::get('/attendance', [AttendanceApiController::class, 'index']);
         Route::post('/attendance/clock-in', [AttendanceApiController::class, 'clockIn']);
@@ -123,6 +125,10 @@ Route::middleware(['auth:sanctum', 'subscription', 'mobile.role'])->group(functi
             Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'reply']);
             Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\SupportTicketApiController::class, 'updateStatus']);
         });
+
+        // Notifications
+        Route::get('/notifications', [NotificationApiController::class, 'index']);
+        Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markAsRead']);
         Route::get('/follow-ups', [FollowUpApiController::class, 'index']);
         Route::patch('/follow-ups/{id}/status', [FollowUpApiController::class, 'updateStatus']);
         Route::get('/team', [ManagerTeamApiController::class, 'index']);

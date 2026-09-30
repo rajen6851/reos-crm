@@ -73,19 +73,19 @@ This document is a comprehensive, exhaustive guide to testing every single API e
 
 ### 2.2 Get Notifications
 - **Method:** `GET`
-- **Endpoint:** `/api/notifications`
+- **Endpoint:** `/api/{role}/notifications`
 
 ### 2.3 Mark Notification as Read
 - **Method:** `POST`
-- **Endpoint:** `/api/notifications/{id}/read`
+- **Endpoint:** `/api/{role}/notifications/{id}/read`
 
 ### 2.4 List Support Tickets
 - **Method:** `GET`
-- **Endpoint:** `/api/support/tickets`
+- **Endpoint:** `/api/{role}/support/tickets`
 
 ### 2.5 Create Support Ticket
 - **Method:** `POST`
-- **Endpoint:** `/api/support/tickets`
+- **Endpoint:** `/api/{role}/support/tickets`
 - **Body:**
 ```json
 {
@@ -98,11 +98,11 @@ This document is a comprehensive, exhaustive guide to testing every single API e
 
 ### 2.6 View Ticket Details
 - **Method:** `GET`
-- **Endpoint:** `/api/support/tickets/{id}`
+- **Endpoint:** `/api/{role}/support/tickets/{id}`
 
 ### 2.7 Reply to Ticket
 - **Method:** `POST`
-- **Endpoint:** `/api/support/tickets/{id}/reply`
+- **Endpoint:** `/api/{role}/support/tickets/{id}/reply`
 - **Body:**
 ```json
 {
@@ -112,7 +112,7 @@ This document is a comprehensive, exhaustive guide to testing every single API e
 
 ### 2.8 Update Ticket Status
 - **Method:** `PATCH`
-- **Endpoint:** `/api/support/tickets/{id}/status`
+- **Endpoint:** `/api/{role}/support/tickets/{id}/status`
 - **Body:**
 ```json
 {
